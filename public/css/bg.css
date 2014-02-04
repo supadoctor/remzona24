@@ -1,0 +1,22 @@
+.bg-img-squashed-margins {
+    margin-bottom: -25px;
+    margin-top: -25px;
+}
+.bg-img-fixed {
+    background-attachment: fixed;
+    min-height: 400px;
+}
+.bg-img, .bg-img-fixed, .bg-img-parallax {
+    background-position: center center;
+    background-repeat: no-repeat;
+    overflow: hidden;
+    position: relative;
+}
+
+.tm-footer, .tm-footer a {
+    color: #DDDDDD !important;
+}
+.tm-footer {
+    padding: 120px 0;
+    background: none repeat scroll 0 0 #252525;
+}

@@ -1,0 +1,46 @@
+.uk-container.uk-container-center
+  %br
+  .uk-grid
+    .uk-width-2-3
+      .uk-panel.uk-panel-box
+        %h1.uk-panel-title.uk-text-right Информация
+        .uk-grid
+          .uk-width-1-4
+            %i.uk-icon-picture
+            Фотография
+          .uk-width-3-4
+            %p фото glerjgl;jerl;g jergljerlgjle;rwjg erlgjerlgjlerjglerlgj erlgerljglkerjglkrejgkl ergerlkjglkejrlgkjerlkgeklrjg lekrjglkejrlgk jerlkjgklerjgklerjglkjerklgerlkw gerlkjgelkwrjglkewrj;;;;;;;;;;;;;;;;;;;; gewrgjo3rjgtop34go 34ig4i35go45ig4giop4igop45i g45ig45ig oi45gi 45igoi45 og45og4o5g45igop45igoi45goi45ogi45opgi4po5ig 5o ig4po5igop45ig4op5igop4i5g45igoi45gi45pig45pigop45ig45p
+          .uk-width-1-4
+            %i.uk-icon-user
+            ФИО
+          .uk-width-3-4
+            %p #{@user.familyname + " " + @user.name + " " + @user.fathersname}
+          .uk-width-1-4
+            %i.uk-icon-comments
+            Описание деятельности
+          .uk-width-3-4
+            %p #{@user.description}
+          .uk-width-1-4
+            %i.uk-icon-tags
+            Ключевые слова
+          .uk-width-3-4
+            .uk-text-small
+              %p #{@tags}
+          .uk-width-1-4
+            %i.uk-icon-envelope
+            Электронная почта
+          .uk-width-3-4
+            %p #{@user.email}
+          .uk-width-1-4
+            %i.uk-icon-globe
+            Населенный пункт
+          .uk-width-3-4
+            %p= Placement.get(@user.placement_id).location + (Placement.get(@user.placement_id).area.length > 1 ? ", " + Placement.get(@user.placement_id).area : "") + (Placement.get(@user.placement_id).region.length > 1 ? ", " + Placement.get(@user.placement_id).region : "")
+          .uk-width-1-4
+            %i.uk-icon-calendar
+            На сайте с
+          .uk-width-3-4
+            %p= @user.created_at.strftime("%d.%m.%Y")
+    .uk-width-1-3
+      .uk-panel.uk-panel-box
+        %h2 Yandex Direct AD

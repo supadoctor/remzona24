@@ -1,0 +1,82 @@
+.uk-container.uk-container-center
+  .ul-grid
+    .uk-width-2-3.uk-container-center
+      %br
+      %h2.uk-text-center Добро пожаловать на РемЗона24.ру - круглосуточную ремонтную зону для вашего автомобиля!
+      %br
+.bg-img.bg-img-fixed{"data-size"=>".75", "data-background-width"=>"1920", "data-background-height"=>"1080", :style=>"background-image: url('/img/homepage/underhood.jpg'); height: 487.5px;"}
+.uk-container.uk-container-center
+  .ul-grid
+    .uk-width-2-3.uk-container-center
+      %br
+      %h2 Если у вас проблема с машиной, то просто заполните форму ниже и выберите наиболее выгодное предложение от мастеров и сервисных центров
+      %hr
+      %br
+      %form.uk-form.uk-form-horizontal{:action => "/addexpressorder", :method => "post", :enctype=>"multipart/form-data"}
+        .uk-form-row
+          %label.uk-form-label{:for=>"location"}
+            %i.uk-icon-home
+            Населенный пункт
+          .uk-form-controls
+            %input#expressuserlocation.uk-width-1-1{:type=>"text", :required=>""}
+            %input#expressuserlocationtitle{:type=>"text", :name=>"locationtitle", :hidden=>"true"}
+            %input#expressuserarea{:type=>"text", :name=>"area", :hidden=>"true"}
+            %input#expressuserregion{:type=>"text", :name=>"region", :hidden=>"true"}
+        .uk-form-row
+          %label.uk-form-label{:for=>"title"}
+            %i.uk-icon-edit
+            Заголовок заявки
+          .uk-form-controls
+            %input#expresstitle.uk-width-1-1{:type=>"text", :name=>"title", :required=>""}
+        .uk-form-row
+          %label.uk-form-label{:for=>"subject"}
+            %i.uk-icon-wrench
+            Максимально подробное описание
+          .uk-form-controls
+            %textarea#expresssubject.uk-width-1-1{:name=>"subject", :cols=>"100%", :rows=>"4"}
+        .uk-form-row
+          %label.uk-form-label{:for=>"photo"} Прикрепить фотографии                    
+          .uk-form-controls
+            %input#expressphotos{:type=>"file", :name=>"photos[]", :multiple=>""}
+        .uk-form-row
+          %label.uk-form-label{:for=>"email"}
+            %i.uk-icon-envelope-alt
+            Электронная почта для получения уведомлений
+          .uk-form-controls
+            %input#expressemail.uk-width-1-1{:type=>"text", :required=>""}
+        %hr
+        .uk-grid
+          .uk-container-center.uk-text-center
+            %button#expresssubmit.uk-button.uk-button-success{:type=>"submit"}Создать заявку
+
+:javascript
+  $(function() {
+    $('#expressuserlocation').autocomplete({
+      source: function( request, response ) {
+        $.ajax({
+          url: "http://api.vk.com/method/database.getCities?v=5&country_id=1",
+          dataType: "jsonp",
+          data: {
+            q: request.term
+          },
+          success: function( data ) {
+            response( $.map( data.response.items, function( item ) {
+              return {
+                label: item.title + (item.area ? ", " + item.area : "") + (item.region ? ", " + item.region : ""),
+                value: item.title + (item.area ? ", " + item.area : "") + (item.region ? ", " + item.region : ""),
+                title: item.title,
+                area: item.area ? item.area : "",
+                region: item.region ? item.region : ""
+              }
+            }))
+          }
+        });
+      },
+      minLength: 2,
+      select: function (event, ui) {
+        $('#expressuserlocationtitle').val(ui.item.title);
+        $('#expressuserarea').val(ui.item.area);
+        $('#expressuserregion').val(ui.item.region);
+      }
+    });  
+  });

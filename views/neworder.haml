@@ -1,0 +1,129 @@
+.uk-container.uk-container-center
+  %br
+  .uk-grid
+    .uk-width-2-3
+      .uk-panel.uk-panel-box
+        %h1.uk-panel-title.uk-text-right Новая заявка
+        %form.uk-form.uk-form-horizontal{:action => "/addorder", :method => "post", :enctype=>"multipart/form-data"}
+          .uk-form-row
+            %label.uk-form-label{:for=>"title"}
+              %i.uk-icon-edit
+              Заголовок заявки
+            .uk-form-controls
+              %input#title.uk-form-width-large{:type=>"text", :name=>"title"}
+          .uk-form-row
+            %label.uk-form-label{:for=>"subject"}
+              %i.uk-icon-wrench
+              Максимально подробное описание
+            .uk-form-controls
+              %textarea#subject{:name=>"subject", :cols=>"100%", :rows=>"4"}
+          .uk-form-row
+            %label.uk-form-label{:for=>"photo"} Прикрепить фотографии                    
+            .uk-form-controls
+              %input#photos{:type=>"file", :name=>"photos[]", :multiple=>""}
+          .uk-form-row
+            %label.uk-form-label{:for=>"images"}
+              %i.uk-icon-tags
+              Ключевые слова
+            .uk-form-controls
+              %textarea#tags{:name=>"tags", :cols=>"100%", :rows=>"1"}
+          %hr
+          .uk-form-row
+            %label.uk-form-label{:for=>"budgettype"}
+              %i.uk-icon-money
+              Бюджет
+            .uk-form-controls#budgettype
+              %input{:type=>"radio", :name=>"budgettype", :value=>"1", :checked => ""} Не определен
+              %input{:type=>"radio", :name=>"budgettype", :value=>"2"} Определен
+              %input#budget{:type=>"text", :name=>"budget", :style=>"display: none;"}
+          .uk-form-row
+            %label.uk-form-label{:for=>"lifetime"}
+              %i.uk-icon-arrows-h
+              Время жизни заявки
+            .uk-form-controls
+              %select#lifetime{:name=>"lifetime"}
+                %option{:value=>"3"}
+                  Закрыть автоматически через 3 дня
+                %option{:value=>"5"}
+                  Закрыть автоматически через 5 дней
+                %option{:value=>"10"}
+                  Закрыть автоматически через 10 дней
+                %option{:value=>"30"}
+                  Закрыть автоматически через 30 дней
+                %option{:selected=>"", :value=>"-1"}
+                  Не закрывать автоматически
+          %hr
+          .uk-form-row
+            %label.uk-form-label{:for=>"location"}
+              %i.uk-icon-home
+              Населенный пункт
+            .uk-form-controls
+              %input#location.uk-width-1-1{:type=>"text", :name=>"location", :value => Placement.get(@current_user.placement_id).location + (Placement.get(@current_user.placement_id).area.length > 1 ? ", " + Placement.get(@current_user.placement_id).area : "") + (Placement.get(@current_user.placement_id).region.length > 1 ? ", " + Placement.get(@current_user.placement_id).region : ""), :disabled=>""}
+          .uk-form-row
+            %label.uk-form-label{:for=>"email"}
+              %i.uk-icon-envelope-alt
+              Электронная почта для получения уведомлений
+            .uk-form-controls
+              %input#email.uk-width-1-1{:type=>"text", :value => @current_user.email, :disabled=>""}
+          %hr
+          .uk-grid
+            .uk-width-1-2.uk-container-center.uk-text-center
+              %button#submit.uk-button.uk-button-success{:type=>"submit"}Создать заявку
+            .uk-width-1-2.uk-container-center.uk-text-center
+              %a.button.uk-button{:href=>"/", :onClick=>"history.back();return false;"} Отменить
+    .uk-width-1-3
+      .uk-panel.uk-panel-box
+        %h2 Yandex Direct AD
+
+:javascript
+  $(function() {
+    $('#budgettype').click(function(){
+      if ($('input[name="budgettype"]:checked').val() == "2")
+      {
+      //if($(this).value == "1") {
+        $('#budget').css("display", "inline-block");
+      }
+      else
+      {
+        $('#budget').css("display", "none");
+      }
+    });
+
+  //$('#tags')
+  //  .textext({
+  //      plugins : 'autocomplete tags ajax',
+  //      ajax : {
+  //        url : '/ajax/tags.json',
+  //        dataType : 'json',
+  //        cacheResults : true
+  //      }
+  //  });
+    $('#tags').selectize({
+      valueField: 'tag',
+      labelField: 'tag',
+      searchField: 'tag',
+      plugins: ['remove_button'],
+      delimiter: ',',
+      persist: false,
+      create: function(input) {
+        return {
+          tag: input
+        }
+      },
+      render: {
+        option: function(data, escape) {
+          return '<div>"' + escape(data.tag) + '"</div>';
+        }
+      },
+      load: function(query, callback) {
+        if (!query.length) return callback();
+        $.ajax({
+          url : '/ajax/tags.json',
+          dataType : 'json',
+          success: function(res) {
+            callback(res.tags);
+          }
+        });
+      }
+    });
+  });

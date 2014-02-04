@@ -1,0 +1,85 @@
+%nav.tm-navbar.uk-navbar.uk-navbar-attached
+  .uk-container.uk-container-center
+    -if !logged_in?
+      %ul.uk-navbar-nav.uk-visible-large
+        %li
+          %a{:href=>"/login"}Войти в систему
+        %li
+          %a{:href=>"#register", "data-uk-modal" => "{bgclose:false}"}
+            %button.uk-button.uk-button-mini.uk-button-success Регистрация
+    -else
+      %ul.uk-navbar-nav.uk-visible-large
+        %li
+          %a.uk-navbar-nav-subtitle{:href=>"/profile"}
+            %i.uk-icon-user
+            Личный кабинет
+            %div Добро пожаловать #{@current_user.fullname}!
+      %ul.uk-navbar-nav.uk-navbar-flip
+        %li
+          %a{:href=>"/logout"}Выйти из системы
+
+#register.uk-modal
+  .uk-modal-dialog.uk-modal-dialog-slide
+    %a.uk-modal-close.uk-close
+    %h1 Регистрация
+    %ul.uk-tab.uk-tab-grid.data-uk-tab{"data-uk-tab"=>"{connect:'#typesofuser'}"}
+      %li.uk-width-1-3.uk-active
+        %a{:href=>""}Пользователь
+      %li.uk-width-1-3
+        %a{:href=>""}Мастер
+      %li.uk-width-1-3
+        %a{:href=>""}Сервис
+    %ul#typesofuser.uk-switcher.uk-margin
+      %li
+        %form.uk-form{:action => "/reguser"}
+          %fieldset
+            %legend
+              Вы регистрируетесь с целью добавления заказов, ведения переписки с мастерами и сервисными центрами
+            .uk-form-row
+              %input.uk-form-width-large{:type=>"email", :required=>"", :placeholder=>"Адрес электронной почты", :name=>"email"}
+            .uk-form-row
+              %input.uk-form-width-large{:type=>"text", :required=>"", :placeholder=>"Контактное лицо", :name=>"fullname"}
+            .uk-form-row
+              %input#location.uk-form-width-large{:type=>"text", :required=>"", :placeholder=>"Населенный пункт", :name=>"location"}
+            .uk-form-row
+              %label
+                %input#rules{:type=>"checkbox"}
+                Я принимаю правила использования портала РемЗона24.ру
+            %br
+            %button#submit.uk-button.uk-button-primary.uk-align-center{:type=>"submit", :disabled => ""}Регистрация
+      %li
+        %form.uk-form
+          %fieldset
+            %legend
+              Вы являетесь индивидуальным предпринимателем, бригадой или небольшой фирмой и оказываете услуги по ремонту автомобилей, работая напрямую с заказчиком.
+      %li
+        %form.uk-form
+          %fieldset
+            %legend
+              Вы представляете компанию, которая предоставляет услуги в сфере ремонта и обслуживания автомобилей и хотели бы продавать свои услуги через портал РемЗона24.ру
+=yield
+
+:javascript
+  $(function() {
+    $('#location').kladr({
+      token: '528f316a31608f324a00003a',
+      key: '1f6fb06d36f68946f69301544983f8d47ed73473',
+      type: $.kladr.type.city,
+      verify: true,
+      check:  function( obj ){
+        if(obj){
+          $( '#location' ).removeClass("uk-form-danger");
+        } else {
+          $( '#location' ).addClass("uk-form-danger");
+        }
+      }
+    });
+
+    $('#rules').change(function() {
+      if(this.checked){
+        $('#submit').removeAttr("disabled");
+      } else {
+        $('#submit').attr("disabled","");
+      }
+    });
+  });

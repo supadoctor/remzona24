@@ -1,1 +1,108 @@
-%h1 Wellcome to RemZona24.RU
+.uk-container.uk-container-center
+  .ul-grid
+    .uk-panel
+      %ul.uk-breadcrumb
+        -if @activelink == '/'
+          %li.uk-active
+            %span Россия
+        -else
+          %li
+            %a{:href=>"/"} Россия
+        -if session[:siteregion] && session[:siteregion].size > 0
+          -if @activelink == '/region'
+            %li.uk-active
+              %span #{session[:siteregion]}
+          -else
+            %li
+              %a{:href=>"/region/"+session[:siteregion]} #{session[:siteregion]}
+        -if session[:sitearea] && session[:sitearea].size > 0
+          -if @activelink == '/area'
+            %li.uk-active
+              %span #{session[:sitearea]}
+          -else
+            %li
+              %a{:href=>"/area/"+session[:sitearea]} #{session[:sitearea]}
+        -if session[:sitelocation] && session[:sitelocation].size > 0
+          -if @activelink == '/location'
+            %li.uk-active
+              %span #{session[:sitelocation]}
+          -else
+            %li
+              %a{:href=>"/location/"+session[:sitelocation]} #{session[:sitelocation]}
+      -if @orders_at_mainpage && @orders_at_mainpage.size > 0
+        -@orders_at_mainpage.each do |order|
+          .uk-panel.uk-panel-box
+            / .uk-text-small.uk-text-left
+            %h4
+              %a{:href=>"/order/"+order.id.to_s}
+                Заявка № #{order.id}
+              %i.uk-icon-eye
+              #{order.views}
+              %i.uk-icon-comments-o
+              #{Offer.count(:order_id => order.id)}
+            %h3.uk-margin-top-remove #{order.title}
+            .uk-grid
+              .uk-width-1-4
+                %i.uk-icon-map-marker
+                Населенный пункт
+              .uk-width-3-4
+                =Placement.get(order.placement_id).location + (Placement.get(order.placement_id).area.length > 1 ? ", " + Placement.get(order.placement_id).area : "") + (Placement.get(order.placement_id).region.length > 1 ? ", " + Placement.get(order.placement_id).region : "")
+              .uk-width-1-4
+                %i.uk-icon-wrench
+                Описание
+              .uk-width-3-4
+                #{order.subject}
+          %br
+        %ul.uk-pagination
+          -if @start_page > 1
+            %li
+              -if @activelink == '/'
+                %a{:href=>"/?page=1"} 1
+              -if session[:siteregion] && session[:siteregion].size > 0
+                -if @activelink == '/region'
+                  %a{:href=>"/region/"+session[:siteregion]+"?page=1"} 1
+              -if session[:sitearea] && session[:sitearea].size > 0
+                -if @activelink == '/area'
+                  %a{:href=>"/area/"+session[:sitearea]+"?page=1"} 1
+              -if session[:sitelocation] && session[:sitelocation].size > 0
+                -if @activelink == '/location'
+                  %a{:href=>"/location/"+session[:sitelocation]+"?page=1"} 1
+            %li
+              %span ...
+          -@pagination.each do |p|
+            -if p == @current_page
+              %li.uk-active
+                %span
+                  #{p}
+            -else
+              %li
+                -if @activelink == '/'
+                  %a{:href=>"/?page="+p.to_s} #{p}
+                -if session[:siteregion] && session[:siteregion].size > 0
+                  -if @activelink == '/region'
+                    %a{:href=>"/region/"+session[:siteregion]+"?page="+p.to_s} #{p}
+                -if session[:sitearea] && session[:sitearea].size > 0
+                  -if @activelink == '/area'
+                    %a{:href=>"/area/"+session[:sitearea]+"?page="+p.to_s} #{p}
+                -if session[:sitelocation] && session[:sitelocation].size > 0
+                  -if @activelink == '/location'
+                    %a{:href=>"/location/"+session[:sitelocation]+"?page="+p.to_s} #{p}
+          -if @end_page < @total_pages
+            %li
+              %span ...
+            %li
+              -if @activelink == '/'
+                %a{:href=>"/?page="+total_pages.to_s} #{$total_pages}
+              -if session[:siteregion] && session[:siteregion].size > 0
+                -if @activelink == '/region'
+                  %a{:href=>"/region/"+session[:siteregion]+"?page="+total_pages.to_s} #{$total_pages}
+              -if session[:sitearea] && session[:sitearea].size > 0
+                -if @activelink == '/area'
+                  %a{:href=>"/area/"+session[:sitearea]+"?page="+total_pages.to_s} #{$total_pages}
+              -if session[:sitelocation] && session[:sitelocation].size > 0
+                -if @activelink == '/location'
+                  %a{:href=>"/location/"+session[:sitelocation]+"?page="+total_pages.to_s} 1
+      -else
+        .uk-panel.uk-panel-box
+          %h3
+            Нет активных заявок в выбранной территории

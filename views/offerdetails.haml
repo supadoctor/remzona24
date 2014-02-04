@@ -1,0 +1,58 @@
+.uk-container.uk-container-center
+  %br
+  .uk-grid
+    .uk-width-2-3
+      .uk-panel.uk-panel-box
+        %h1.uk-panel-title.uk-text-right Предложение № #{@offer.id}
+        .uk-grid
+          .uk-width-1-4
+            %i.uk-icon-check
+            Статус
+          .uk-width-3-4
+            - if @offer.status == 1
+              %p.uk-text-bold.uk-text-danger Не действительно
+            - else
+              %p.uk-text-bold.uk-text-success Действительно до #{@offer.td.strftime("%d.%m.%Y")}
+          - if User.get(@offer.user_id).type == "Master"
+            .uk-width-1-4
+              %i.uk-icon-user
+              Мастер
+            .uk-width-3-4
+              %a{:href=>"/user/"+@offer.user_id.to_s}
+                =User.get(@offer.user_id).name + " " + User.get(@offer.user_id).familyname
+          - if User.get(@offer.user_id).type == "Service"
+            .uk-width-1-4
+              %i.uk-icon-users
+              Сервис
+            .uk-width-3-4
+              service
+          .uk-width-1-4
+            %i.uk-icon-wrench
+            Описание
+          .uk-width-3-4
+            #{@offer.subject}
+          -if @offer.nodetails == 0
+            .uk-width-1-4
+              %i.uk-icon-money
+              Бюджет
+            .uk-width-3-4
+              -if @offer.budget < 0
+                %p не определен
+              -else
+                #{@offer.budget}
+            .uk-width-1-4
+              %i.uk-icon-calendar
+              Сроки (дней)
+            .uk-width-3-4
+              -if @offer.time < 0
+                %p не определены
+              -else
+                #{@offer.time}
+          -else
+            .uk-width-1-4
+              Цена и сроки
+            .uk-width-3-4
+              не определены
+    .uk-width-1-3
+      .uk-panel.uk-panel-box{:style=>"width:240px;"}
+        %h2 Yandex Direct AD
