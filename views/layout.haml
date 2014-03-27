@@ -1,7 +1,7 @@
 !!!5
 %html
   %head
-    %title RemZona24 : груглосуточная ремзона для Вашего автомобиля
+    %title РемЗона24.ру : груглосуточная ремзона для Вашего автомобиля
     %link{:href=>'http://fonts.googleapis.com/css?family=Open+Sans+Condensed:300|PT+Serif&subset=latin,cyrillic', :rel=>'stylesheet', :type=>'text/css'}
     %link{:rel => "stylesheet", :href => "/css/customuikit.almost-flat.css"}
     %link{:rel => "stylesheet", :href => "/css/notify.almost-flat.min.css"}
@@ -52,23 +52,19 @@
       }
 
   %body
-    .uk-width-large-1-1
-      - if session[:error] && session[:error].size>0
-        /.uk-container.uk-container-center
-        .uk-alert.uk-alert-danger.data-uk-alert{:style=>"border-radius: 0px; padding: 10px; margin: 15px 0px;"}
-          %a.uk-alert-close.uk-close{:href=>"/hidemsg"}
-          %p.uk-text-center
-            =session[:error]
-      -if @messagetodisplay && @messagetodisplay.size>0
-        :javascript
-          displaynotify("#{@messagetodisplay}");
-      =yield
-    .tm-footer.uk-margin-top
-      .uk-container.uk-container-center.uk-text-center
-        %ul.uk-subnav.uk-subnav-line
-          %li
-        .uk-panel
-          %p RemZona24.ru - груглосуточная ремзона для Вашего автомобиля
+    .uk-width-large-1-1{:style=>"min-height:100%; position:relative;"}
+      .content{:style=>"padding: 0px 0px 320px;"}
+        -if session[:messagetodisplay] && session[:messagetodisplay].size>0
+          :javascript
+            displaynotify("#{session[:messagetodisplay]}");
+        - clearflashmessage
+        =yield
+      .tm-footer.uk-margin-top
+        .uk-container.uk-container-center.uk-text-center
+          %ul.uk-subnav.uk-subnav-line
+            %li
+          .uk-panel
+            %p RemZona24.ru - груглосуточная ремзона для Вашего автомобиля
 
 :javascript
 

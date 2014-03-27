@@ -1,0 +1,71 @@
+.uk-container.uk-container-center
+  %br
+  .uk-grid
+    .uk-width-2-3
+      .uk-panel.uk-panel-box
+        %h1.uk-display-inline Обсуждение заявки № #{@order.id}
+        %table.uk-table.uk-table-striped.uk-table-condensed
+          %tbody
+          %tr
+            %td
+              %i.uk-icon-wrench
+            %td
+              %h3.uk-margin-bottom-remove Исходная заявка
+            %td
+              %a{:href=>"/order/#{@order.id}"}
+                Заявка № #{@order.id}
+        -if (@current_user.type == "Master") || (@current_user.type == "User" && @current_user == @order.user)
+          .uk-panel.uk-panel-box
+            %form.uk-form.uk-form-horizontal{:action => "/addquestionto?order=" + @order.id.to_s, :method => "post"}
+              .uk-form-row
+                %label.uk-form-label{:for=>"question"}
+                  %h3 Текст
+                .uk-form-controls
+                  %textarea#subject.uk-width-1-1{:type=>"text", :required=>"", :name=>"question", :rows=>"6"}
+              .uk-container-center.uk-text-center{:style=>"margin-top: 15px;"}
+                -if @current_user.type == "User"
+                  %button#submit.uk-button.uk-button-success{:type=>"submit"}Разместить доп.информацию
+                -else
+                  %button#submit.uk-button.uk-button-success{:type=>"submit"}Разместить вопрос
+                      
+      - if @questions && @questions.size > 0
+        %h1.uk-text-right Вопросы и ответы
+        - @questions.each do |q|
+          - if User.get(q.sender_id).type == "User"
+            .uk-width-9-10.uk-push-1-10
+              .uk-panel.uk-panel-box.uk-margin-bottom
+                %article.uk-comment
+                  %header.uk-comment-header
+                    %img.uk-comment-avatar{:src => User.get(q.sender_id).avatar.avatar64.url}
+                    .uk-comment-meta
+                      Заказчик:
+                      %a{:href=>"/user/"+q.sender_id.to_s}
+                        =User.get(q.sender_id).fullname
+                      %br
+                      Дата:
+                      #{q.date.strftime("%d.%m.%Y, %H:%M:%S")}
+                  .uk-comment-body
+                    #{q.text}
+          - else
+            .uk-width-9-10
+              .uk-panel.uk-panel-box.uk-margin-bottom
+                %article.uk-comment
+                  %header.uk-comment-header
+                    %img.uk-comment-avatar{:src => User.get(q.sender_id).avatar.avatar64.url}
+                    .uk-comment-meta
+                      - if User.get(q.sender_id).type == "Master"
+                        Мастер:
+                        %a{:href=>"/user/"+q.sender_id.to_s}
+                          =User.get(q.sender_id).name + " " + User.get(q.sender_id).familyname
+                      - if User.get(q.sender_id).type == "Service"
+                        Сервис:
+                      %br
+                      Дата:
+                      #{q.date.strftime("%d.%m.%Y, %H:%M:%S")}
+                  .uk-comment-body
+                    #{q.text}
+      - else
+        %h1.uk-text-left Нет доп.информации по заявке
+    .uk-width-1-3
+      .uk-panel.uk-panel-box{:style=>"width:240px;"}
+        %h2 Yandex Direct AD

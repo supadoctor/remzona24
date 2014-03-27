@@ -1,40 +1,49 @@
 .uk-container.uk-container-center
   %br
-  / %h1#fullname.uk-text-left #{@current_user.fullname}
   .uk-grid
     .uk-width-2-3
       .uk-panel.uk-panel-box
-        %h1.uk-panel-title.uk-text-right Информация
-        .uk-grid.uk-grid-margin
-          .uk-width-1-4
-            %i.uk-icon-picture
-            Фотография
-          .uk-width-3-4
-            фото dsfljksdfk jsdlafjlasdkjflksadjf sadfjsad;lfsald;fj adjsf l;asdf
-            asdfljasdfl;jasd
-            f sad
-            fas;dlfj;asdfl'asdlf';sadfk asdf
-            asdfsadf
-          .uk-width-1-4
-            %i.uk-icon-user
-            Контактное лицо
-          .uk-width-3-4
-            #{@user.fullname}
-          .uk-width-1-4
-            %i.uk-icon-envelope
-            Электронная почта
-          .uk-width-3-4
-            #{@user.email}
-          .uk-width-1-4
-            %i.uk-icon-globe
-            Населенный пункт
-          .uk-width-3-4
-            = Placement.get(@user.placement_id).location + (Placement.get(@user.placement_id).area.length > 1 ? ", " + Placement.get(@user.placement_id).area : "") + (Placement.get(@user.placement_id).region.length > 1 ? ", " + Placement.get(@user.placement_id).region : "")
-          .uk-width-1-4
-            %i.uk-icon-calendar
-            На сайте с
-          .uk-width-3-4
-            = @user.created_at.strftime("%d.%m.%Y")
+        %h1.uk-text-right Информация о заказчике
+        %table.uk-table.uk-table-striped
+          %tbody
+            - if @user.avatar.present?
+              %tr
+                %td.uk-width-1-10
+                  %i.uk-icon-camera
+                %td.uk-width-3-10
+                  %h3.uk-margin-bottom-remove Фотография
+                %td.uk-width-6-10
+                  %img{:src => @user.avatar.avatar64.url}
+            %tr
+              %td.uk-width-1-10
+                %i.uk-icon-user
+              %td.uk-width-3-10
+                %h3.uk-margin-bottom-remove Контактное лицо
+              %td.uk-width-6-10
+                %span{:style=>"margin-top: 5px;"} #{@user.fullname}
+            -if get_settings(@user, "showemail")
+              %tr
+                %td.uk-width-1-10
+                  %i.uk-icon-envelope
+                %td.uk-width-3-10
+                  %h3.uk-margin-bottom-remove  Электронная почта
+                %td.uk-width-6-10
+                  %a{:href=>"mailto:" + @user.email}
+                    #{@user.email}
+            %tr
+              %td.uk-width-1-10
+                %i.uk-icon-globe
+              %td.uk-width-3-10
+                %h3.uk-margin-bottom-remove Населенный пункт
+              %td.uk-width-6-10
+                %span{:style=>"margin-top: 5px;"}= Placement.get(@user.placement_id).location + (Placement.get(@user.placement_id).area.length > 1 ? ", " + Placement.get(@user.placement_id).area : "") + (Placement.get(@user.placement_id).region.length > 1 ? ", " + Placement.get(@user.placement_id).region : "")
+            %tr
+              %td.uk-width-1-10
+                %i.uk-icon-calendar
+              %td.uk-width-3-10
+                %h3.uk-margin-bottom-remove На сайте с
+              %td.uk-width-6-10
+                %span{:style=>"margin-top: 5px;"}= @user.created_at.strftime("%d.%m.%Y")
     .uk-width-1-3
       .uk-panel.uk-panel-box
         %h2 Yandex Direct AD

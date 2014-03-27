@@ -6,7 +6,7 @@
           %button.uk-button.uk-button-mini.uk-button-success Регистрация
       %li
         %a{:href=>"#login", "data-uk-modal" => "{bgclose:false}"}
-          %i.uk-icon-signin
+          %i.uk-icon-sign-in
           Войти в систему
       %li
         %a{:href=>"/", "data-uk-modal" => "{bgclose:false}"}
@@ -15,7 +15,7 @@
     %ul.uk-navbar-nav.uk-navbar-flip
       .uk-navbar-content
         .uk-button-group
-          %form.uk-form{:action => "/", :method => "post"}
+          %form.uk-form{:action => "/#orders", :method => "post"}
             %input#areascope.uk-form-width-large.uk-form-small{:type=>"text", :name=>"areascope", :placeholder => session[:siteregionplaceholder]}
             %input#sitelocation{:type=>"text", :name=>"sitelocation", :hidden=>"true"}
             %input#sitearea{:type=>"text", :name=>"sitearea", :hidden=>"true"}
@@ -36,13 +36,13 @@
       %li
         %form.uk-form{:action => "/reguser", :method => "post"}
           %legend
-            Вы регистрируетесь с целью добавления заказов, ведения переписки с мастерами и сервисными центрами
+            Вы регистрируетесь с целью добавления заявок, ведения переписки с мастерами и сервисными центрами
           .uk-form-row
-            %input.uk-width-1-1{:type=>"text", :required=>"", :placeholder=>"Адрес электронной почты", :name=>"email"}
+            %input.uk-width-1-1{:type=>"text", :required=>"", :placeholder=>"Адрес электронной почты", :name=>"email", "data-uk-tooltip" => "", :title => "Укажите корректный адрес электронной почты. Он будет использоваться для входа на Портал и получения уведомлений"}            
           .uk-form-row
-            %input.uk-width-1-1{:type=>"text", :required=>"", :placeholder=>"Контактное лицо", :name=>"fullname"}
+            %input.uk-width-1-1{:type=>"text", :required=>"", :placeholder=>"Контактное лицо", :name=>"fullname", "data-uk-tooltip" => "", :title => "Пожалуйста, представьтесь. Это имя будет использоваться при публикации заявок и для идентификации других ваших действий на Портале"}
           .uk-form-row
-            %input#userlocation.uk-width-1-1{:type=>"text", :required=>"", :placeholder=>"Населенный пункт", :style=>"z-index=9999;"}
+            %input#userlocation.uk-width-1-1{:type=>"text", :required=>"", :placeholder=>"Населенный пункт", :style=>"z-index=9999;", "data-uk-tooltip" => "", :title => "Введите первые буквы неселенного пункта где вы находитесь. Выберите из списка нужный вариант. При выборе небольших населенных пунктов обратите внимание на корректность района и области!" }
             %input#userlocationtitle{:type=>"text", :name=>"locationtitle", :hidden=>"true"}
             %input#userarea{:type=>"text", :name=>"area", :hidden=>"true"}
             %input#userregion{:type=>"text", :name=>"region", :hidden=>"true"}
@@ -50,6 +50,9 @@
             %input#pass1.uk-width-1-1{:type=>"password", :required=>"", :placeholder=>"Пароль", :name=>"password"}
           .uk-form-row
             %input#pass2.uk-width-1-1{:type=>"password", :required=>"", :placeholder=>"Подтверждение пароля", :name=>"pass"}
+          .uk-form-row
+            .uk-text-small
+              Все поля обязательны для заполнения
           .uk-form-row
             %label
               %input.userrules{:type=>"checkbox"}
@@ -61,7 +64,7 @@
           %legend
             Вы являетесь индивидуальным предпринимателем, бригадой или небольшой фирмой и оказываете услуги по ремонту автомобилей, работая напрямую с заказчиком.
           .uk-form-row
-            %input.uk-width-1-1{:type=>"text", :required=>"", :placeholder=>"Адрес электронной почты", :name=>"email"}
+            %input.uk-width-1-1{:type=>"text", :required=>"", :placeholder=>"Адрес электронной почты", :name=>"email", "data-uk-tooltip" => "", :title => "Укажите корректный адрес электронной почты. Он будет использоваться для входа на Портал и получения уведомлений"}
           .uk-form-row
             %input.uk-width-1-1{:type=>"text", :required=>"", :placeholder=>"Фамилия", :name=>"familyname"}
           .uk-form-row
@@ -69,20 +72,17 @@
           .uk-form-row
             %input.uk-width-1-1{:type=>"text", :required=>"", :placeholder=>"Отчество", :name=>"fathersname"}
           .uk-form-row
-            %textarea#subject{:type=>"text", :placeholder=>"Описание деятельности", :name=>"description", :cols=>"100%", :rows=>"4"}
-          .uk-form-row
-            %textarea#tags{:type=>"text", :name=>"tags", :cols=>"100%", :rows=>"1"}
-          .uk-form-row
-            %input#masterlocation.uk-width-1-1{:type=>"text", :required=>"", :placeholder=>"Населенный пункт", :style=>"z-index=9999;"}
+            %input#masterlocation.uk-width-1-1{:type=>"text", :required=>"", :placeholder=>"Населенный пункт", :style=>"z-index=9999;", "data-uk-tooltip" => "", :title => "Введите первые буквы неселенного пункта где вы находитесь. Выберите из списка нужный вариант. При выборе небольших населенных пунктов обратите внимание на корректность района и области!"}
             %input#masterlocationtitle{:type=>"text", :name=>"locationtitle", :hidden=>"false"}
             %input#masterarea{:type=>"text", :name=>"area", :hidden=>"false"}
             %input#masterregion{:type=>"text", :name=>"region", :hidden=>"false"}
           .uk-form-row
-            %input#pass1.uk-width-1-1{:type=>"text", :required=>"", :placeholder=>"Адрес Вашей страницы (вида ВАШАСТРАНИЦА.remzona24.ru)", :name=>"domain"}
-          .uk-form-row
             %input#pass1.uk-width-1-1{:type=>"password", :required=>"", :placeholder=>"Пароль", :name=>"password"}
           .uk-form-row
             %input#pass2.uk-width-1-1{:type=>"password", :required=>"", :placeholder=>"Подтверждение пароля", :name=>"pass"}
+          .uk-form-row
+            .uk-text-small
+              Все поля обязательны для заполнения
           .uk-form-row
             %label
               %input.masterrules{:type=>"checkbox"}
@@ -94,6 +94,16 @@
           %fieldset
             %legend
               Вы представляете компанию, которая предоставляет услуги в сфере ремонта и обслуживания автомобилей и хотели бы продавать свои услуги через портал РемЗона24.ру
+          .uk-form-row
+            .uk-text-small
+              Все поля обязательны для заполнения
+          .uk-form-row
+            %label
+              %input.servicerules{:type=>"checkbox"}
+              Я принимаю правила использования портала РемЗона24.ру
+          %br
+          %button#servicesubmit.uk-button.uk-button-primary.uk-align-center{:type=>"submit", :disabled => ""}Регистрация
+
 #login.uk-modal
   .uk-modal-dialog.uk-modal-dialog-slide
     %a.uk-modal-close.uk-close
@@ -101,14 +111,20 @@
     %form.uk-form{:action => "/auth/login", :method=>"post"}
       %fieldset
         %legend
-          Для входа в систему введите, пожалуйста, адрес электронной почты, указанной при регистрации, и пароль
+          Для входа на Портал введите адрес электронной почты, указанный при регистрации, и пароль
         .uk-form-row
           %input.uk-width-1-1{:type=>"email", :required=>"", :placeholder=>"Адрес электронной почты", :name=>"email"}
         .uk-form-row
           %input.uk-width-1-1{:type=>"password", :required=>"", :placeholder=>"Пароль", :name=>"password"}
         %br
-        %button#submit.uk-button.uk-button-primary.uk-align-center{:type=>"submit"}Вход
-
+        %button#submit.uk-button.uk-button-large.uk-button-primary.uk-align-center{:type=>"submit"}Вход
+    .uk-text-center
+      %a#forgetpass{:style => "cursor: pointer; text-decoration: none !important; border-bottom: 1px dashed !important;"} Забыли пароль?
+    .uk-width-1-1#resetpass.uk-margin-top{:style => "display: none;"}
+      %form.uk-form{:action => "/resetpass", :method=>"post"}
+        .uk-form-row
+          %input{:type=>"email", :required=>"", :placeholder=>"Адрес электронной почты", :name=>"email"}
+          %button#submit.uk-button{:type=>"submit"}Сбросить пароль
 =yield
 
 :javascript
@@ -225,5 +241,9 @@
     });
 
     /***************/
+    
+    $('#forgetpass').click(function() {
+      $( "#resetpass" ).toggle( );
+    });
 
   });

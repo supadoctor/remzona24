@@ -1,0 +1,15 @@
+.uk-container.uk-container-center
+  %br
+  .uk-grid
+    .uk-width-2-3
+      .uk-panel.uk-panel-box
+        %h1.uk-text-right Сброс пароля
+        %form.uk-form.uk-form-horizontal{:action => "/updatepassword?reset=" + @mynewhash, :method => "post"}
+          .uk-form-row
+            %label.uk-form-label{:for=>"newpass1"} Новый пароль
+            %input#newpass1{:type=>"password", :required=>"", :name=>"newpass1"}
+          .uk-form-row
+            %label.uk-form-label{:for=>"newpass2"} Повторите новый пароль
+            %input#newpass2{:type=>"password", :required=>"", :name=>"newpass2"}
+          %br
+          %button#submit.uk-button.uk-button-success.uk-align-center{:type=>"submit"} Изменить пароль

@@ -3,43 +3,63 @@
   .uk-grid
     .uk-width-2-3
       .uk-panel.uk-panel-box
-        %h1.uk-panel-title.uk-text-right Новая заявка
-        %form.uk-form.uk-form-horizontal{:action => "/addorder", :method => "post", :enctype=>"multipart/form-data"}
+        %h1.uk-text-right Новая заявка
+        %form.uk-form.uk-form-horizontal{:action => "/order", :method => "post", :enctype=>"multipart/form-data"}
           .uk-form-row
             %label.uk-form-label{:for=>"title"}
-              %i.uk-icon-edit
-              Заголовок заявки
+              /%i.uk-icon-edit
+              %h3
+                Заголовок заявки
+                %span.uk-display-inline
+                  %i.uk-icon-question-circle{"data-uk-tooltip" => "", :title => "Укажите заголовок вашей заявки"}
             .uk-form-controls
               %input#title.uk-form-width-large{:type=>"text", :name=>"title"}
           .uk-form-row
             %label.uk-form-label{:for=>"subject"}
-              %i.uk-icon-wrench
-              Максимально подробное описание
+              /%i.uk-icon-wrench
+              %h3
+                Максимально подробное описание
+                %span.uk-display-inline
+                  %i.uk-icon-question-circle{"data-uk-tooltip" => "", :title => "Опиште суть вашей заявки. Например, укажите состав и объем требуемых работ, пожелания к срокам, стоимости и т.п. Внесите сюда максимум информации, которая бы помогла потенциальным исполнителям подготовить наиболее оптимальное предложение"}
             .uk-form-controls
               %textarea#subject{:name=>"subject", :cols=>"100%", :rows=>"4"}
           .uk-form-row
-            %label.uk-form-label{:for=>"photo"} Прикрепить фотографии                    
+            %label.uk-form-label{:for=>"photo"}
+              /%i.uk-icon-camera
+              %h3
+                Фотографии
+                %span.uk-display-inline
+                  %i.uk-icon-question-circle{"data-uk-tooltip" => "", :title => "Вы можете дополнить явою заявку фотографиями. Звгрузить несколько файлов можно при помощи клавиши Ctrl"}
             .uk-form-controls
-              %input#photos{:type=>"file", :name=>"photos[]", :multiple=>""}
+              %input#photo{:type=>"file", :name=>"photos[]", :multiple=>""}
           .uk-form-row
-            %label.uk-form-label{:for=>"images"}
-              %i.uk-icon-tags
-              Ключевые слова
+            %label.uk-form-label{:for=>"tags"}
+              /%i.uk-icon-tags
+              %h3
+                Ключевые слова
+                %span.uk-display-inline
+                  %i.uk-icon-question-circle{"data-uk-tooltip" => "", :title => "Укажите или выберите из списка наиболее подходящие ключевые слова. Ключевые слова используются исполнителями для поиска заявок"}
             .uk-form-controls
               %textarea#tags{:name=>"tags", :cols=>"100%", :rows=>"1"}
           %hr
           .uk-form-row
             %label.uk-form-label{:for=>"budgettype"}
-              %i.uk-icon-money
-              Бюджет
+              /%i.uk-icon-money
+              %h3
+                Бюджет
+                %span.uk-display-inline
+                  %i.uk-icon-question-circle{"data-uk-tooltip" => "", :title => "Вы можете указать примерный бюджет вашей заявки. Эта цифра поможет понять потенциальным исполнителям ваши ожидания"}
             .uk-form-controls#budgettype
               %input{:type=>"radio", :name=>"budgettype", :value=>"1", :checked => ""} Не определен
               %input{:type=>"radio", :name=>"budgettype", :value=>"2"} Определен
               %input#budget{:type=>"text", :name=>"budget", :style=>"display: none;"}
           .uk-form-row
             %label.uk-form-label{:for=>"lifetime"}
-              %i.uk-icon-arrows-h
-              Время жизни заявки
+              /%i.uk-icon-arrows-h
+              %h3
+                Время жизни заявки
+                %span.uk-display-inline
+                  %i.uk-icon-question-circle{"data-uk-tooltip" => "", :title => "Укажите интервал, через который заявка будет автоматически закрыта и перенесена в архив"}
             .uk-form-controls
               %select#lifetime{:name=>"lifetime"}
                 %option{:value=>"3"}
@@ -50,21 +70,22 @@
                   Закрыть автоматически через 10 дней
                 %option{:value=>"30"}
                   Закрыть автоматически через 30 дней
-                %option{:selected=>"", :value=>"-1"}
+                %option{:selected=>"", :value=>"0"}
                   Не закрывать автоматически
           %hr
           .uk-form-row
             %label.uk-form-label{:for=>"location"}
-              %i.uk-icon-home
-              Населенный пункт
+              /%i.uk-icon-home
+              %h3 Населенный пункт
             .uk-form-controls
               %input#location.uk-width-1-1{:type=>"text", :name=>"location", :value => Placement.get(@current_user.placement_id).location + (Placement.get(@current_user.placement_id).area.length > 1 ? ", " + Placement.get(@current_user.placement_id).area : "") + (Placement.get(@current_user.placement_id).region.length > 1 ? ", " + Placement.get(@current_user.placement_id).region : ""), :disabled=>""}
-          .uk-form-row
-            %label.uk-form-label{:for=>"email"}
-              %i.uk-icon-envelope-alt
-              Электронная почта для получения уведомлений
-            .uk-form-controls
-              %input#email.uk-width-1-1{:type=>"text", :value => @current_user.email, :disabled=>""}
+          - if get_settings(current_user, "sendmessagestoemail")
+            .uk-form-row
+              %label.uk-form-label{:for=>"email"}
+                /%i.uk-icon-envelope
+                %h3 Электронная почта для получения уведомлений
+              .uk-form-controls
+                %input#email.uk-width-1-1{:type=>"text", :value => @current_user.email, :disabled=>""}
           %hr
           .uk-grid
             .uk-width-1-2.uk-container-center.uk-text-center

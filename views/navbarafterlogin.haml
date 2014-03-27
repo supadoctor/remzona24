@@ -19,7 +19,7 @@
       %li
         .uk-navbar-content
           .uk-button-group
-            %form.uk-form{:action => "/", :method => "post"}
+            %form.uk-form{:action => "/#orders", :method => "post"}
               %input#areascope.uk-form-width-large.uk-form-small{:type=>"text", :name=>"areascope", :placeholder => session[:siteregionplaceholder]}
               %input#sitelocation{:type=>"text", :name=>"sitelocation", :hidden=>"true"}
               %input#sitearea{:type=>"text", :name=>"sitearea", :hidden=>"true"}
@@ -27,6 +27,6 @@
               %button.uk-button.uk-button-mini.uk-button-primary{:type=>"submit", :style=>"margin-left: 5px;"} Изменить
       %li
         %a{:href=>"/auth/logout"}
-          %i.uk-icon-signout
+          %i.uk-icon-sign-out
           Выйти из системы
 =yield

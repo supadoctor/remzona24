@@ -3,56 +3,161 @@
   .uk-grid
     .uk-width-2-3
       .uk-panel.uk-panel-box
-        %h1.uk-panel-title.uk-text-right Предложение № #{@offer.id}
-        .uk-grid
-          .uk-width-1-4
-            %i.uk-icon-check
-            Статус
-          .uk-width-3-4
-            - if @offer.status == 1
-              %p.uk-text-bold.uk-text-danger Не действительно
-            - else
-              %p.uk-text-bold.uk-text-success Действительно до #{@offer.td.strftime("%d.%m.%Y")}
+        %h1.uk-display-inline Предложение № #{@offer.id}
+        -if @offer.user == current_user
+          .uk-button-dropdown.uk-align-right{"data-uk-dropdown"=>""}
+            %button.uk-button
+              %h2.uk-display-inline.uk-margin-right Действие
+              %i.uk-icon-caret-down
+              /%i.uk-icon-gear
+            .uk-dropdown.uk-dropdown-small
+              %ul.uk-nav.uk-nav-dropdown
+                -if @offer.status == 0
+                  %li
+                    %a{:href=>"#"}
+                      %form{:action => "/offer/#{@offer.id}", :method => "post"}
+                        %input{:type=>"hidden", :name=>"_method", :value=>"put"}
+                        %input{:type=>"submit", :value=>"В архив", :style=>"background:none!important; border:none; padding:0!important;"}
+                -if @offer.status == 3
+                  %li
+                    %a{:href=>"#"}
+                      %form{:action => "/user/#{@order.user_id}/review", :method => "post"}
+                        %input{:type=>"hidden", :name=>"_method", :value=>"put"}
+                        %input{:type=>"submit", :value=>"Оценить заказчика", :style=>"background:none!important; border:none; padding:0!important;"}
+                        //В архив
+        %table.uk-table.uk-table-striped.uk-table-condensed
+          %tbody
+            %tr
+              %td.uk-width-1-10
+                %i.uk-icon-check
+              %td.uk-width-3-10
+                %h3.uk-margin-bottom-remove Статус
+              %td.uk-width-6-10
+                - if @offer.status == 0
+                  .uk-text-bold.uk-text-success.uk-display-inline Действительно
+                  - if @offer.fd != @offer.td
+                    %span.uk-text-bold.uk-text-success до #{@offer.td.strftime("%d.%m.%Y")}
+                - elsif @offer.status == 1
+                  .uk-text-bold.uk-text-danger Не действительно
+                - elsif @offer.status == 2
+                  .uk-text-bold.uk-text-warning Необходимо подтверждение исполнителя
+                - elsif @offer.status == 4
+                  .uk-text-bold.uk-text-danger Отозвано исполнителем
+                - elsif @offer.status == 3
+                  .uk-text-bold.uk-text-success Подтверждено исполнителем
           - if User.get(@offer.user_id).type == "Master"
-            .uk-width-1-4
-              %i.uk-icon-user
-              Мастер
-            .uk-width-3-4
-              %a{:href=>"/user/"+@offer.user_id.to_s}
-                =User.get(@offer.user_id).name + " " + User.get(@offer.user_id).familyname
+            %tr
+              %td
+                %i.uk-icon-user
+              %td
+                %h3.uk-margin-bottom-remove Мастер
+              %td
+                %a{:href=>"/user/#{@offer.user_id}"}
+                  =@offer.user.displayedname
           - if User.get(@offer.user_id).type == "Service"
-            .uk-width-1-4
-              %i.uk-icon-users
-              Сервис
-            .uk-width-3-4
-              service
-          .uk-width-1-4
-            %i.uk-icon-wrench
-            Описание
-          .uk-width-3-4
-            #{@offer.subject}
+            %tr
+              %td
+                %i.uk-icon-users
+              %td
+                %h3.uk-margin-bottom-remove Сервис
+              %td
+                service
+          %tr
+            %td
+              %i.uk-icon-info
+            %td
+              %h3.uk-margin-bottom-remove Описание
+            %td
+              #{@offer.subject}
           -if @offer.nodetails == 0
-            .uk-width-1-4
-              %i.uk-icon-money
-              Бюджет
-            .uk-width-3-4
-              -if @offer.budget < 0
-                %p не определен
-              -else
-                #{@offer.budget}
-            .uk-width-1-4
-              %i.uk-icon-calendar
-              Сроки (дней)
-            .uk-width-3-4
-              -if @offer.time < 0
-                %p не определены
-              -else
-                #{@offer.time}
+            %tr
+              %td
+                %i.uk-icon-money
+              %td
+                %h3.uk-margin-bottom-remove Бюджет
+              %td
+                -if @offer.budget < 0
+                  не определен
+                -else
+                  #{rur @offer.budget}
+            %tr
+              %td
+                %i.uk-icon-calendar
+              %td
+                %h3.uk-margin-bottom-remove Сроки (дней)
+              %td
+                -if @offer.time < 0
+                  не определены
+                -else
+                  #{@offer.time}
           -else
-            .uk-width-1-4
-              Цена и сроки
-            .uk-width-3-4
-              не определены
+            %tr
+              %td
+                %i.uk-icon-exclamation-triangle
+              %td
+                %h3.uk-margin-bottom-remove Цена и сроки
+              %td
+                не определены
+          %tr
+            %td
+              %i.uk-icon-wrench
+            %td
+              %h3.uk-margin-bottom-remove Исходная заявка
+            %td
+              %a{:href=>"/order/#{@order.id}"}
+                #{@order.title}
+          %tr
+            %td
+              %i.uk-icon-comments-o
+            %td
+              %h3.uk-margin-bottom-remove Вопросы и ответы
+            %td
+              %a{:href=>"/offer/#{@offer.id}/comments"}
+                Обсудить (#{@questionsnumber})
+        -if Order.get(@offer.order_id).user == @current_user
+          -if @offer.status == 0
+            %form.uk-form.uk-form-horizontal{:action=>"/offer/#{@offer.id}/startwork", :method=>"post"}
+              .uk-form-row
+                %label.uk-form-label{:for=>"message"}
+                  %h3 Дополнительная информация для исполнителя
+                .uk-form-controls
+                  %textarea#message.uk-width-1-1{:type=>"text", :name=>"message", :rows=>"6"}
+              %button.uk-button.uk-button-large.uk-button-success.uk-align-center.uk-margin-top{:type=>"submit"} Принимаю предложение
+              %p.uk-text-small
+                Принимая предложение, вы соглашаетесь с условиями, приведенными в нем, и подтверждаете свое намерение заказать работы, указанные в 
+                %a{:href=>"/order/#{@offer.order_id}"}
+                  исходной заявке
+          -if @offer.status == 3
+            %p Оценка мастера
+        -if @offer.user == @current_user
+          -if @offer.status == 2
+            #accept
+              %form.uk-form.uk-form-horizontal{:action=>"/offer/#{@offer.id}/acceptwork", :method=>"post"}
+                %button.uk-button.uk-button-large.uk-button-success.uk-align-center.uk-margin-top{:type=>"submit"} Подтверждаю предложение
+              %p.uk-text-small.uk-text-center
+                Подтвердждая предложение, вы соглашаетесь выполнить работы, указанные в нем
+            .uk-text-center
+              %a#refuselink{:href=>"#", :style => "text-decoration: none !important; border-bottom: 1px dashed !important;"}
+                Я передумал
+            #refuse.uk-margin-top{:style => "display: none;"}
+              %form.uk-form{:action=>"/offer/#{@offer.id}/refusework", :method=>"post"}
+                .uk-form-row
+                  %label.uk-form-label{:for=>"message"}
+                    %h3 Причина отказа
+                  .uk-form-controls
+                    %textarea#message.uk-width-1-1{:type=>"text", :name=>"refusereason", :rows=>"6"}
+                  %button.uk-button.uk-button-large.uk-button-danger.uk-align-center.uk-margin-top{:type=>"submit"}
+                    Отказаться от предложения
+          -if @offer.status == 3
+            %p Оценка заказчика
     .uk-width-1-3
       .uk-panel.uk-panel-box{:style=>"width:240px;"}
         %h2 Yandex Direct AD
+
+:javascript
+  $(function() {
+      $('#refuselink').click(function() {
+      $("#refuse").toggle();
+      $("#accept").toggle();
+    });
+  });

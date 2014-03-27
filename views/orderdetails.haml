@@ -3,20 +3,41 @@
   .uk-grid
     .uk-width-2-3
       .uk-panel.uk-panel-box
-        %h1.uk-panel-title.uk-text-right Заявка № #{@order.id}
-        %h3 #{@order.title}
+        %h1.uk-display-inline Заявка № #{@order.id}
+        -if @order.user == current_user
+          .uk-button-dropdown.uk-align-right{"data-uk-dropdown"=>""}
+            %button.uk-button
+              %h2.uk-display-inline.uk-margin-right Действие
+              %i.uk-icon-caret-down
+              /%i.uk-icon-gear
+            .uk-dropdown.uk-dropdown-small
+              %ul.uk-nav.uk-nav-dropdown
+                -if @order.status != 1
+                  %li
+                    %a{:href=>"#"}
+                      %form{:action => "/order/"+@order.id.to_s, :method => "post"}
+                        %input{:type=>"hidden", :name=>"_method", :value=>"put"}
+                        %input{:type=>"submit", :value=>"В архив", :style=>"background:none!important; border:none; padding:0!important;"}
+                        //В архив
+                %li
+                  %a{:href=>"#"}
+                    %form{:action => "/order/"+@order.id.to_s, :method => "post"}
+                      %input{:type=>"hidden", :name=>"_method", :value=>"delete"}
+                      %input{:type=>"submit", :value=>"Удалить", :style=>"background:none!important; border:none; padding:0!important;"}
+                      //Удалить
+        %h2 #{@order.title}
         %table.uk-table.uk-table-striped.uk-table-condensed
           %tbody
             %tr
               %td.uk-width-1-10
                 %i.uk-icon-check
               %td.uk-width-3-10
-                Статус
+                %h3.uk-margin-bottom-remove Статус
               %td.uk-width-6-10
                 - if @order.status == 1
                   .uk-text-bold.uk-text-danger Закрыта
                 - else
-                  -if @order.td.strftime("%d.%m.%Y") == "01.01.3000" 
+                  -if @order.td === @order.fd
                     .uk-text-bold.uk-text-success Активна
                   -else
                     .uk-text-bold.uk-text-success Активна до #{@order.td.strftime("%d.%m.%Y")}
@@ -24,31 +45,31 @@
               %td
                 %i.uk-icon-user
               %td
-                Заказчик
+                %h3.uk-margin-bottom-remove Заказчик
               %td
                 %a{:href=>"/user/"+@order.user_id.to_s}
-                  #{@order.user.fullname}
+                  #{@order.user.displayedname}
             %tr
               %td
                 %i.uk-icon-map-marker
               %td
-                Населенный пункт
+                %h3.uk-margin-bottom-remove Населенный пункт
               %td
                 =Placement.get(@order.placement_id).location + (Placement.get(@order.placement_id).area.length > 1 ? ", " + Placement.get(@order.placement_id).area : "") + (Placement.get(@order.placement_id).region.length > 1 ? ", " + Placement.get(@order.placement_id).region : "")
             %tr
               %td
                 %i.uk-icon-wrench
               %td
-                Описание
+                %h3.uk-margin-bottom-remove Описание
               %td
                 #{@order.subject}
             %tr
               %td
                 %i.uk-icon-calendar
               %td
-                Сроки
+                %h3.uk-margin-bottom-remove Сроки
               %td
-                -if @order.td.strftime("%d.%m.%Y") == "01.01.3000"
+                -if @order.td === @order.fd
                   не определены
                 -else
                   #{@order.fd.strftime("%d.%m.%Y")} - #{@order.td.strftime("%d.%m.%Y")}
@@ -56,18 +77,18 @@
               %td
                 %i.uk-icon-money
               %td
-                Бюджет
+                %h3.uk-margin-bottom-remove Бюджет
               %td
                 -if @order.budget < 0
                   не определен
                 -else
-                  #{@order.budget} руб.
+                  #{rur @order.budget}
                   / %i.uk-icon-rub
             %tr
               %td
                 %i.uk-icon-tags
               %td
-                Ключевые слова
+                %h3.uk-margin-bottom-remove Ключевые слова
               %td
                 - if @tags.size < 1
                   не определены
@@ -78,7 +99,7 @@
               %td
                 %i.uk-icon-camera
               %td
-                Фотографии
+                %h3.uk-margin-bottom-remove Фотографии
               %td
                 - if @photos && @photos.size > 0
                   - @photos.each do |f|
@@ -86,256 +107,140 @@
                       %img{:src => f.image.avatar64.url}
                 - else
                   Нет
-        / .uk-grid{"data-uk-grid-match"=>""}
-        /   .uk-width-1-3
-        /     %i.uk-icon-check
-        /     Статус
-        /   .uk-width-2-3
-        /     - if @order.status == 1
-        /       %p.uk-text-bold.uk-text-danger Закрыта
-        /     - else
-        /       -if @order.td.strftime("%d.%m.%Y") == "01.01.3000" 
-        /         %p.uk-text-bold.uk-text-success Активна
-        /       -else
-        /         %p.uk-text-bold.uk-text-success Активна до #{@order.td.strftime("%d.%m.%Y")}
-        /   .uk-width-1-4
-        /     %i.uk-icon-user
-        /     Заказчик
-        /   .uk-width-3-4
-        /     %a{:href=>"/user/"+@order.user_id.to_s}
-        /       #{@order.user.fullname}
-        /   .uk-width-1-4
-        /     %i.uk-icon-globe
-        /     Населенный пункт
-        /   .uk-width-3-4
-        /     =Placement.get(@order.placement_id).location + (Placement.get(@order.placement_id).area.length > 1 ? ", " + Placement.get(@order.placement_id).area : "") + (Placement.get(@order.placement_id).region.length > 1 ? ", " + Placement.get(@order.placement_id).region : "")
-        /   .uk-width-1-4
-        /     %i.uk-icon-wrench
-        /     Описание
-        /   .uk-width-3-4
-        /     #{@order.subject}
-        /   .uk-width-1-4
-        /     %i.uk-icon-calendar
-        /     Сроки
-        /   .uk-width-3-4
-        /     -if @order.td.strftime("%d.%m.%Y") == "01.01.3000"
-        /       %p -
-        /     -else
-        /       #{@order.fd.strftime("%d.%m.%Y")} - #{@order.td.strftime("%d.%m.%Y")}
-        /   .uk-width-1-4
-        /     %i.uk-icon-money
-        /     Бюджет
-        /   .uk-width-3-4
-        /     -if @order.budget < 0
-        /       %p не определен
-        /     -else
-        /       #{@order.budget} руб.
-        /   .uk-width-1-4
-        /     %i.uk-icon-tags
-        /     Ключевые слова
-        /   .uk-width-3-4
-        /     - if @tags.size < 1
-        /       %small не определены
-        /     - else
-        /       %small
-        /         =@tags
-        /   .uk-width-1-4
-        /     %i.uk-icon-camera
-        /     Фотографии
-        /   .uk-width-3-4
-        /     - if @photos && @photos.size > 0
-        /       - @photos.each do |f|
-        /         %a.orderimage{:href=>f.image.url, :rel=>"gallery"}
-        /           %img{:src => f.image.avatar64.url}
-        /     - else
-        /       Нет
-      %br
-      .uk-panel.uk-panel-box
-        %ul.uk-tab.uk-tab-grid.data-uk-tab{"data-uk-tab"=>"{connect:'#operation'}"}
-          %li.uk-width-1-2.uk-active
-            %a{:href=>""}
-              %strong Ответить на заявку
-          %li.uk-width-1-2
-            %a{:href=>""}
-              %strong Обсуждения заявки
-        %ul#operation.uk-switcher.uk-margin
-          %li
-            -if !logged_in?
-              .uk-alert.uk-alert-success
-                Вы не можете подать предложение по этой заявке,
-                %br
-                %small потому что Вы не вошли на сайт в качестве Мастера или представителя Сервиса.
-                %small
-                  %a{:href=>"#register", "data-uk-modal" => "{bgclose:false}"} Зарегистрируйтесь
-                  или
-                  %a{:href=>"#login", "data-uk-modal" => "{bgclose:false}"} войдите
-                  в систему.
-            -elsif @current_user.type == "User"
-              .uk-alert.uk-alert-success
-                Вы не можете подать предложение по этой заявке,
-                %br
-                %small потому что Вы вошли на сайт не как Мастер или представитель Сервиса
-            -else
-              %form.uk-form.uk-form-horizontal{:action => "/addoffer/#{@order.id}", :method => "post"}
-                .uk-form-row
-                  %label.uk-form-label{:for=>"subject"}
-                    %i.uk-icon-edit
-                    Описание предложения
-                  .uk-form-controls
-                    %textarea#subject.uk-width-1-1{:type=>"text", :required=>"", :name=>"subject", :rows=>"6"}
-                .uk-form-row
-                  %label.uk-form-label.details{:for=>"budget"}
-                    %i.uk-icon-money
-                    Стоимость (руб.)
-                  .uk-form-controls
-                    %input#budget.uk-width-1-1.details{:type=>"text", :name=>"budget"}
-                .uk-form-row
-                  %label.uk-form-label.details{:for=>"time"}
-                    %i.uk-icon-calendar
-                    Срок выполнения
-                  .uk-form-controls
-                    %select#time.details{:name=>"time"}
-                      %option{:selected=>"", :value=>"1"}
-                        В течение 1 дня
-                      %option{:value=>"3"}
-                        В течение 3 дней
-                      %option{:value=>"5"}
-                        В течение 5 дней
-                      %option{:value=>"10"}
-                        В течение 10 дней
-                      %option{:value=>"30"}
-                        В течение 30 дней
-                .uk-form-row
-                  .uk-form-controls#nodetails
-                    %input{:type=>"checkbox", :name=>"nodetails"} Цена и сроки будут сообщены позднее
-                .uk-form-row
-                  %label.uk-form-label{:for=>"lifetime"}
-                    %i.uk-icon-arrows-h
-                    Время жизни предложения
-                  .uk-form-controls
-                    %select#lifetime{:name=>"lifetime"}
-                      %option{:value=>"3"}
-                        Закрыть автоматически через 3 дня
-                      %option{:value=>"5"}
-                        Закрыть автоматически через 5 дней
-                      %option{:value=>"10"}
-                        Закрыть автоматически через 10 дней
-                      %option{:value=>"30"}
-                        Закрыть автоматически через 30 дней
-                      %option{:selected=>"", :value=>"-1"}
-                        Не закрывать автоматически
-                / %hr
-                .uk-container-center.uk-text-center
-                  %button#submit.uk-button.uk-button-success{:type=>"submit"}Разместить предложение
+            %tr
+              %td
+                %i.uk-icon-comments-o
+              %td
+                %h3.uk-margin-bottom-remove Вопросы и ответы
+              %td
+                %a{:href=>"/order/#{@order.id}/comments"}
+                  Обсудить (#{@questionsnumber})
+      -if @order.status == 0
+        %h1
+          Разместить предложение
+        -if !logged_in?
+          .uk-alert.uk-alert-success
+            Вы не можете разместить предложение по этой заявке,
             %br
-            .uk-width-1-1
-              .uk-panel.uk-panel-box
-                %h2 Yandex Direct AD
+            %small потому что Вы не вошли на сайт в качестве Мастера или представителя Сервиса.
+            %small
+              %a{:href=>"#register", "data-uk-modal" => "{bgclose:false}"} Зарегистрируйтесь
+              или
+              %a{:href=>"#login", "data-uk-modal" => "{bgclose:false}"} войдите
+              в систему.
+        -elsif @current_user.type == "User"
+          .uk-alert.uk-alert-success
+            Вы не можете подать предложение по этой заявке,
             %br
-            - if @offers && @offers.size > 0
-              %h1.uk-panel-title.uk-text-right Предложения  
-              - @offers.each do |o|
-                %article.uk-comment
-                  %header.uk-comment-header
-                    %img.uk-comment-avatar{:src => User.get(o.user_id).avatar.avatar64.url}
-                    %h5.uk-comment-title
-                      %a{:href=>"/offer/"+o.id.to_s}
-                        Предложение №
-                        #{o.id}
-                    .uk-comment-meta
-                      - if User.get(o.user_id).type == "Master"
-                        Мастер:
-                        %a{:href=>"/user/"+o.user_id.to_s}
-                          =User.get(o.user_id).name + " " + User.get(o.user_id).familyname
-                      - if User.get(o.user_id).type == "Service"
-                        Сервис:
-                      %br
-                      Дата:
-                      #{o.fd.strftime("%d.%m.%Y, %H:%M:%S")}
-                      %br
-                      Статус:
-                      - if o.status == 1
-                        %span.uk-text-bold.uk-text-danger не действительно
-                      - else
-                        %span.uk-text-bold.uk-text-success действительно до #{o.td.strftime("%d.%m.%Y")}
-                  .uk-comment-body
-                    Предложение:
-                    #{o.subject}
+            %small потому что Вы вошли на сайт не как Мастер или представитель Сервиса
+        -else
+          .uk-panel.uk-panel-box
+            %form.uk-form.uk-form-horizontal{:action => "/order/#{@order.id}/addoffer", :method => "post"}
+              .uk-form-row
+                %label.uk-form-label{:for=>"subject"}
+                  //%i.uk-icon-edit
+                  %h3 Описание предложения
+                .uk-form-controls
+                  %textarea#subject.uk-width-1-1{:type=>"text", :required=>"", :name=>"subject", :rows=>"6"}
+              .uk-form-row
+                %label.uk-form-label.details{:for=>"budget"}
+                  //%i.uk-icon-money
+                  %h3 Стоимость (руб.)
+                .uk-form-controls
+                  %input#budget.uk-width-1-1.details{:type=>"text", :name=>"budget"}
+              .uk-form-row
+                %label.uk-form-label.details{:for=>"time"}
+                  //%i.uk-icon-calendar
+                  %h3 Срок выполнения
+                .uk-form-controls
+                  %select#time.details{:name=>"time"}
+                    %option{:selected=>"", :value=>"1"}
+                      В течение 1 дня
+                    %option{:value=>"3"}
+                      В течение 3 дней
+                    %option{:value=>"5"}
+                      В течение 5 дней
+                    %option{:value=>"10"}
+                      В течение 10 дней
+                    %option{:value=>"30"}
+                      В течение 30 дней
+              .uk-form-row
+                .uk-form-controls#nodetails
+                  %input#nodetailschk{:type=>"checkbox", :name=>"nodetails"}
+                    Цена и сроки будут сообщены позднее
+              .uk-form-row
+                %label.uk-form-label{:for=>"lifetime"}
+                  //%i.uk-icon-arrows-h
+                  %h3 Время жизни предложения
+                .uk-form-controls
+                  %select#lifetime{:name=>"lifetime"}
+                    %option{:value=>"3"}
+                      Закрыть автоматически через 3 дня
+                    %option{:value=>"5"}
+                      Закрыть автоматически через 5 дней
+                    %option{:value=>"10"}
+                      Закрыть автоматически через 10 дней
+                    %option{:value=>"30"}
+                      Закрыть автоматически через 30 дней
+                    %option{:selected=>"", :value=>"0"}
+                      Не закрывать автоматически
+              / %hr
+              .uk-container-center.uk-text-center
+                %button#submit.uk-button.uk-button-success{:type=>"submit"}Разместить предложение
+        %br
+        .uk-width-1-1
+          .uk-panel.uk-panel-box
+            %h2 Yandex Direct AD
+        - if @offers && @offers.size > 0
+          %h1.uk-text-right Предложения
+          - @offers.each do |o|
+            .uk-panel.uk-panel-box.uk-margin-bottom
+              %article.uk-comment
+                %header.uk-comment-header
+                  %img.uk-comment-avatar{:src => User.get(o.user_id).avatar.avatar64.url}
+                  %h5.uk-comment-title
+                    %a{:href=>"/offer/"+o.id.to_s}
+                      Предложение №
+                      #{o.id}
+                  .uk-comment-meta
+                    Исполнитель:
+                    %a{:href=>"/user/"+o.user_id.to_s}
+                      #{o.user.displayedname}
                     %br
-                    Бюджет:
-                    =(o.budget.to_s+' руб.')
-                %br
-            - else
-              Нет предложений
-          %li
-            -if !logged_in?
-              .uk-alert.uk-alert-success
-                Вы не можете задать вопрос по этой заявке,
-                %br
-                %small потому что Вы не вошли на сайт в качестве Мастера или представителя Сервиса.
-                %small
-                  %a{:href=>"#register", "data-uk-modal" => "{bgclose:false}"} Зарегистрируйтесь
-                  или
-                  %a{:href=>"#login", "data-uk-modal" => "{bgclose:false}"} войдите
-                  в систему.
-            -elsif @current_user.type == "User" && @current_user!=@order.user
-              .uk-alert.uk-alert-success
-                Вы не разместить доп.информацию по этой заявке,
-                %br
-                %small потому что это может сделать только ее автор
-            -else
-              %form.uk-form.uk-form-horizontal{:action => "/addquestion/#{@order.id}", :method => "post"}
-                .uk-form-row
-                  %label.uk-form-label{:for=>"question"} Текст
-                  .uk-form-controls
-                    %textarea#subject.uk-width-1-1{:type=>"text", :required=>"", :name=>"question", :rows=>"6"}
-                .uk-container-center.uk-text-center{:style=>"margin-top: 15px;"}
-                  -if @current_user.type == "User"
-                    %button#submit.uk-button.uk-button-success{:type=>"submit"}Разместить доп.информацию
-                  -else
-                    %button#submit.uk-button.uk-button-success{:type=>"submit"}Разместить вопрос
+                    Дата:
+                    #{o.fd.strftime("%d.%m.%Y, %H:%M:%S")}
+                    %br
+                    Статус:
+                    - if o.status == 1
+                      .uk-text-bold.uk-text-danger не действительно
+                    - else
+                      .uk-text-bold.uk-text-success.uk-display-inline-block действительно
+                    - if o.fd != o.td
+                      %span.uk-text-bold.uk-text-success до #{o.td.strftime("%d.%m.%Y")}
+                .uk-comment-body
+                  %table.uk-table.uk-table-condensed
+                    %tbody
+                      %tr
+                        %td.uk-width-1-5
+                          %h3.uk-margin-bottom-remove Предложение:
+                        %td.uk-width-4-5
+                          #{o.subject}
+                      -if o.budget > 0
+                        %tr
+                          %td
+                            %h3.uk-margin-bottom-remove Бюджет:
+                          %td
+                            #{rur o.budget}
+        - else
+          %h1.uk-text-left Нет предложений
 
-            %br
-            .uk-width-1-1
-              .uk-panel.uk-panel-box
-                %h2 Yandex Direct AD
-            %br
-              - if @questions && @questions.size > 0
-                %h1.uk-panel-title.uk-text-right Вопросы и ответы
-                - @questions.each do |q|
-                  %article.uk-comment
-                    %header.uk-comment-header
-                      %img.uk-comment-avatar{:src => User.get(q.sender_id).avatar.avatar64.url}
-                      .uk-comment-meta
-                        - if User.get(q.sender_id).type == "User"
-                          Заказчик:
-                          %a{:href=>"/user/"+q.sender_id.to_s}
-                            =User.get(q.sender_id).fullname
-                        - if User.get(q.sender_id).type == "Master"
-                          Мастер:
-                          %a{:href=>"/user/"+q.sender_id.to_s}
-                            =User.get(q.sender_id).name + " " + User.get(q.sender_id).familyname
-                        - if User.get(q.sender_id).type == "Service"
-                          Сервис:
-                        %br
-                        Дата:
-                        #{q.date.strftime("%d.%m.%Y, %H:%M:%S")}
-                    .uk-comment-body
-                      -if User.get(q.sender_id).type = "User"
-                        Доп.информация:
-                      -else
-                        Вопрос:
-                      #{q.text}
-                  %br
-              - else
-                Нет доп.информации по заявке
     .uk-width-1-3
       .uk-panel.uk-panel-box{:style=>"width:240px;"}
         %h2 Yandex Direct AD
 
 :javascript
   $(function() {
-    $('#nodetails').click(function() {
+    $('#nodetailschk').click(function() {
       $(".details").toggle(this.cheked);
     });
 

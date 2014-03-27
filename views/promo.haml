@@ -1,10 +1,11 @@
-.uk-container.uk-container-center
+.bg-img.bg-img-fixed{:style=>"background-image: url('/img/homepage/road.jpg'); height: 70vh;"}
+.uk-container.uk-container-center{:style=>"height: 30vh;"}
   .ul-grid
     .uk-width-2-3.uk-container-center
       %br
       %h2.uk-text-center Добро пожаловать на РемЗона24.ру - круглосуточную ремонтную зону для вашего автомобиля!
       %br
-.bg-img.bg-img-fixed{"data-size"=>".75", "data-background-width"=>"1920", "data-background-height"=>"1080", :style=>"background-image: url('/img/homepage/underhood.jpg'); height: 487.5px;"}
+.bg-img.bg-img-fixed{:style=>"background-image: url('/img/homepage/underhood.jpg'); height: 70vh;"}
 .uk-container.uk-container-center
   .ul-grid
     .uk-width-2-3.uk-container-center
@@ -48,7 +49,17 @@
         .uk-grid
           .uk-container-center.uk-text-center
             %button#expresssubmit.uk-button.uk-button-success{:type=>"submit"}Создать заявку
-
+      %br
+.bg-img.bg-img-fixed{:style=>"background-image: url('/img/homepage/autorepair.jpg'); height: 70vh;"}
+.uk-container.uk-container-center
+  .ul-grid
+    .uk-width-2-3.uk-container-center
+      %br
+      .uk-text-center
+        %a{:name => "orders", :style => "cursor: pointer; text-decoration: none !important; border-bottom: 1px dashed !important;"}
+          %h2 Последние заявки на Портале
+      %br
+=yield
 :javascript
   $(function() {
     $('#expressuserlocation').autocomplete({

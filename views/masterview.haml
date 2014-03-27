@@ -3,44 +3,110 @@
   .uk-grid
     .uk-width-2-3
       .uk-panel.uk-panel-box
-        %h1.uk-panel-title.uk-text-right Информация
-        .uk-grid
-          .uk-width-1-4
-            %i.uk-icon-picture
-            Фотография
-          .uk-width-3-4
-            %p фото glerjgl;jerl;g jergljerlgjle;rwjg erlgjerlgjlerjglerlgj erlgerljglkerjglkrejgkl ergerlkjglkejrlgkjerlkgeklrjg lekrjglkejrlgk jerlkjgklerjgklerjglkjerklgerlkw gerlkjgelkwrjglkewrj;;;;;;;;;;;;;;;;;;;; gewrgjo3rjgtop34go 34ig4i35go45ig4giop4igop45i g45ig45ig oi45gi 45igoi45 og45og4o5g45igop45igoi45goi45ogi45opgi4po5ig 5o ig4po5igop45ig4op5igop4i5g45igoi45gi45pig45pigop45ig45p
-          .uk-width-1-4
-            %i.uk-icon-user
-            ФИО
-          .uk-width-3-4
-            %p #{@user.familyname + " " + @user.name + " " + @user.fathersname}
-          .uk-width-1-4
-            %i.uk-icon-comments
-            Описание деятельности
-          .uk-width-3-4
-            %p #{@user.description}
-          .uk-width-1-4
-            %i.uk-icon-tags
-            Ключевые слова
-          .uk-width-3-4
-            .uk-text-small
-              %p #{@tags}
-          .uk-width-1-4
-            %i.uk-icon-envelope
-            Электронная почта
-          .uk-width-3-4
-            %p #{@user.email}
-          .uk-width-1-4
-            %i.uk-icon-globe
-            Населенный пункт
-          .uk-width-3-4
-            %p= Placement.get(@user.placement_id).location + (Placement.get(@user.placement_id).area.length > 1 ? ", " + Placement.get(@user.placement_id).area : "") + (Placement.get(@user.placement_id).region.length > 1 ? ", " + Placement.get(@user.placement_id).region : "")
-          .uk-width-1-4
-            %i.uk-icon-calendar
-            На сайте с
-          .uk-width-3-4
-            %p= @user.created_at.strftime("%d.%m.%Y")
+        %h1.uk-text-right Информация о мастере
+        %table.uk-table.uk-table-striped
+          %tbody
+            - if @user.avatar.present?
+              %tr
+                %td.uk-width-1-10
+                  %i.uk-icon-camera
+                %td.uk-width-3-10
+                  %h3.uk-margin-bottom-remove Фотография
+                %td.uk-width-6-10
+                  %img{:src => @user.avatar.avatar64.url}
+            %tr
+              %td.uk-width-1-10
+                %i.uk-icon-user
+              %td.uk-width-3-10
+                %h3.uk-margin-bottom-remove ФИО
+              %td.uk-width-6-10
+                %span{:style=>"margin-top: 5px;"} #{@user.displayedname}
+            -if @user.description
+              %tr
+                %td.uk-width-1-10
+                  %i.uk-icon-info
+                %td.uk-width-3-10
+                  %h3.uk-margin-bottom-remove Описание деятельности
+                %td.uk-width-6-10
+                  %span{:style=>"margin-top: 5px;"} #{@user.description}
+            -if @tags && @tags.size > 0
+              %tr
+                %td.uk-width-1-10
+                  %i.uk-icon-tags
+                %td.uk-width-3-10
+                  %h3.uk-margin-bottom-remove Ключевые слова
+                %td.uk-width-6-10
+                  %span{:style=>"margin-top: 5px;"} #{@tags}
+            -if get_settings(@user, "showemail")
+              %tr
+                %td.uk-width-1-10
+                  %i.uk-icon-envelope
+                %td.uk-width-3-10
+                  %h3.uk-margin-bottom-remove  Электронная почта
+                %td.uk-width-6-10
+                  %a{:href=>"mailto:" + @user.email}
+                    #{@user.email}
+            -if get_settings(@user, "showphone") && @user.phone && @user.phone.size > 0
+              %tr
+                %td.uk-width-1-10
+                  %i.uk-icon-mobile
+                %td.uk-width-3-10
+                  %h3.uk-margin-bottom-remove  Мобильный номер
+                %td.uk-width-6-10
+                  %span{:style=>"margin-top: 5px;"} #{@user.phone}
+            %tr
+              %td.uk-width-1-10
+                %i.uk-icon-globe
+              %td.uk-width-3-10
+                %h3.uk-margin-bottom-remove Населенный пункт
+              %td.uk-width-6-10
+                %span{:style=>"margin-top: 5px;"}= Placement.get(@user.placement_id).location + (Placement.get(@user.placement_id).area.length > 1 ? ", " + Placement.get(@user.placement_id).area : "") + (Placement.get(@user.placement_id).region.length > 1 ? ", " + Placement.get(@user.placement_id).region : "")
+            -if @user.mapx && @user.mapy
+              %tr
+                %td.uk-width-1-10
+                  %i.uk-icon-map-marker
+                %td.uk-width-3-10
+                  %h3.uk-margin-bottom-remove Расположение на карте
+                %td.uk-width-6-10
+                  %a{:href=>"#openmap", "data-uk-modal" => "{bgclose:false}", :style=>"margin-top: 5px;"} Показать
+            %tr
+              %td.uk-width-1-10
+                %i.uk-icon-calendar
+              %td.uk-width-3-10
+                %h3.uk-margin-bottom-remove На сайте с
+              %td.uk-width-6-10
+                %span{:style=>"margin-top: 5px;"}= @user.created_at.strftime("%d.%m.%Y")
     .uk-width-1-3
       .uk-panel.uk-panel-box
         %h2 Yandex Direct AD
+        
+#openmap.uk-modal
+  .uk-modal-dialog.uk-modal-dialog-slide
+    %a.uk-modal-close.uk-close
+    #map{:style =>"width:550px; height:300px"}
+
+:javascript
+  $(function() {
+    ymaps.ready(init);
+
+    function init() {
+      var coords;
+      var mapx = #{@user.mapx}, mapy = #{@user.mapy};
+      var myMap = new ymaps.Map('map', {
+        center: [mapx,mapy],
+        zoom: 12,
+        controls: ['zoomControl']
+      });
+      var myPlacemark = new ymaps.Placemark(myMap.getCenter(), {
+        balloonContentBody: [
+          '<strong> #{@user.familyname} #{@user.name} #{@user.fathersname} </strong>',
+          '<br/>',
+          'Электронная почта: <a href="mailto:"> #{@user.email} <a>'
+        ].join('')
+        }, {
+          preset: 'islands#redDotIcon',
+          draggable: false
+      });
+      myMap.geoObjects.add(myPlacemark);
+    }
+  });

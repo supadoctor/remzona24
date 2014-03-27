@@ -1,12 +1,16 @@
-.bg-img-squashed-margins {
-    margin-bottom: -25px;
-    margin-top: -25px;
+.bg-img {
+  -webkit-background-size: cover;
+  -moz-background-size: cover;
+  -o-background-size: cover;
+  background-size: cover;
+  min-height: 450px;
 }
+
 .bg-img-fixed {
     background-attachment: fixed;
     min-height: 400px;
 }
-.bg-img, .bg-img-fixed, .bg-img-parallax {
+.bg-img, .bg-img-fixed {
     background-position: center center;
     background-repeat: no-repeat;
     overflow: hidden;
@@ -17,6 +21,9 @@
     color: #DDDDDD !important;
 }
 .tm-footer {
+    position: absolute;
+    width:100%;
+    bottom: 0;
     padding: 120px 0;
     background: none repeat scroll 0 0 #252525;
 }

@@ -1,34 +1,34 @@
 .uk-container.uk-container-center
   .ul-grid
     .uk-panel
-      %ul.uk-breadcrumb
+      %ul.uk-breadcrumb.uk-margin-top
         -if @activelink == '/'
           %li.uk-active
             %span Россия
         -else
           %li
-            %a{:href=>"/"} Россия
+            %a{:href=>"/#orders"} Россия
         -if session[:siteregion] && session[:siteregion].size > 0
           -if @activelink == '/region'
             %li.uk-active
               %span #{session[:siteregion]}
           -else
             %li
-              %a{:href=>"/region/"+session[:siteregion]} #{session[:siteregion]}
+              %a{:href=>"/region/"+session[:siteregion]+'#orders'} #{session[:siteregion]}
         -if session[:sitearea] && session[:sitearea].size > 0
           -if @activelink == '/area'
             %li.uk-active
               %span #{session[:sitearea]}
           -else
             %li
-              %a{:href=>"/area/"+session[:sitearea]} #{session[:sitearea]}
+              %a{:href=>"/area/"+session[:sitearea]+"#orders"} #{session[:sitearea]}
         -if session[:sitelocation] && session[:sitelocation].size > 0
           -if @activelink == '/location'
             %li.uk-active
               %span #{session[:sitelocation]}
           -else
             %li
-              %a{:href=>"/location/"+session[:sitelocation]} #{session[:sitelocation]}
+              %a{:href=>"/location/"+session[:sitelocation]+"#orders"} #{session[:sitelocation]}
       -if @orders_at_mainpage && @orders_at_mainpage.size > 0
         -@orders_at_mainpage.each do |order|
           .uk-panel.uk-panel-box
@@ -41,17 +41,18 @@
               %i.uk-icon-comments-o
               #{Offer.count(:order_id => order.id)}
             %h3.uk-margin-top-remove #{order.title}
-            .uk-grid
-              .uk-width-1-4
-                %i.uk-icon-map-marker
-                Населенный пункт
-              .uk-width-3-4
-                =Placement.get(order.placement_id).location + (Placement.get(order.placement_id).area.length > 1 ? ", " + Placement.get(order.placement_id).area : "") + (Placement.get(order.placement_id).region.length > 1 ? ", " + Placement.get(order.placement_id).region : "")
-              .uk-width-1-4
-                %i.uk-icon-wrench
-                Описание
-              .uk-width-3-4
-                #{order.subject}
+            %table.uk-table.uk-table-condensed
+              %tbody
+                %tr
+                  %td.uk-width-1-4
+                    %h4.uk-margin-bottom-remove Населенный пункт
+                  %td.uk-width-3-4
+                    =Placement.get(order.placement_id).location + (Placement.get(order.placement_id).area.length > 1 ? ", " + Placement.get(order.placement_id).area : "") + (Placement.get(order.placement_id).region.length > 1 ? ", " + Placement.get(order.placement_id).region : "")
+                %tr
+                  %td.uk-width-1-4
+                    %h4.uk-margin-bottom-remove Описание
+                  %td.uk-width-3-4
+                    #{order.subject}
           %br
         %ul.uk-pagination
           -if @start_page > 1

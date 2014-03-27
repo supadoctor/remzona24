@@ -1,0 +1,74 @@
+.uk-container.uk-container-center
+  %br
+  .uk-grid
+    .uk-width-2-3
+      .uk-panel.uk-panel-box
+        %h1.uk-text-right.uk-display-inline  Сообщение
+        -if @msg.receiver == current_user
+          .uk-button-dropdown.uk-align-right{"data-uk-dropdown"=>""}
+            %button.uk-button
+              %h2.uk-display-inline.uk-margin-right Действие
+              %i.uk-icon-caret-down
+              /%i.uk-icon-gear
+            .uk-dropdown.uk-dropdown-small
+              %ul.uk-nav.uk-nav-dropdown
+                %li
+                  %a{:href=>"#"}
+                    %form{:action => "/message/"+@msg.id.to_s, :method => "post"}
+                      %input{:type=>"hidden", :name=>"_method", :value=>"put"}
+                      %input{:type=>"submit", :value=>"В архив", :style=>"background:none!important; border:none; padding:0!important;"}
+                      /В архив
+                %li
+                  %a{:href=>"#"}
+                    %form{:action => "/message/"+@msg.id.to_s, :method => "post"}
+                      %input{:type=>"hidden", :name=>"_method", :value=>"delete"}
+                      %input{:type=>"submit", :value=>"Удалить", :style=>"background:none!important; border:none; padding:0!important;"}
+                      /Удалить
+        %table.uk-table.uk-table-striped
+          %tbody
+            %tr
+              %td.uk-width-1-10
+                %i.uk-icon-user
+              %td.uk-width-3-10
+                %h3.uk-margin-bottom-remove Отправитель
+              %td.uk-width-6-10
+                -if @msg.sender.id != 1
+                  %a{:href=>"/user/"+@msg.sender.id.to_s}
+                    #{@msg.sender.displayedname}
+                -else
+                  #{@msg.sender.displayedname}
+            %tr
+              %td.uk-width-1-10
+                %i.uk-icon-calendar
+              %td.uk-width-3-10
+                %h3.uk-margin-bottom-remove Дата
+              %td.uk-width-6-10
+                #{@msg.date.strftime("%d.%m.%Y %H:%M")}
+            %tr
+              %td.uk-width-1-10
+                %i.uk-icon-comments-o
+              -if @order
+                %td.uk-width-3-10
+                  %h3.uk-margin-bottom-remove Страница обсуждения заявки
+                %td.uk-width-6-10
+                  %a{:href=>"/order/#{@order.id}/comments"}
+                    Перейти
+              -if @offer
+                %td.uk-width-3-10
+                  %h3.uk-margin-bottom-remove Страница обсуждения предложения
+                %td.uk-width-6-10
+                  %a{:href=>"/offer/#{@offer.id}/comments"}
+                    Перейти
+        %hr
+        %h3
+          =@msg.text
+        %hr
+
+    .uk-width-1-3
+      .uk-panel.uk-panel-box
+        %h2 Yandex Direct AD
+        
+#openmap.uk-modal
+  .uk-modal-dialog.uk-modal-dialog-slide
+    %a.uk-modal-close.uk-close
+    #map{:style =>"width:550px; height:300px"}

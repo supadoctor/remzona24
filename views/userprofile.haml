@@ -6,17 +6,214 @@
       .uk-panel.uk-panel-box
         %h1.uk-text-right Личный кабинет
         %ul.uk-tab.uk-margin-bottom{"data-uk-tab"=>"{connect:'#operation'}"}
-          / %ul.uk-navbar{"data-uk-tab"=>"{connect:'#operation'}"}
-          / %div.uk-margin{"data-uk-switcher"=>"{connect:'#operation'}"}
           %li.uk-active
-            %a{:href=>"#"} Профиль
+            %a{:href=>"#"}
+              Мои заявки
+              - if @newoffers.first > 0
+                .uk-badge.uk-badge-notification.uk-badge-danger
+                  #{@newoffers.first}
           %li
             %a{:href=>"#"}
-              Заявки
-              .uk-badge.uk-badge-notification.uk-badge-danger
-                #{@newoffers.first}
-        %ul#operation.uk-switcher
+              Уведомления
+              - if @newmessages > 0
+                .uk-badge.uk-badge-notification.uk-badge-danger
+                  #{@newmessages}
           %li
+            %a{:href=>"#"}
+              Профиль     
+          %li
+            %a{:href=>""} Настройки
+        %ul#operation.uk-switcher
+          %li#orders
+            %ul.uk-tab.uk-margin-bottom.uk-tab-flip{"data-uk-tab"=>"{connect:'#allorders'}"}         
+              %li
+                %a{:href=>"#"}
+                  Архив
+              %li
+                %a{:href=>"#"}
+                  Действующие
+              %li.uk-active
+                %a{:href=>"#"}
+                  Новая     
+            %ul#allorders.uk-switcher   
+              %li
+                - if @myclosedorders.size < 1
+                  %h3 Нет архивных заявок
+                - else
+                  .uk-width-1-1
+                    %table.uk-table
+                      %thead
+                        %tr
+                          %th.uk-width-3-10
+                            Заголовок
+                          %th.uk-width-3-10
+                            Описание
+                          %th.uk-width-1-10
+                            Окончание
+                          %th.uk-width-2-10
+                            /Предложения / Вопросы
+                      %tbody
+                        - @myclosedorders.each do |o|
+                          %tr
+                            %td
+                              %a{:href=>"/order/"+o.id.to_s} #{o.title}
+                            %td
+                              .uk-text-small #{o.subject}
+                            %td
+                              -if o.td != o.fd
+                                .uk-text-center #{o.td.strftime("%d.%m.%Y")}
+                              - else
+                                .uk-text-center -
+                            %td
+                              %i.uk-icon-eye{"data-uk-tooltip" => "", :title=>"Просмотры"}
+                              #{o.views}
+                              %i.uk-icon-comments-o{"data-uk-tooltip" => "", :title=>"Предложения"}
+                              #{Offer.count(:order_id => o.id)}
+                              %i.uk-icon-question-circle{"data-uk-tooltip" => "", :title=>"Вопросы"}
+                              #{Message.count(:order_id => o.id, :sender.not => current_user)}
+              %li
+                - if @myactiveorders.size < 1
+                  %h3 Нет активных заявок
+                - else
+                  .uk-width-1-1
+                    %table.uk-table
+                      %thead
+                        %tr
+                          %th.uk-width-3-10
+                            Заголовок
+                          %th.uk-width-3-10
+                            Описание
+                          %th.uk-width-1-10
+                            Срок окончания
+                          %th.uk-width-1-10
+                            %i.uk-icon-eye{"data-uk-tooltip" => "", :title=>"Просмотры"}
+                          %th.uk-width-1-10
+                            %i.uk-icon-comments-o{"data-uk-tooltip" => "", :title=>"Предложения"}
+                          %th.uk-width-1-10
+                            %i.uk-icon-question-circle{"data-uk-tooltip" => "", :title=>"Обсуждения"}
+                            /Предложения / Вопросы
+                      %tbody
+                        - @myactiveorders.each do |o|
+                          %tr
+                            %td
+                              %a{:href=>"/order/"+o.id.to_s} #{o.title}
+                            %td
+                              .uk-text-small #{o.subject}
+                            %td
+                              -if o.td != o.fd
+                                .uk-text-center #{o.td.strftime("%d.%m.%Y")}
+                              - else
+                                .uk-text-center -
+                            %td
+                              #{o.views}
+                            %td
+                              #{Offer.count(:order_id => o.id)}
+                            %td
+                              #{Message.count(:order_id => o.id, :sender.not => current_user, :type => "Question")}
+              %li
+                %a#addorder{:href=>"/neworder"}
+                  %button.uk-button
+                    %i.uk-icon-plus-square-o
+                    Новая заявка
+          %li#notifications
+            %ul.uk-tab.uk-margin-bottom.uk-tab-flip{"data-uk-tab"=>"{connect:'#allnotifications'}"}
+              %li
+                %a{:href=>"#"}
+                  Архив              
+              %li.uk-active
+                %a{:href=>"#"}
+                  Входящие
+            %ul#allnotifications.uk-switcher   
+              %li
+                - if @archivedmessages.size < 1
+                  %h3 У вас нет архивных уведомлений
+                - else
+                  %table.uk-table
+                    %thead
+                      %tr
+                        %th
+                        %th
+                          Тема
+                        %th
+                          Отправитель
+                        %th
+                          Дата
+                        /%th
+                        /  Сообщение
+                    %tbody
+                      - @archivedmessages.each do |m|
+                        %tr
+                          %td
+                            -if m.unread
+                              .uk-badge
+                                Новое
+                          %td
+                            %a{:href=>"/message/"+m.id.to_s}
+                              -case m.type
+                                -when "Offer"
+                                  Новое предложение
+                          %td
+                            -if m.sender.id != 1
+                              %a{:href=>"/user/"+m.sender.id.to_s}
+                                #{m.sender.displayedname}
+                            -else
+                              #{m.sender.displayedname}
+                          %td
+                            #{m.date.strftime("%d.%m.%Y %H:%M")}
+              %li
+                - if @messages.size < 1
+                  %h3 У вас нет входящих уведомлений
+                - else
+                  %table.uk-table
+                    %thead
+                      %tr
+                        %th
+                        %th
+                          Тема
+                        %th
+                          Отправитель
+                        %th
+                          Дата
+                        /%th
+                        /  Сообщение
+                    %tbody
+                      - @messages.each do |m|
+                        %tr
+                          %td
+                            -if m.unread
+                              .uk-badge
+                                Новое
+                          %td
+                            %a{:href=>"/message/"+m.id.to_s}
+                              -case m.type
+                                -when "Offer"
+                                  Новое предложение
+                                -when "Question"
+                                  Вопрос по заявке
+                                -when "Accept"
+                                  Подтверждение начала работ
+                          %td
+                            -if m.sender.id != 1
+                              %a{:href=>"/user/"+m.sender.id.to_s}
+                                #{m.sender.displayedname}
+                            -else
+                              #{m.sender.displayedname}
+                          %td
+                            #{m.date.strftime("%d.%m.%Y %H:%M")}
+                          /%td
+                          /  .uk-width-4-10.uk-text-truncate
+                          /    #{m.text}
+                          /%td.uk-width-1-10.uk-text-center
+                          /  %form{:action => "/message/"+m.id.to_s, :method => "post"}
+                          /    %input{:type=>"hidden", :name=>"_method", :value=>"put"}
+                          /    %button{:type => "submit"}
+                          /      %i.uk-icon-archive{"data-uk-tooltip" => "", :title=>"В архив"}
+                          /%td.uk-width-1-10.uk-text-center
+                          /  %form{:action => "/message/"+m.id.to_s, :method => "post"}
+                          /    %input{:type=>"hidden", :name=>"_method", :value=>"delete"}
+                          /    %button{:type => "submit"}
+                          /      %i.uk-icon-trash-o{"data-uk-tooltip" => "", :title=>"Удалить"}          
+          %li#profile
             %form.uk-form.uk-form-horizontal{:action => "/updateprofile", :method => "post", :enctype=>"multipart/form-data"}
               .uk-form-row.uk-margin
                 %h3.uk-form-label{:for=>"avatar"} Фотография
@@ -32,10 +229,22 @@
                 %h3.uk-form-label{:for=>"fullname"} Контактное лицо
                 .uk-form-controls
                   %input#fullname.uk-width-1-1.editable{:type=>"text", :required=>"", :value=>@current_user.fullname, :name=>"fullname", :readonly=>""}
+              %hr
               .uk-form-row
-                %h3.uk-form-label Электронная почта
+                %h3.uk-form-label
+                  Электронная почта
+                  %span.uk-display-inline
+                    %i.uk-icon-question-circle{"data-uk-tooltip" => "", :title => "Укажите корректный адрес электронной почты. Он будет использоваться для входа на Портал и получения уведомлений"}
                 .uk-form-controls{:for=>"email"}
                   %input#email.uk-width-1-1.editable{:type=>"email", :required=>"", :value=>@current_user.email, :name=>"email", :readonly=>""}
+              .uk-form-row
+                %h3.uk-form-label{:for=>"phone"}
+                  Мобильный номер
+                  %span.uk-display-inline
+                    %i.uk-icon-question-circle{"data-uk-tooltip" => "", :title => "Укажите ваш мобильный номер начиная с '+7' или '8'"}
+                .uk-form-controls
+                  %input#phone.uk-width-1-1.editable{:type=>"text", :value=>@current_user.phone, :name=>"phone", :readonly=>""}
+              %hr
               .uk-form-row
                 %h3.uk-form-label{:for=>"location"} Населенный пункт
                 .uk-form-controls
@@ -43,10 +252,16 @@
                   %input#locationtitle{:type=>"text", :name=>"locationtitle", :hidden=>"true", :value=>Placement.get(@current_user.placement_id).location}
                   %input#area{:type=>"text", :name=>"area", :hidden=>"true", :value=>Placement.get(@current_user.placement_id).area}
                   %input#region{:type=>"text", :name=>"region", :hidden=>"true", :value=>Placement.get(@current_user.placement_id).region}
+              %hr
               .uk-form-row
                 %h3.uk-form-label{:for=>"site"} На сайте с
                 .uk-form-controls
                   %input#site.uk-form-width-large{:type=>"text", :required=>"", :value=>@current_user.created_at.strftime("%d.%m.%Y"), :readonly=>""}
+              .uk-form-row
+                %h3.uk-form-label{:for=>"pass"} Моя страница
+                .uk-form-controls
+                  #pass{:style=>"margin-top: 5px; padding-top: 5px; padding-bottom: 5px;"}
+                    %a{:href=>"/user/" + @current_user.id.to_s} Показать
               .uk-form-row
                 %h3.uk-form-label Пароль
                 .uk-form-controls
@@ -60,120 +275,43 @@
                 .uk-width-1-2.uk-container-center.uk-text-center
                   %button#cancel.uk-button{:type=>"reset", :style=>"display: none;"} Отменить изменения
             %button#editprofile.uk-button
-              %i.uk-icon-edit-sign
+              %i.uk-icon-edit
               Изменить
-          %li
-            - if @myactiveorders.size < 1
-              %h3.uk-display-inline Нет активных заявок
-            - else
-              %h3.uk-display-inline Активные заявки
-            %a#addorder{:href=>"/neworder"}
-              %button.uk-button
-                %i.uk-icon-plus-sign-alt
-                Новая
-            .uk-width-1-1
-              %table.uk-table
-                %thead
-                  %tr
-                    %th.uk-width-3-10
-                      Заголовок
-                    %th.uk-width-3-10
-                      Описание
-                    %th.uk-width-1-10
-                      Окончание
-                    %th.uk-width-2-10
-                      /Предложения / Вопросы
-                    %th.uk-width-1-10
-                      Закрыть
-                %tbody
-                  - @myactiveorders.each do |o|
-                    %tr
-                      %td
-                        %a{:href=>"/order/"+o.id.to_s} #{o.title}
-                      %td
-                        #{o.subject}
-                      %td
-                        -if o.td.strftime("%d.%m.%Y") != "01.01.3000"
-                          .uk-text-center #{o.td.strftime("%d.%m.%Y")}
-                        - else
-                          .uk-text-center -
-                      %td
-                        %i.uk-icon-eye{"data-uk-tooltip" => "", :title=>"Просмотры"}
-                        #{o.views}
-                        %i.uk-icon-comments-o{"data-uk-tooltip" => "", :title=>"Предложения"}
-                        #{Offer.count(:order_id => o.id)}
-                        %i.uk-icon-question-circle{"data-uk-tooltip" => "", :title=>"Вопросы"}
-                        #{Message.count(:order_id => o.id, :sender.not => current_user)}
-                      %td.uk-text-center
-                        %form{:action => "/closeorder/"+o.id.to_s, :method => "post"}
-                          %button{:type => "submit"}
-                            %i.uk-icon-minus
-
-
-              / .uk-grid
-              /   .uk-width-1-3
-              /     %p.uk-text-small Заголовок
-              /   .uk-width-2-3
-              /     .uk-grid
-              /       .uk-width-2-5
-              /         %p.uk-text-small Описание
-              /       .uk-width-1-5
-              /         %p.uk-text-center.uk-text-small Окончание
-              /       .uk-width-1-5
-              /         %p.uk-text-center.uk-text-small Предложения / Вопросы
-              /       .uk-width-1-5
-              /         %p.uk-text-center.uk-text-small Закрыть
-              /   - @myactiveorders.each do |o|
-              /     .uk-width-1-3 
-              /       %p.uk-text-truncate
-              /         %a{:href=>"/order/"+o.id.to_s} #{o.title}
-              /     .uk-width-2-3
-              /       .uk-grid
-              /         .uk-width-2-5
-              /           %p.uk-text-truncate #{o.subject}
-              /         .uk-width-1-5
-              /           -if o.td.strftime("%d.%m.%Y") != "01.01.3000"
-              /             %p.uk-text-center #{o.td.strftime("%d.%m.%Y")}
-              /           - else
-              /             %p.uk-text-center -
-              /         .uk-width-1-5
-              /           %p.uk-text-center #{Offer.count(:order_id => o.id)} / #{Message.count(:order_id => o.id, :sender.not => current_user)}
-              /         .uk-width-1-5.uk-text-center
-              /           %form{:action => "/closeorder/"+o.id.to_s, :method => "post"}
-              /             %button{:type => "submit"}
-              /               %i.uk-icon-minus
-            %hr
-            - if @myclosedorders.size < 1
-              %h3 Нет закрытых заявок
-            - else
-              %h3 Закрытые заявки
-              .uk-grid
-                .uk-width-1-3
-                  %p.uk-text-small Заголовок
-                .uk-width-2-3
-                  .uk-grid
-                    .uk-width-2-4
-                      %p.uk-text-small Описание
-                    .uk-width-1-4
-                      %p.uk-text-center.uk-text-small Окончание
-                    .uk-width-1-4
-                      %p.uk-text-small Удалить
-                - @myclosedorders.each do |o|
-                  .uk-width-1-3
-                    %p.uk-text-truncate
-                      %a{:href=>"/order/"+o.id.to_s} #{o.title}
-                  .uk-width-2-3
-                    .uk-grid
-                      .uk-width-2-4
-                        %p.uk-text-truncate #{o.subject}
-                      .uk-width-1-4
-                        %p.uk-text-center #{o.td.strftime("%d.%m.%Y")}
-                      .uk-width-1-4
-                        %form{:action => "/delorder/"+o.id.to_s, :method => "post"}
-                          %button{:type => "submit"}
-                            %i.uk-icon-remove
-            %br
-            / %a.uk-button.uk-button-primary.uk-align-center.uk-text-center{:href=>"/neworder"} Создать заявку
+          %li#settings
+            %form.uk-form.uk-form-horizontal{:action=>"/updatesettings", :method=>"post"}
+              .uk-form-row{:style=>"margin-top: 5px; margin-bottom: 15px;"}
+                %h3.uk-form-label{:style=>"width: 400px;"}
+                  Отображать адрес электронной почты
+                  %span.uk-display-inline
+                    %i.uk-icon-question-circle{"data-uk-tooltip" => "", :title => "Отметьте флажок, если вы хотите отображать ваш адрес электронной почты при просмотре другими участниками Портала вашей личной страницы"}
+                .uk-form-controls{:style=>"margin-top: 10px; margin-left: 415px;"}
+                  - if get_settings(current_user, "showemail")
+                    %input{:type=>"checkbox", :name=>"showemail", :checked=>""}
+                  - else
+                    %input{:type=>"checkbox", :name=>"showemail"}
+              .uk-form-row
+                %h3.uk-form-label{:style=>"width: 400px;"}
+                  Отображать мобильный номер
+                  %span.uk-display-inline
+                    %i.uk-icon-question-circle{"data-uk-tooltip" => "", :title => "Отметьте флажок, если вы хотите отображать ваш мобильный номер при просмотре другими участниками Портала вашей личной страницы"}
+                .uk-form-controls{:style=>"margin-top: 10px; margin-left: 415px;"}
+                  - if get_settings(current_user, "showphone")
+                    %input{:type=>"checkbox", :name=>"showphone", :checked=>""}
+                  - else
+                    %input{:type=>"checkbox", :name=>"showphone"}
+              .uk-form-row
+                %h3.uk-form-label{:style=>"width: 400px;"}
+                  Дублировать уведомления на электронную почту 
+                  %span.uk-display-inline
+                    %i.uk-icon-question-circle{"data-uk-tooltip" => "", :title => "Отметьте флажок, если вы хотите дублировать получаемые уведомления на электронную почту"}
+                .uk-form-controls{:style=>"margin-top: 10px; margin-left: 415px;"}
+                  - if get_settings(current_user, "sendmessagestoemail")
+                    %input{:type=>"checkbox", :name=>"sendmessagestoemail", :checked=>""}
+                  - else
+                    %input{:type=>"checkbox", :name=>"sendmessagestoemail"}
+              %button.uk-button.uk-button-success{:type=>"submit"}
+                %i.uk-icon-edit
+                Сохранить          
     .uk-width-1-3
       .uk-panel.uk-panel-box
         %h2 Yandex Direct AD
