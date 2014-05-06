@@ -1,0 +1,41 @@
+.uk-container.uk-container-center
+  %br
+  .uk-grid
+    .uk-width-2-3
+      %h1.uk-text-right #{@user.displayedname}
+      - if @reviews && @reviews.size > 0
+        %h3.uk-text-right Отзывы
+        - @reviews.each do |q|
+          .uk-panel.uk-panel-box.uk-margin-bottom
+            %article.uk-comment
+              %header.uk-comment-header
+                %img.uk-comment-avatar{:src => User.get(q.author_id).avatar.avatar64.url}
+                .uk-comment-meta
+                  Автор:
+                  %a{:href=>"/user/#{q.author_id}"}
+                    =User.get(q.author_id).displayedname
+                  %br
+                  Дата:
+                  #{q.date.strftime("%d.%m.%Y, %H:%M:%S")}
+              .uk-comment-body
+                #stars{"data-score" => q.rating}
+                #{q.text}        
+      - else
+        %h3.uk-text-right Нет отзывов о пользователе
+    .uk-width-1-3
+      .uk-panel.uk-panel-box{:style=>"width:240px;"}
+        %h2 Yandex Direct AD
+        
+:javascript
+  $(function() {
+  
+    $('#stars').raty({
+      path: '/img/raty',
+      readOnly: true,
+      hints: ['Ужасно!','Плохо','Нормально','Хорошо','Супер!'],
+      score: function() {
+        return $(this).attr('data-score');
+      }
+    });
+    
+  });

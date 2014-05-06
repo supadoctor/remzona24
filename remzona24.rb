@@ -5,7 +5,7 @@ require 'sinatra'
 require 'haml'
 require 'bcrypt'
 require 'data_mapper'
-# require 'keepass/password'
+require 'keepass/password'
 require 'warden'
 require 'pony'
 require 'json'
@@ -27,12 +27,13 @@ class Remzona24App < Sinatra::Base
     set :port => 8888, :bind => '0.0.0.0'
     enable :sessions, :logging, :method_override
     I18n.enforce_available_locales = false
+    set :edminds_api => 'dqrths629w35vurjaz5yrn7c'
+    set :vehicles => YAML.load_file("public/makes.yml")
   end    
-    #@text = YAML.load_file("public/texts.yml")
-    #puts @text["hints"]["email"]
+    @@text = YAML.load_file("public/texts.yml")
     
     # use Rack::Session::Cookie, secret: "rem_zona_24_ru_secret"
-
+  
   Pony.options = {
     :from => 'noreply@remzona24.ru',
     :via => :smtp,
@@ -57,6 +58,10 @@ class Remzona24App < Sinatra::Base
     config.scope_defaults :default,
       strategies: [:password],
       action: 'auth/unauthenticated'
+    
+    config.scope_defaults :express,
+      strategies: [:express],
+      action: 'auth/unauthenticated'
   end
 
   Warden::Manager.before_failure do |env,opts|
@@ -71,12 +76,25 @@ class Remzona24App < Sinatra::Base
     def authenticate!
       user = User.first(:email => params["email"])
       if user.nil?
-        session[:messagetodisplay]= "Неверное имя пользователя или пароль."
+        session[:messagetodisplay]= @@text["notify"]["wronguserorpassword"]
       elsif user.authenticate(params["password"])
         user.update(:lastlogon => DateTime.now)
         success!(user)
+        puts "Авторизация по паролю!"
       else
-        session[:messagetodisplay]= "Неверное имя пользователя или пароль."
+        session[:messagetodisplay]= @@text["notify"]["wronguserorpassword"]
+      end
+    end
+  end
+  
+  Warden::Strategies.add(:express) do
+    def authenticate!
+      user = User.first(:email => params["email"])
+      if user.nil?
+        session[:messagetodisplay]= @@text["notify"]["wronguser"]
+      else
+        user.update(:lastlogon => DateTime.now)
+        success!(user)
       end
     end
   end
@@ -84,7 +102,23 @@ class Remzona24App < Sinatra::Base
   helpers do
     def current_user
       # @current_user ||= User.get(session[:user_id]) if session[:user_id]
-      @current_user = env['warden'].user if env['warden'].authenticated?
+      if env['warden'].authenticated?
+        @current_user = env['warden'].user
+        #puts "Поиск текущего пользователя при авторизации по паролю"
+        #puts "Результат >>>>", @current_user
+        return @current_user
+      end
+      
+      if env['warden'].authenticated?(:express)
+        @current_user = env['warden'].user(:express)
+        #puts "Поиск текущего пользователя при экспресс авторизации"
+        #puts "Результат >>>>", @current_user
+        return @current_user
+      end
+      #puts "Выход из хелпера поиска текущего пользователя"
+      
+      #@current_user = env['warden'].user if env['warden'].authenticated?
+      #@current_user = env['warden'].user(:express) if env['warden'].authenticated?(:express)
     end
     
     def logged_in?
@@ -111,6 +145,15 @@ class Remzona24App < Sinatra::Base
     
     def rur(text)
       text.to_s.gsub(/(\d)(?=(\d\d\d)+(?!\d))/, "\\1 ") + " руб."
+    end
+    
+    def fulllocation(usr)
+      Placement.get(usr.placement_id).location + (Placement.get(usr.placement_id).area.length > 1 ? ", " + Placement.get(usr.placement_id).area : "") + (Placement.get(usr.placement_id).region.length > 1 ? ", " + Placement.get(usr.placement_id).region : "")
+    end
+    
+    def vehicleinfo(order)
+      v = order.vehicle
+      (v.make && v.make.size > 0 ? v.make : "") + (v.mdl && v.mdl.size > 0 ? " " + v.mdl : "") + (v.year && v.year>0 ? ", год выпуска: " + v.year.to_s : "") + (v.VIN && v.VIN.size > 0 ? ", VIN: " + v.VIN : "")
     end
   end
 
@@ -156,6 +199,7 @@ class Remzona24App < Sinatra::Base
     end
     @pagination = @start_page..@end_page
     if !logged_in?
+      #puts "БЕЗ АУТЕТНИФИКАЦИИ"
       if !session[:siteregionplaceholder]
         session[:siteregionplaceholder] = "Россия"
       end 
@@ -163,6 +207,7 @@ class Remzona24App < Sinatra::Base
         haml :index, :layout => :promo
       end
     else
+      #puts "ПОСЛЕ АУТЕНТИФИКАЦИИ"
       haml :navbarafterlogin do
         haml :index
       end
@@ -304,7 +349,7 @@ class Remzona24App < Sinatra::Base
 
   post '/reguser' do
     if params[:password] != params[:pass]
-      session[:messagetodisplay] = "Ошибка при повторном вводе пароля. Пожалуйста, пройдите процедуру регистрации еще раз"
+      session[:messagetodisplay] = @@text["notify"]["errorinpassword"]
       redirect back
     end
     placement = Placement.first_or_new(
@@ -313,35 +358,35 @@ class Remzona24App < Sinatra::Base
       :location => params[:locationtitle])
     begin
       placement.save
-      user = User.new(
-        :email => params[:email],
-        :type => "User",
-        :fullname => h(params[:fullname]),
-        :created_at => DateTime.now,
-        :password => params[:password],
-        :placement => placement,
-        :status => 0,
-        :profile => Profile.new(:showemail => true, :showphone => true, :sendmessagestoemail => true))
-      begin
-        user.save
-        session[:user_id] = user.id
-        @msg = "Здравствуйте, " + user.displayedname + "!\nВы успешно зарегистрировались на сайте РемЗона24.ру" + "\n\nДля входа на сайт используйте Ваш логин (" + user.email + ") и пароль, указанный при регистрации.\n\nЭто уведомление создано и отправлено автоматически, отвечать на него не нужно.\n\n--\nС уважением, РемЗона24.ру"
-        Pony.mail(:to => user.email, :subject => 'Регистрация на РемЗона24.ру', :body => @msg)
-        env['warden'].authenticate!
-        redirect '/profile'
-      rescue
-        session[:messagetodisplay] = user.errors.values.join("; ")
-        redirect back
-      end
     rescue
       session[:messagetodisplay] = placement.errors.values.join("; ")
       redirect back
     end
+    user = User.new(
+      :email => params[:email],
+      :type => "User",
+      :fullname => params[:fullname],
+      :created_at => DateTime.now,
+      :password => params[:password],
+      :placement => placement,
+      :status => 0,
+      :profile => Profile.new(:showemail => true, :showphone => true, :sendmessagestoemail => true))
+    begin
+      user.save
+    rescue
+      session[:messagetodisplay] = user.errors.values.join("; ")
+      redirect back
+    end
+    session[:user_id] = user.id
+    @msg = "Здравствуйте, " + user.displayedname + "!\n" + @@text["email"]["registration"]
+    Pony.mail(:to => user.email, :subject => 'Регистрация на РемЗона24.ру', :body => @msg)
+    env['warden'].authenticate!
+    redirect '/profile'
   end
 
   post '/regmaster' do
     if params[:password] != params[:pass]
-      session[:messagetodisplay] = "Ошибка при повторном вводе пароля. Пожалуйста, пройдите процедуру регистрации еще раз"
+      session[:messagetodisplay] = @@text["notify"]["errorinpassword"]
       redirect back
     end
     placement = Placement.first_or_new(
@@ -350,32 +395,32 @@ class Remzona24App < Sinatra::Base
       :location => params[:locationtitle])
     begin
       placement.save
-      user = User.new(
-        :email => params[:email],
-        :type => "Master",
-        :familyname => Unicode::capitalize(h(params[:familyname])),
-        :name => Unicode::capitalize(h(params[:name])),
-        :fathersname => Unicode::capitalize(h(params[:fathersname])),
-        :created_at => DateTime.now,
-        :password => params[:password],
-        :placement => placement,
-        :status => 0,
-        :profile => Profile.new(:showemail => true, :showphone => true, :sendmessagestoemail => true))
-      begin
-        user.save
-        session[:user_id] = user.id
-        @msg = "Здравствуйте, " + user.displayedname + "!\nВы успешно зарегистрировались на сайте РемЗона24.ру" + "\n\nДля входа на сайт используйте Ваш логин (" + user.email + ") и пароль, указанный при регистрации.\n\nЭто уведомление создано и отправлено автоматически, отвечать на него не нужно.\n\n--\nС уважением, РемЗона24.ру"
-        Pony.mail(:to => user.email, :subject => 'Регистрация на РемЗона24.ру', :body => @msg)
-        env['warden'].authenticate!
-        redirect '/profile'
-      rescue
-        session[:messagetodisplay] = user.errors.values.join("; ")
-        redirect back
-      end
     rescue
       session[:messagetodisplay] = placement.errors.values.join("; ")
       redirect back
     end
+    user = User.new(
+      :email => params[:email],
+      :type => "Master",
+      :familyname => Unicode::capitalize(params[:familyname]),
+      :name => Unicode::capitalize(params[:name]),
+      :fathersname => Unicode::capitalize(params[:fathersname]),
+      :created_at => DateTime.now,
+      :password => params[:password],
+      :placement => placement,
+      :status => 0,
+      :profile => Profile.new(:showemail => true, :showphone => true, :sendmessagestoemail => true))
+    begin
+      user.save
+    rescue
+      session[:messagetodisplay] = user.errors.values.join("; ")
+      redirect back
+    end
+    session[:user_id] = user.id
+    @msg = "Здравствуйте, " + user.displayedname + "!\n" + @@text["email"]["registration"]
+    Pony.mail(:to => user.email, :subject => 'Регистрация на РемЗона24.ру', :body => @msg)
+    env['warden'].authenticate!
+    redirect '/profile'
   end
 
   get '/profile' do
@@ -386,8 +431,8 @@ class Remzona24App < Sinatra::Base
       haml :navbarafterlogin do
         case @current_user.type
           when "User"
-            @myactiveorders = Order.all(:user => current_user, :status => 0, :order => [ :fd.desc ]) & (Order.all(:conditions => ['fd = td'], :order => [ :fd.desc ]) | Order.all(:td.gte => DateTime.now, :order => [ :fd.desc ]))
-            @myclosedorders = Order.all(:user => current_user, :status => 1, :order => [ :fd.desc ]) & (Order.all(:conditions => ['fd <> td'], :td.lt => DateTime.now, :order => [ :fd.desc ]))
+            @myactiveorders = (Order.all(:status => 0, :order => [ :fd.desc ]) | Order.all(:status => 3, :order => [ :fd.desc ])) & Order.all(:user => current_user, :order => [ :fd.desc ]) & (Order.all(:conditions => ['fd = td'], :order => [ :fd.desc ]) | Order.all(:td.gte => DateTime.now, :order => [ :fd.desc ]))
+            @myclosedorders = Order.all(:user => current_user, :status => 1, :order => [ :fd.desc ]) | Order.all(:status => 0, :td.lt => DateTime.now, :conditions => ['fd <> td'], :order => [ :fd.desc ])
             @newoffers = repository(:default).adapter.select('SELECT COUNT(*) FROM offers WHERE order_id IN (SELECT id FROM orders WHERE user_id = ?) AND unread = true;', current_user.id)
             haml :userprofile
           when "Master"
@@ -398,6 +443,8 @@ class Remzona24App < Sinatra::Base
             @tags = @tags.join(", ")
             @myactiveoffers = Offer.all(:user => current_user, :order => [ :fd.desc ]) & (Offer.all(:status => 0, :order => [ :fd.desc ]) | Offer.all(:status => 2, :order => [ :fd.desc ]) | Offer.all(:status => 3, :order => [ :fd.desc ])) & (Offer.all(:conditions => ['fd = td'], :order => [ :fd.desc ]) | Offer.all(:td.gte => DateTime.now, :order => [ :fd.desc ]))
             @myclosedoffers = Offer.all(:user => current_user, :order => [ :fd.desc ]) & (Offer.all(:status => 1, :order => [ :fd.desc ]) | Offer.all(:status => 4, :order => [ :fd.desc ]) | Offer.all(:conditions => ['fd <> td'], :td.lt => DateTime.now, :order => [ :fd.desc ]))
+            #@mypossibilities = Order.all(:status => 0, :placement => current_user.placement, :order => [ :fd.desc ], :limit => 10)
+            @mypossibilities = repository(:default).adapter.select('select * from orders where id in (select order_id from ordertaggings where tag_id in (select id from tags where tag in (select tag from tags where id in (select tag_id from usertaggings where user_id = ?)))) and status = 0 and placement_id = ? order by fd desc limit 10;', current_user.id, current_user.placement_id)
             haml :masterprofile
         end
       end
@@ -411,16 +458,17 @@ class Remzona24App < Sinatra::Base
       begin
         @user = User.get(params[:id].to_i)
       rescue
-        session[:messagetodisplay] = "Пользователь не найден"
+        session[:messagetodisplay] = @@text["notify"]["nouser"]
         redirect back
       ensure
         if @user.nil?
-          session[:messagetodisplay] = "Пользователь не найден"
+          session[:messagetodisplay] = @@text["notify"]["nouser"]
           redirect back
         end
       end
       if logged_in?
         haml :navbarafterlogin do
+          @reviews = Review.all(:user => @user, :limit => 10, :order => [:date.desc])
           case @user.type
             when "User"
               haml :userview
@@ -434,7 +482,34 @@ class Remzona24App < Sinatra::Base
           end
         end
       else
-        session[:messagetodisplay] = "Для просмотра подробной информации об участнике Портала, пожалуйста, войдите в систему"
+        session[:messagetodisplay] = @@text["notify"]["plsloginforseeuser"]
+        redirect back
+      end
+    else
+      redirect back
+    end
+  end
+  
+  get '/user/:id/reviews' do
+    if params[:id].to_i > 1
+      begin
+        @user = User.get(params[:id].to_i)
+      rescue
+        session[:messagetodisplay] = @@text["notify"]["nouser"]
+        redirect back
+      ensure
+        if @user.nil?
+          session[:messagetodisplay] = @@text["notify"]["nouser"]
+          redirect back
+        end
+      end
+      if logged_in?
+        haml :navbarafterlogin do
+          @reviews = Review.all(:user => @user)
+          haml :reviews
+        end
+      else
+        session[:messagetodisplay] = @@text["notify"]["plsloginforuserreviews"]
         redirect back
       end
     else
@@ -454,7 +529,7 @@ class Remzona24App < Sinatra::Base
       case @current_user.type
       when "Master"
         begin
-          @current_user.update(:name => h(params[:name]), :fathersname => h(params[:fathersname]), :familyname => h(params[:familyname]), :description => h(params[:description]), :phone => h(params[:phone]), :email => h(params[:email]), :placement => placement)
+          @current_user.update(:name => params[:name], :fathersname => params[:fathersname], :familyname => params[:familyname], :description => h(params[:description]), :phone => params[:phone], :email => params[:email], :placement => placement)
           if params[:avatar] && !params[:delete_avatar]
             @current_user.update(:avatar => params[:avatar])
           end
@@ -479,7 +554,7 @@ class Remzona24App < Sinatra::Base
         end
       when "User"
         begin
-          @current_user.update(:avatar => params[:avatar], :fullname => h(params[:fullname]), :email => h(params[:email]), :placement => placement)
+          @current_user.update(:avatar => params[:avatar], :fullname => params[:fullname], :email => params[:email], :phone => params[:phone], :placement => placement)
         rescue
           session[:messagetodisplay] = @current_user.errors.values.join("; ")
           redirect back
@@ -489,7 +564,7 @@ class Remzona24App < Sinatra::Base
       session[:messagetodisplay] = placement.errors.values.join("; ")
       redirect back
     end
-    session[:messagetodisplay] = "Профиль был успено обновлен"
+    session[:messagetodisplay] = @@text["notify"]["updateprofile"]
     redirect back
   end
 
@@ -497,10 +572,6 @@ class Remzona24App < Sinatra::Base
     if logged_in?
       if @current_user.password != params[:oldpass]
         session[:messagetodisplay] = "Неправильно указан старый пароль. Пожалуйста, попробуйте сменить пароль еще раз"
-        redirect back
-      end
-      if params[:newpass1] != params[:newpass2]
-        session[:messagetodisplay] = "Ошибка при повторном вводе нового пароля. Пожалуйста, попробуйте сменить пароль еще раз"
         redirect back
       end
       @current_user.update(:password => params[:newpass1])
@@ -515,37 +586,37 @@ class Remzona24App < Sinatra::Base
   post '/resetpass' do
     user = User.first(:email=>params[:email])
     if !user
-      session[:messagetodisplay] = "Указанный адрес электронной почты не зарегистрирован на Портале"
+      session[:messagetodisplay] = @@text["notify"]["wrongemail"]
       redirect back
     else
+      resetrequest = ResetPasswords.first_or_new({:email => user.email}, {:td => DateTime.now+1, :myhash => (user.email + DateTime.now.to_s)})
       begin
-        resetrequest = ResetPasswords.first_or_new({:email => user.email}, {:td => DateTime.now+1, :myhash => (user.email + DateTime.now.to_s)})
         resetrequest.save
-        session[:messagetodisplay] = "Ваш запрос был получен. Проверьте почту для сброса пароля"
-        @msg = "Здравствуйте!\nКто-то (возможно вы) запросил сброс пароля на сайте РемЗона24.ру\n\nДля сброса пароля перейдите по ссылке http://" + request.host + ":" + request.port.to_s + "/resetpass?reset=" + resetrequest.myhash + "\nДанная ссылка будет действительна в течении 24-х часов или до факта сброса пароля.\n\nЭто уведомление создано и отправлено автоматически, отвечать на него не нужно.\n\n--\nС уважением, РемЗона24.ру"
-        Pony.mail(:to => user.email, :subject => 'Сброс пароля на РемЗона24.ру', :body => @msg)
-        redirect back
       rescue
-        session[:messagetodisplay] = "При сбросе пароля произошла ошибка. Попробуйте еще раз "
+        session[:messagetodisplay] = @@text["notify"]["resetpassworderror"]
         session[:messagetodisplay] += resetrequest.errors.values.join("; ")
         redirect back
       end
+      session[:messagetodisplay] = @@text["notify"]["resetpassword"]
+      @msg = @@text["email"]["resetpassword1"] + request.host + ":" + request.port.to_s + "/resetpass?reset=" + resetrequest.myhash + @@text["email"]["resetpassword2"]
+      Pony.mail(:to => user.email, :subject => 'Сброс пароля на РемЗона24.ру', :body => @msg)
+      redirect back
     end
   end
 
   get '/resetpass' do
     resetrequest = ResetPasswords.first(:myhash => params[:reset])
     if !resetrequest 
-      session[:messagetodisplay] = "К сожалению, мы не можем сбросить пароль, т.к. заявки на сброс пароля не существует"
+      session[:messagetodisplay] = @@text["notify"]["resetpasswordwrongemail"]
       redirect back
     elsif resetrequest.td < DateTime.now
       resetrequest.destroy
-      session[:messagetodisplay] = "К сожалению, мы не можем сбросить пароль, т.к. заявка на сброс пароля просрочена"
+      session[:messagetodisplay] = @@text["notify"]["resetpasswordoverdue"]
       redirect back
     end
     if !logged_in?
       haml :navbarbeforelogin do
-        resetrequest.update(:myhash => DateTime.now.to_s)
+        #resetrequest.update(:myhash => DateTime.now.to_s)
         @mynewhash = resetrequest.myhash
         haml :resetpass
       end
@@ -558,16 +629,17 @@ class Remzona24App < Sinatra::Base
   
   post '/updatepassword' do
     resetrequest = ResetPasswords.first(:myhash => params[:reset])
-    if !resetrequest 
-      session[:messagetodisplay] = "К сожалению, мы не можем сбросить пароль, т.к. заявки на сброс пароля не существует"
+    if !resetrequest
+      session[:messagetodisplay] = @@text["notify"]["resetpassworderror"]
       redirect back
     else
       if params[:newpass1] != params[:newpass2]
-        session[:messagetodisplay] = "Ошибка при повторном вводе нового пароля. Пожалуйста, попробуйте сменить пароль еще раз"
+        session[:messagetodisplay] = @@text["notify"]["errorinpassword"]
       else
         user = User.first(:email => resetrequest.email)
         user.update(:password => params[:newpass1])
-        session[:messagetodisplay] = "Пароль успешно был изменен"
+        resetrequest.update(:myhash => DateTime.now.to_s)
+        session[:messagetodisplay] = @@text["notify"]["updatepassword"]
       end
       resetrequest.destroy
       redirect '/'
@@ -592,20 +664,20 @@ class Remzona24App < Sinatra::Base
         @current_user.profile.update(s.to_sym => false)
       end
     end
-    session[:messagetodisplay] = "Настройки были успешно обновлены"
+    session[:messagetodisplay] = @@text["notify"]["updatesettings"]
     redirect back
   end  
 
-  get '/regsuccess' do
-    if logged_in?
-      haml :navbarafterlogin do
-        haml :regsuccess
-      end
-    else
-      session[:messagetodisplay] = "К сожалению, при входе в систему возникла ошибка. Пожалуйста, попробуйте войти еще раз"
-      redirect back
-    end
-  end
+  #get '/regsuccess' do
+  #  if logged_in?
+  #    haml :navbarafterlogin do
+  #      haml :regsuccess
+  #    end
+  #  else
+  #    session[:messagetodisplay] = "К сожалению, при входе в систему возникла ошибка. Пожалуйста, попробуйте войти еще раз"
+  #    redirect back
+  #  end
+  #end
 
   get '/neworder' do
     if !logged_in?
@@ -624,9 +696,9 @@ class Remzona24App < Sinatra::Base
     if params[:budgettype] == "1"
       budget = -1
     else
-      budget = params[:budget]
+      budget = params[:budget].to_i
     end
-    
+    #puts "*******",  params[:vehiclemake], params[:vehiclemodel], params[:vehicleyear].to_i, params[:vehicleVIN]
     order = Order.new(
       :user => current_user,
       :title => h(params[:title]),
@@ -636,7 +708,8 @@ class Remzona24App < Sinatra::Base
       :td => td,
       :status => 0,
       :views => 0,
-      :placement => @current_user.placement)
+      :placement => @current_user.placement,
+      :vehicle => Vehicle.first_or_new(:make => params[:vehiclemake], :mdl => h(params[:vehiclemodel]), :year => params[:vehicleyear].to_i, :VIN => h(params[:vehicleVIN])))
     begin
       order.save
     rescue
@@ -652,8 +725,69 @@ class Remzona24App < Sinatra::Base
         oi = Orderimage.create(:order => order, :image => image)
       end
     end
-    session[:messagetodisplay] = "Заявка успешно создана!"
+    session[:messagetodisplay] = @@text["notify"]["neworder"]
     redirect '/'
+  end
+  
+  post '/expressorder' do
+    placement = Placement.first_or_new(
+      :region => params[:region],
+      :area => params[:area],
+      :location => params[:locationtitle])
+    begin
+      placement.save
+    rescue
+      session[:messagetodisplay] = placement.errors.values.join("; ")
+      redirect back
+    end
+    password = KeePass::Password.generate('d{6}')
+    user = User.new(
+      :email => params[:email],
+      :type => "User",
+      :fullname => params[:fullname],
+      :created_at => DateTime.now,
+      :password => password,
+      :placement => placement,
+      :status => 0,
+      :profile => Profile.new(:showemail => true, :showphone => true, :sendmessagestoemail => true),
+      :vehicle => Vehicle.first_or_new(:make => params[:vehiclemake], :mdl => h(params[:vehiclemodel])))
+    begin
+      user.save
+    rescue
+      session[:messagetodisplay] = user.errors.values.join("; ")
+      redirect back
+    end
+    session[:user_id] = user.id
+    @msg = "Здравствуйте, " + user.displayedname + "!\n" + @@text["email"]["expressregistration1"] + "логин: " + user.email + "\nпароль: " + password + @@text["email"]["expressregistration2"]
+    Pony.mail(:to => user.email, :subject => 'Регистрация на РемЗона24.ру', :body => @msg)
+
+    env['warden'].authenticate! :scope => :express
+
+    fd = DateTime.now
+    
+    order = Order.new(
+      :user => user,
+      :title => h(params[:title]),
+      :subject => h(params[:subject]),
+      :budget => -1,
+      :fd => fd,
+      :td => fd,
+      :status => 0,
+      :views => 0,
+      :placement => user.placement)
+    begin
+      order.save
+    rescue
+      session[:messagetodisplay] = order.errors.values.join("; ")
+      redirect back
+    end
+    if !params[:photos].nil?
+      params[:photos].each do |image|
+        oi = Orderimage.create(:order => order, :image => image)
+      end
+    end
+    session[:messagetodisplay] = @@text["notify"]["expressregistration"]
+    redirect '/profile'
   end
 
   post '/order/:order/addoffer' do
@@ -685,7 +819,7 @@ class Remzona24App < Sinatra::Base
       session[:messagetodisplay] = offer.errors.values.join("; ")
       redirect back
     end
-    int_msg = "Здравствуйте! <br/> По вашей <a href='http://" + request.host + ":" + request.port.to_s + "/order/" + order.id.to_s + "'>заявке</a> было размещено новое предложение. Ознакомиться с ним вы можете по этой <a href='http://" + request.host + ":" + request.port.to_s + "/offer/" + offer.id.to_s + "'>ссылке</a>.</br>--<br/>С уважением, РемЗона24.ру"
+    int_msg = "Здравствуйте! <br/> По вашей заявке (<a href='http://" + request.host + ":" + request.port.to_s + "/order/" + order.id.to_s + "'>" + order.title + "</a>) было размещено новое предложение. Ознакомиться с ним вы можете по этой <a href='http://" + request.host + ":" + request.port.to_s + "/offer/" + offer.id.to_s + "'>ссылке</a>.</br>--<br/>С уважением, РемЗона24.ру"
     message = Message.new(
       :sender => User.get(1),
       :receiver => order.user,
@@ -701,11 +835,58 @@ class Remzona24App < Sinatra::Base
       session[:messagetodisplay] += message.errors.values.join("; ")
       redirect back
     end
-    email_msg = "Здравствуйте!\nПо вашей заявке (http://" + request.host + ":" + request.port.to_s + "/order/" + order.id.to_s + ") было размещено новое предложение. Ознакомиться с ним вы можете по этой ссылке: http://" + request.host + ":" + request.port.to_s + "/offer/" + offer.id.to_s + "\n--\nС уважением, РемЗона24.ру"
+    #email_msg = "Здравствуйте!\nПо вашей заявке (http://" + request.host + ":" + request.port.to_s + "/order/" + order.id.to_s + ") было размещено новое предложение. Ознакомиться с ним вы можете по этой ссылке: http://" + request.host + ":" + request.port.to_s + "/offer/" + offer.id.to_s + "\n--\nС уважением, РемЗона24.ру"
+    email_msg = @@text["email"]["newoffer"] + request.host + ":" + request.port.to_s + "/offer/" + offer.id.to_s + "\n\nССылка на исходную заявку: http://" + request.host + ":" + request.port.to_s + "/order/" + order.id.to_s + "\n--\nС уважением, РемЗона24.ру"
     if get_settings(order.user, "sendmessagestoemail")
       Pony.mail(:to => order.user.email, :subject => 'Вы получили новое предложение на РемЗона24.ру', :body => email_msg)
     end
-    session[:messagetodisplay] = "Ваше предложение принято. Соответствующее уведомление было отправлено заказчику"
+    session[:messagetodisplay] = @@text["notify"]["newoffer"]
+    redirect back
+  end
+
+  post '/order/:order/reviewcontractor' do
+    order = Order.get(params[:order])
+    if !order.contract
+      session[:messagetodisplay] = @@text["notify"]["nocontract"]
+      redirect back
+    end
+    review = Review.new(
+      :user => order.contract.contractor,
+      :author => order.contract.customer,
+      :text => h(params[:text]),
+      :rating => params[:rating],
+      :date => DateTime.now,
+      :contract => order.contract)
+    begin
+      review.save
+    rescue
+      session[:messagetodisplay] = review.errors.values.join("; ")
+      redirect back
+    end
+    session[:messagetodisplay] = @@text["notify"]["reviewcontractor"]
+    redirect back
+  end
+  
+  post '/order/:order/reviewcustomer' do
+    order = Order.get(params[:order])
+    if !order.contract
+      session[:messagetodisplay] = @@text["notify"]["nocontract"]
+      redirect back
+    end
+    review = Review.new(
+      :user => order.contract.customer,
+      :author => order.contract.contractor,
+      :text => h(params[:text]),
+      :rating => params[:rating],
+      :date => DateTime.now,
+      :contract => order.contract)
+    begin
+      review.save
+    rescue
+      session[:messagetodisplay] = review.errors.values.join("; ")
+      redirect back
+    end
+    session[:messagetodisplay] = @@text["notify"]["reviewcustomer"]
     redirect back
   end
 
@@ -749,25 +930,44 @@ class Remzona24App < Sinatra::Base
         redirect back
       end
     end
+    if params.has_key?("user")
+      @message = Message.new(
+        :sender => current_user,
+        :receiver => User.get(params[:user]),
+        :unread => true,
+        :subject => h(params[:subject]),
+        :text => h(params[:question]),
+        :date => DateTime.now,
+        :type => "Question"
+      )
+      begin
+        @message.save
+        session[:messagetodisplay] = @@text["notify"]["messagesent"]
+      rescue
+        session[:messagetodisplay] = @message.errors.values.join("; ")
+      ensure
+        redirect back
+      end
+    end
   end
 
   get '/order/:order' do
     begin
       @order = Order.get(params[:order].to_i)
     rescue
-      session[:messagetodisplay] = "Заявка не существует"
-      redirect '/profile'
+      session[:messagetodisplay] = @@text["notify"]["noorder"]
+      redirect back
     ensure
       if @order.nil? || @order.status == 2
-        session[:messagetodisplay] = "Заявка не существует"
-        redirect '/profile'
-      end  
+        session[:messagetodisplay] = @@text["notify"]["noorder"]
+        redirect back
+      end
     end
-    @tags = []
-    @order.tags.all.each do |t|
-      @tags << t.tag
-    end
-    @tags = @tags.join(', ')
+    #@tags = []
+    #@order.tags.all.each do |t|
+    #  @tags << t.tag
+    #end
+    #@tags = @tags.join(', ')
     if logged_in? && current_user != @order.user
       views = @order.views + 1
       @order.update(:views => views)
@@ -785,6 +985,7 @@ class Remzona24App < Sinatra::Base
     end
 
     @questionsnumber = Message.count(:order_id => params[:order].to_i, :type => "Question")
+    @alreadyreviewed = Review.first(:contract => @order.contract)
 
     if !logged_in?
       haml :navbarbeforelogin do
@@ -801,11 +1002,11 @@ class Remzona24App < Sinatra::Base
     begin
       @order = Order.get(params[:order].to_i)
     rescue
-      session[:messagetodisplay] = "Заявка не существует"
+      session[:messagetodisplay] = @@text["notify"]["noorder"]
       redirect back
     ensure
       if @order.nil?
-        session[:messagetodisplay] = "Заявка не существует"
+        session[:messagetodisplay] = @@text["notify"]["noorder"]
         redirect back
       end
     end
@@ -838,7 +1039,7 @@ class Remzona24App < Sinatra::Base
         else
           order.update(:status => 1, :td => DateTime.now)
           session[:messagetodisplay] = "Заявка была перенесена в архив"
-          redirect back
+          redirect '/profile'
         end
       end
     end
@@ -858,7 +1059,7 @@ class Remzona24App < Sinatra::Base
         else
           order.update(:status => 2, :td => DateTime.now)
           session[:messagetodisplay] = "Заявка была удалена"
-          redirect back
+          redirect '/profile'
         end
       end
     end
@@ -872,11 +1073,11 @@ class Remzona24App < Sinatra::Base
       end
       @offer.update(:unread => false)
     rescue
-      session[:messagetodisplay] = "Предложения не существует"
+      session[:messagetodisplay] = @@text["notify"]["nooffer"]
       redirect back
     ensure
       if @offer.nil?
-        session[:messagetodisplay] = "Предложения не существует"
+        session[:messagetodisplay] = @@text["notify"]["nooffer"]
         redirect back
       end  
     end
@@ -896,11 +1097,11 @@ class Remzona24App < Sinatra::Base
     begin
       @offer = Offer.get(params[:offer].to_i)
     rescue
-      session[:messagetodisplay] = "Предложение не существует"
+      session[:messagetodisplay] = @@text["notify"]["nooffer"]
       redirect back
     ensure
       if @offer.nil?
-        session[:messagetodisplay] = "Предложение не существует"
+        session[:messagetodisplay] = @@text["notify"]["nooffer"]
         redirect back
       end
     end
@@ -941,36 +1142,34 @@ class Remzona24App < Sinatra::Base
     begin
       @offer = Offer.get(params[:offer].to_i)
       if @offer.status != 0
-        session[:messagetodisplay] = "Предложения не существует"
-        redirect back
+        session[:messagetodisplay] = @@text["notify"]["nooffer"]
+        redirect '/'
       end
     rescue
-      session[:messagetodisplay] = "Предложения не существует"
-      redirect back
+      session[:messagetodisplay] = @@text["notify"]["nooffer"]
+      redirect '/'
     ensure
       if @offer.nil?
-        session[:messagetodisplay] = "Предложения не существует"
-        redirect back
+        session[:messagetodisplay] = @@text["notify"]["nooffer"]
+        redirect '/'
       end  
     end
-    if !logged_in? || Order.get(@offer.order).user != current_user
+    if !logged_in? || User.get(Order.get(@offer.order_id).user_id) != current_user
       redirect '/'
     else
       if @offer.status != 0
         session[:messagetodisplay] = "Предложение не действительно"
         redirect back
       end
-      #@contract = Contract.new(:customer => current_user, :contractor => @offer.user)
-      #begin
-      #  @contract.save
       @offer.update(:status => 2)
-      
+      @order = Order.get(@offer.order_id)
+      @order.update(:status => 3)
       int_msg = "Здравствуйте!<br/>Ваше предложение было принято. Пожалуйста, <a href='http://" + request.host + ":" + request.port.to_s + "/offer/" + @offer.id.to_s +  "'>подтвердите</a> свою готовность выполнить работу."
-      if params[:message] && params[:message].size>0
-        int_msg += "<br/>Дополнительная информация от заказчика:<br/>" + params[:message]
-      end
       int_msg += "<br/>--<br/>С уважением, РемЗона24.ру"
-      @message = Message.new(:unread => true, :date => DateTime.now, :text => int_msg, :sender => User.get(1), :receiver => @offer.user, :type => "Request")
+      if params[:message] && params[:message].size>0
+        int_msg += "<br/><br/><mark>Дополнительная информация от заказчика:</mark><br/><blockquote>" + h(params[:message]) + "</blockquote>"
+      end
+      @message = Message.new(:unread => true, :date => DateTime.now, :text => int_msg, :sender => User.get(1), :receiver => @offer.user, :type => "Request", :offer => @offer, :order => @order)
       begin
         @message.save
       rescue
@@ -985,7 +1184,7 @@ class Remzona24App < Sinatra::Base
       if get_settings(@offer.user, "sendmessagestoemail")
         Pony.mail(:to => @offer.user.email, :subject => 'Ваше предложение было принято на РемЗона24.ру', :body => email_msg)
       end
-      session[:messagetodisplay] = "Вы приняли предложение. Соответствующее уведомление было отправлено исполнителю"
+      session[:messagetodisplay] = "Вы приняли предложение. Соответствующее уведомление было отправлено исполнителю; После подтверждения со строны исполнителя вы можете оставить свой отзыв о качестве его работы"
       redirect 'profile'
       #rescue
       #  session[:messagetodisplay] = @contract.errors.values.join("; ")
@@ -1002,47 +1201,48 @@ class Remzona24App < Sinatra::Base
       #  redirect back
       #end
     rescue
-      session[:messagetodisplay] = "Предложения не существует"
-      redirect back
+      session[:messagetodisplay] = @@text["notify"]["nooffer"]
+      redirect '/'
     ensure
       if @offer.nil?
-        session[:messagetodisplay] = "Предложения не существует"
-        redirect back
+        session[:messagetodisplay] = @@text["notify"]["nooffer"]
+        redirect '/'
       end  
     end
     if !logged_in? || @offer.user != current_user
+      session[:messagetodisplay] = "Только автор предложения может его подтвердить"
       redirect '/'
     else
       if @offer.status != 2
         session[:messagetodisplay] = "Предложение не принято заказчиком"
-        redirect back
+        redirect '/'
       end
       @order = Order.get(@offer.order_id)
-      @contract = Contract.new(:customer => @order.user, :contractor => current_user)
+      @contract = Contract.new(:customer => @order.user, :contractor => current_user, :order => Order.get(@offer.order_id), :date => DateTime.now)
       begin
         @contract.save
-        @offer.update(:status => 3)
-        
-        int_msg = "Здравствуйте!<br/>Предложение было подтверждено исполнителем."
-        int_msg += "<br/>--<br/>С уважением, РемЗона24.ру"
-        @message = Message.new(:unread => true, :date => DateTime.now, :text => int_msg, :sender => User.get(1), :receiver => @order.user, :type => "Accept")
-        begin
-          @message.save
-        rescue
-          session[:messagetodisplay] = @message.errors.values.join("; ")
-          redirect back
-        end
-        email_msg = "Здравствуйте!\nПредложение было принято."
-        email_msg += "\n--\nС уважением, РемЗона24.ру"
-        if get_settings(@order.user, "sendmessagestoemail")
-          Pony.mail(:to => @order.user.email, :subject => 'Потверждение начала работ на РемЗона24.ру', :body => email_msg)
-        end
-        session[:messagetodisplay] = "Вы подтвердили готовность выполнить работы. Соответствующее уведомление было отправлено заказчику."
-        redirect 'profile'
       rescue
         session[:messagetodisplay] = @contract.errors.values.join("; ")
         redirect back
       end
+      @offer.update(:status => 3)
+      @order.update(:status => 1)        
+      int_msg = "Здравствуйте!<br/>Предложение было подтверждено исполнителем."
+      int_msg += "<br/>--<br/>С уважением, РемЗона24.ру"
+      @message = Message.new(:unread => true, :date => DateTime.now, :text => int_msg, :sender => User.get(1), :receiver => @order.user, :type => "Accept", :offer => @offer, :order => @order)
+      begin
+        @message.save
+      rescue
+        session[:messagetodisplay] = @message.errors.values.join("; ")
+        redirect back
+      end
+      email_msg = "Здравствуйте!\nПредложение было принято."
+      email_msg += "\n--\nС уважением, РемЗона24.ру"
+      if get_settings(@order.user, "sendmessagestoemail")
+        Pony.mail(:to => @order.user.email, :subject => 'Потверждение начала работ на РемЗона24.ру', :body => email_msg)
+      end
+      session[:messagetodisplay] = "Вы подтвердили готовность выполнить работы. Соответствующее уведомление было отправлено заказчику."
+      redirect 'profile'
     end
   end
 
@@ -1054,11 +1254,11 @@ class Remzona24App < Sinatra::Base
       #  redirect back
       #end
     rescue
-      session[:messagetodisplay] = "Предложения не существует"
+      session[:messagetodisplay] = @@text["notify"]["nooffer"]
       redirect back
     ensure
       if @offer.nil?
-        session[:messagetodisplay] = "Предложения не существует"
+        session[:messagetodisplay] = @@text["notify"]["nooffer"]
         redirect back
       end  
     end
@@ -1073,7 +1273,7 @@ class Remzona24App < Sinatra::Base
       #@contract = Contract.new(:customer => User.get(@offer.order).user, :contractor => current_user)
       #begin
       #redirect 'profile'
-      #rescue
+      #rescue 
       #  session[:messagetodisplay] = @contract.errors.values.join("; ")
       #  redirect back
       #end
@@ -1108,7 +1308,7 @@ class Remzona24App < Sinatra::Base
     else
       @msg = Message.get(params[:id].to_i)
       if !@msg
-        session[:messagetodisplay] = "Сообщение не найдено"
+        session[:messagetodisplay] = @@text["notify"]["nomessage"]
         redirect back
       end
       if @msg.receiver != current_user
@@ -1127,7 +1327,7 @@ class Remzona24App < Sinatra::Base
     else
       @msg = Message.get(params[:id].to_i)
       if !@msg
-        session[:messagetodisplay] = "Сообщение не найдено"
+        session[:messagetodisplay] = @@text["notify"]["nomessage"]
         redirect back
       end
       if @msg.receiver != current_user
@@ -1156,6 +1356,132 @@ class Remzona24App < Sinatra::Base
     json = { :tags => @tagslist }.to_json
     json
   end
+  
+  #get '/ajax/vehicle' do
+    #url = URI::encode("https://api.edmunds.com/api/vehicle/v2/makes?fmt=json&api_key="+settings.edminds_api)
+    #resp = Net::HTTP.get_response(URI.parse(url))
+    #vehicles = JSON.parse(resp.body)
+    #@vehicles = YAML.load_file("public/makes.yml")
+    #puts @@vehicles.class
+    #vehicles = JSON.generate(settings.vehicles)
+    #puts vehicles.class
+    #puts settings.vehicles.class
+    #puts vehicles
+    #puts settings.vehicles.values
+    #vehicles
+  #end
+  
+  post '/ajax/checkemail' do
+    if !logged_in?
+      if params[:email].nil?
+        '"Введите адрес электронной почты"'
+      elsif User.first(:email=>params[:email])
+        '"Данный адрес электронной почты уже зарегистрирован"'
+      else
+        "true"
+      end
+    else
+      if params[:email].nil?
+        '"Введите адрес электронной почты"'
+      elsif User.first(:email=>params[:email]) && @current_user.email != params[:email]
+        '"Данный адрес электронной почты уже зарегистрирован"'
+      else
+        "true"
+      end
+    end
+  end
+  
+  post '/ajax/checkfullname' do
+    if params[:fullname].nil?
+      '"Введите полное имя контактного лица"'
+    elsif (params[:fullname].match(/^[а-яА-ЯёЁa-zA-Z- ]+$/)).nil?
+      '"Полное имя может содержать только буквы и пробел"'
+    else
+      "true"
+    end
+  end
+
+  post '/ajax/checkfamilyname' do
+    if params[:familyname].nil?
+      '"Введите фамилию контактного лица"'
+    elsif (params[:familyname].match(/^[а-яА-ЯёЁa-zA-Z-]+$/)).nil?
+      '"Фaмилия может содержать только буквы"'
+    else
+      "true"
+    end
+  end
+  
+  post '/ajax/checkfathersname' do
+    if params[:fathersname].nil?
+      '"Введите отчество контактного лица"'
+    elsif (params[:fathersname].match(/^[а-яА-ЯёЁa-zA-Z-]+$/)).nil?
+      '"Отчество может содержать только буквы"'
+    else
+      "true"
+    end
+  end
+    
+  post '/ajax/checkname' do
+    if params[:name].nil?
+      '"Введите имя контактного лица"'
+    elsif (params[:name].match(/^[а-яА-ЯёЁa-zA-Z-]+$/)).nil?
+      '"Имя может содержать только буквы"'
+    else
+      "true"
+    end
+  end
+  
+  post '/ajax/checkphone' do
+    if params[:phone].nil?
+      '"Введите мобильный телефонный номер"'
+    elsif (params[:phone].match(/^((8|\+7)\d{10}$)/)).nil?
+      '"Номер должен начинатся с +7 или 8 и затем содержать 10 цифр"'
+    else
+      "true"
+    end
+  end
+
+  post '/ajax/checkpass' do
+    if params[:password] != params[:pass]
+      '"Ошибка при повторном вводе пароля"'
+    else
+      "true"
+    end
+  end
+  
+  post '/ajax/checklocation' do
+    fulllocation = params[:locationtitle] + (params[:area].size > 0 ? ", " + params[:area] : "") + (params[:region].size > 0 ? ", " + params[:region] : "")
+    if params[:fulllocation] != fulllocation
+      '"Выберите населенный пункт из списка"'
+    else
+      "true"
+    end
+  end
+  
+  post '/ajax/checkmakes' do
+    "true"
+  end
+
+  get '/ajax/message/:id' do
+    if !logged_in?
+      redirect '/'
+    else
+      @msg = Message.get(params[:id].to_i)
+      if !@msg
+        session[:messagetodisplay] = "Сообщение не найдено"
+        redirect back
+      end
+      if @msg.receiver != current_user
+        session[:messagetodisplay] = "Вы не можете прочитать это сообщение"
+        redirect back
+      end
+      @msg.update(:unread => false)
+      @order = Order.get(@msg.order_id)
+      @offer = Offer.get(@msg.offer_id)
+      #haml :ajaxmsg
+    end
+    sdfsdfdsfdsf
+  end
 
   post '/auth/login' do
     env['warden'].authenticate!
@@ -1171,7 +1497,8 @@ class Remzona24App < Sinatra::Base
       env['warden'].raw_session.inspect
       env['warden'].logout
       session[:user_id] = nil
-      session[:messagetodisplay] = "Вы вышли из системы"
+      #session[:messagetodisplay] = "Вы вышли из системы"
+      session[:messagetodisplay] = @@text["notify"]["logout"]
       redirect '/'
     end
   end

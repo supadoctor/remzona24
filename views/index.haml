@@ -47,7 +47,19 @@
                   %td.uk-width-1-4
                     %h4.uk-margin-bottom-remove Населенный пункт
                   %td.uk-width-3-4
-                    =Placement.get(order.placement_id).location + (Placement.get(order.placement_id).area.length > 1 ? ", " + Placement.get(order.placement_id).area : "") + (Placement.get(order.placement_id).region.length > 1 ? ", " + Placement.get(order.placement_id).region : "")
+                    #{fulllocation(order)}
+                %tr
+                  %td.uk-width-1-4
+                    %h4.uk-margin-bottom-remove Автомобиль
+                  %td.uk-width-3-4
+                    #{vehicleinfo(order)}
+                -if order.tags.size > 0
+                  %tr
+                    %td.uk-width-1-4
+                      %h4.uk-margin-bottom-remove Ключевые слова
+                    %td.uk-width-3-4
+                      - order.tags.each do |t|
+                        %span.uk-badge #{t.tag}
                 %tr
                   %td.uk-width-1-4
                     %h4.uk-margin-bottom-remove Описание

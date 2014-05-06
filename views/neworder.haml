@@ -4,8 +4,8 @@
     .uk-width-2-3
       .uk-panel.uk-panel-box
         %h1.uk-text-right Новая заявка
-        %form.uk-form.uk-form-horizontal{:action => "/order", :method => "post", :enctype=>"multipart/form-data"}
-          .uk-form-row
+        %form#order.uk-form.uk-form-horizontal{:action => "/order", :method => "post", :enctype=>"multipart/form-data"}
+          .uk-form-row{:style=>"margin-top: 20px;"}
             %label.uk-form-label{:for=>"title"}
               /%i.uk-icon-edit
               %h3
@@ -14,7 +14,139 @@
                   %i.uk-icon-question-circle{"data-uk-tooltip" => "", :title => "Укажите заголовок вашей заявки"}
             .uk-form-controls
               %input#title.uk-form-width-large{:type=>"text", :name=>"title"}
+              %br
+              %label.error.uk-text-small.uk-text-danger{:for=>"title"}
           .uk-form-row
+            %label.uk-form-label{:for=>"title"}
+              /%i.uk-icon-edit
+              %h3
+                Автомобиль
+                %span.uk-display-inline
+                  %i.uk-icon-question-circle{"data-uk-tooltip" => "", :title => "Обязателно укажите марку и модель автомобиля. Также вы можете сообщить и его VIN"}
+            .uk-form-controls
+              %table
+                %tr
+                  %td{:style=>"padding-bottom: 20px; padding-right: 20px;"}
+                    %label{:for=>"vehiclemake"} Марка
+                  %td{:style=>"padding-bottom: 20px;"}
+                    %select#vehiclemake{:type=>"text", :name=>"vehiclemake"}
+                      %option{:disabled =>"", :selected=>""} Выберите марку
+                      %option Acura
+                      %option Alfa Romeo
+                      %option Alpina
+                      %option Aro
+                      %option Asia
+                      %option Aston Martin
+                      %option Audi
+                      %option BMW
+                      %option BYD
+                      %option Bentley
+                      %option Bogdan
+                      %option Brilliance
+                      %option Bugatti
+                      %option Buick
+                      %option Cadillac
+                      %option Changan
+                      %option Changfeng
+                      %option Chery
+                      %option Chevrolet
+                      %option Chrysler
+                      %option Citroen
+                      %option Dacia
+                      %option Dadi
+                      %option Daewoo
+                      %option Daihatsu
+                      %option DeLorean
+                      %option Derways
+                      %option Dodge
+                      %option Eagle
+                      %option FAW
+                      %option Ferrari
+                      %option Fiat
+                      %option Ford
+                      %option GMC
+                      %option Geely
+                      %option Great Wall
+                      %option Hafei
+                      %option Haima
+                      %option Honda
+                      %option Hummer
+                      %option Hyundai
+                      %option Infiniti
+                      %option Iran Khodro
+                      %option Isuzu
+                      %option JMC
+                      %option Jaguar
+                      %option Jeep
+                      %option Kia
+                      %option Lada (ВАЗ)
+                      %option Lamborghini
+                      %option Lancia
+                      %option Land Rover
+                      %option Lexus
+                      %option Lifan
+                      %option Lincoln
+                      %option Lotus
+                      %option Luxgen
+                      %option MG
+                      %option MINI
+                      %option Maserati
+                      %option Maybach
+                      %option Mazda
+                      %option Mercedes-Benz
+                      %option Mercury
+                      %option Mitsubishi
+                      %option Mitsuoka
+                      %option Nissan
+                      %option Opel
+                      %option Peugeot
+                      %option Pontiac
+                      %option Porsche
+                      %option Renault
+                      %option Rolls-Royce
+                      %option Rover
+                      %option Saab
+                      %option Scion
+                      %option Seat
+                      %option Skoda
+                      %option Smart
+                      %option SsangYong
+                      %option Subaru
+                      %option Suzuki
+                      %option Tagaz (ТагАЗ)
+                      %option Toyota
+                      %option Volkswagen
+                      %option Volvo
+                      %option Vortex
+                      %option ZAZ (ЗАЗ)
+                      %option ГАЗ
+                      %option ИЖ
+                      %option Москвич
+                      %option УАЗ
+                    %br
+                    %label.error.uk-text-small.uk-text-danger{:for=>"vehiclemake"}
+                %tr
+                  %td{:style=>"padding-bottom: 20px; padding-right: 20px;"}
+                    %label{:for=>"vehiclemodel"} Модель
+                  %td{:style=>"padding-bottom: 20px;"}
+                    %input#vehiclemodel{:type=>"text", :name=>"vehiclemodel"}
+                    %br
+                    %label.error.uk-text-small.uk-text-danger{:for=>"vehiclemodel"}
+                %tr
+                  %td{:style=>"padding-bottom: 20px; padding-right: 20px;"}
+                    %label{:for=>"vehicleyear"} Год выпуска
+                  %td{:style=>"padding-bottom: 20px;"}
+                    %input#vehicleyear{:type=>"text", :name=>"vehicleyear"}
+                    %br
+                    %label.error.uk-text-small.uk-text-danger{:for=>"vehicleyear"}
+                %tr
+                  %td{:style=>"padding-bottom: 20px; padding-right: 20px;"}
+                    %label{:for=>"vehicleVIN"} VIN
+                  %td{:style=>"padding-bottom: 20px;"}
+                    %input#vehicleVIN{:type=>"text", :name=>"vehicleVIN"}
+                    %br
+                    %label.error.uk-text-small.uk-text-danger{:for=>"vehicleVIN"}
+          .uk-form-row{:style=>"margin-top: 20px;"}
             %label.uk-form-label{:for=>"subject"}
               /%i.uk-icon-wrench
               %h3
@@ -23,16 +155,18 @@
                   %i.uk-icon-question-circle{"data-uk-tooltip" => "", :title => "Опиште суть вашей заявки. Например, укажите состав и объем требуемых работ, пожелания к срокам, стоимости и т.п. Внесите сюда максимум информации, которая бы помогла потенциальным исполнителям подготовить наиболее оптимальное предложение"}
             .uk-form-controls
               %textarea#subject{:name=>"subject", :cols=>"100%", :rows=>"4"}
-          .uk-form-row
+              %br
+              %label.error.uk-text-small.uk-text-danger{:for=>"subject"}
+          .uk-form-row{:style=>"margin-top: 20px;"}
             %label.uk-form-label{:for=>"photo"}
               /%i.uk-icon-camera
               %h3
                 Фотографии
                 %span.uk-display-inline
-                  %i.uk-icon-question-circle{"data-uk-tooltip" => "", :title => "Вы можете дополнить явою заявку фотографиями. Звгрузить несколько файлов можно при помощи клавиши Ctrl"}
+                  %i.uk-icon-question-circle{"data-uk-tooltip" => "", :title => "Вы можете дополнить свою заявку фотографиями. Звгрузить несколько файлов можно при помощи клавиши Ctrl"}
             .uk-form-controls
               %input#photo{:type=>"file", :name=>"photos[]", :multiple=>""}
-          .uk-form-row
+          .uk-form-row{:style=>"margin-top: 20px;"}
             %label.uk-form-label{:for=>"tags"}
               /%i.uk-icon-tags
               %h3
@@ -40,9 +174,9 @@
                 %span.uk-display-inline
                   %i.uk-icon-question-circle{"data-uk-tooltip" => "", :title => "Укажите или выберите из списка наиболее подходящие ключевые слова. Ключевые слова используются исполнителями для поиска заявок"}
             .uk-form-controls
-              %textarea#tags{:name=>"tags", :cols=>"100%", :rows=>"1"}
+              %input.uk-form-width-large#tags{:type=>"text", :name=>"tags"}
           %hr
-          .uk-form-row
+          .uk-form-row{:style=>"margin-top: 20px;"}
             %label.uk-form-label{:for=>"budgettype"}
               /%i.uk-icon-money
               %h3
@@ -53,7 +187,8 @@
               %input{:type=>"radio", :name=>"budgettype", :value=>"1", :checked => ""} Не определен
               %input{:type=>"radio", :name=>"budgettype", :value=>"2"} Определен
               %input#budget{:type=>"text", :name=>"budget", :style=>"display: none;"}
-          .uk-form-row
+              %label#budgetlabel{:for=>"budget", :style=>"display: none;"} руб.
+          .uk-form-row{:style=>"margin-top: 20px;"}
             %label.uk-form-label{:for=>"lifetime"}
               /%i.uk-icon-arrows-h
               %h3
@@ -73,14 +208,14 @@
                 %option{:selected=>"", :value=>"0"}
                   Не закрывать автоматически
           %hr
-          .uk-form-row
+          .uk-form-row{:style=>"margin-top: 20px;"}
             %label.uk-form-label{:for=>"location"}
               /%i.uk-icon-home
               %h3 Населенный пункт
             .uk-form-controls
               %input#location.uk-width-1-1{:type=>"text", :name=>"location", :value => Placement.get(@current_user.placement_id).location + (Placement.get(@current_user.placement_id).area.length > 1 ? ", " + Placement.get(@current_user.placement_id).area : "") + (Placement.get(@current_user.placement_id).region.length > 1 ? ", " + Placement.get(@current_user.placement_id).region : ""), :disabled=>""}
           - if get_settings(current_user, "sendmessagestoemail")
-            .uk-form-row
+            .uk-form-row{:style=>"margin-top: 20px;"}
               %label.uk-form-label{:for=>"email"}
                 /%i.uk-icon-envelope
                 %h3 Электронная почта для получения уведомлений
@@ -89,7 +224,7 @@
           %hr
           .uk-grid
             .uk-width-1-2.uk-container-center.uk-text-center
-              %button#submit.uk-button.uk-button-success{:type=>"submit"}Создать заявку
+              %button.uk-button.uk-button-success{:type=>"submit"}Создать заявку
             .uk-width-1-2.uk-container-center.uk-text-center
               %a.button.uk-button{:href=>"/", :onClick=>"history.back();return false;"} Отменить
     .uk-width-1-3
@@ -103,22 +238,15 @@
       {
       //if($(this).value == "1") {
         $('#budget').css("display", "inline-block");
+        $('#budgetlabel').css("display", "inline-block");
       }
       else
       {
         $('#budget').css("display", "none");
+        $('#budgetlabel').css("display", "none");
       }
     });
 
-  //$('#tags')
-  //  .textext({
-  //      plugins : 'autocomplete tags ajax',
-  //      ajax : {
-  //        url : '/ajax/tags.json',
-  //        dataType : 'json',
-  //        cacheResults : true
-  //      }
-  //  });
     $('#tags').selectize({
       valueField: 'tag',
       labelField: 'tag',
@@ -126,6 +254,7 @@
       plugins: ['remove_button'],
       delimiter: ',',
       persist: false,
+      hideSelected: true,
       create: function(input) {
         return {
           tag: input
@@ -145,6 +274,51 @@
             callback(res.tags);
           }
         });
+      }
+    });
+    
+    var ordervalidator = $("#order").validate({
+      ignore: ':hidden, .selectized',
+      onsubmit: true,
+      debug: true,
+      rules: {
+        title: {
+          required: true,
+          maxlength: 50
+        },
+        vehiclemake: {
+          required: true
+        },
+        vehiclemodel: {
+          required: true
+        },
+        vehicleyear: {
+          required: false,
+          minlength: 4,
+          maxlength: 4
+        },
+        vehicleVIN: {
+          required: false,
+          minlength: 17,
+          maxlength: 17
+        },
+        subject: {
+          required: true
+        },
+        tags: {
+          required: false
+        }
+      },
+      messages: {
+        title: "Введите заголовок заявки длиною менее 50 символов",
+        vehiclemake: "Выберите марку из списка",
+        vehiclemodel: "Введите модель",
+        vehicleyear: "Введите 4-х значный год выпуска",
+        vehicleVIN: "VIN должен состоять из 17 символов",
+        subject: "Введите описание заявки"
+      },
+      submitHandler: function(form) {
+        form.submit();
       }
     });
   });

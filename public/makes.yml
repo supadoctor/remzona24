@@ -1,0 +1,185 @@
+makes:
+  - id: 100
+    name: Acura
+  - id: 200
+    name: Alfa Romeo
+  - id: 300
+    name: Alpina
+  - id: 400
+    name: Aro
+  - id: 500
+    name: Asia
+  - id: 600
+    name: Aston Martin
+  - id: 700
+    name: Audi
+  - id: 800
+    name: BMW
+  - id: 900
+    name: BYD
+  - id: 1000
+    name: Bentley
+  - id: 1100
+    name: Bogdan
+  - id: 1200
+    name: Brilliance
+  - id: 1300
+    name: Bugatti
+  - id: 1400
+    name: Buick
+  - id: 1500
+    name: Cadillac
+  - id: 1600
+    name: Changan
+  - id: 1700
+    name: Changfeng
+  - id: 1800
+    name: Chery
+  - id: 1900
+    name: Chevrolet
+  - id: 2000
+    name: Chrysler
+  - id: 2100
+    name: Citroen
+  - id: 2200
+    name: Dacia
+  - id: 2300
+    name: Dadi
+  - id: 2400
+    name: Daewoo
+  - id: 2500
+    name: Daihatsu
+  - id: 2600
+    name: DeLorean
+  - id: 2700
+    name: Derways
+  - id: 2800
+    name: Dodge
+  - id: 2900
+    name: Eagle
+  - id: 3000
+    name: FAW
+  - id: 3100
+    name: Ferrari
+  - id: 3200
+    name: Fiat
+  - id: 3300
+    name: Ford
+  - id: 3400
+    name: GMC
+  - id: 3500
+    name: Geely
+  - id: 3600
+    name: Great Wall
+  - id: 3700
+    name: Hafei
+  - id: 3800
+    name: Haima
+  - id: 3900
+    name: Honda
+  - id: 4000
+    name: Hummer
+  - id: 4100
+    name: Hyundai
+  - id: 4200
+    name: Infiniti
+  - id: 4300
+    name: Iran Khodro
+  - id: 4400
+    name: Isuzu
+  - id: 4500
+    name: JMC
+  - id: 4600
+    name: Jaguar
+  - id: 4700
+    name: Jeep
+  - id: 4800
+    name: Kia
+  - id: 4900
+    name: Lada (ВАЗ)
+  - id: 5000
+    name: Lamborghini
+  - id: 5100
+    name: Lancia
+  - id: 5200
+    name: Land Rover
+  - id: 5300
+    name: Lexus
+  - id: 5400
+    name: Lifan
+  - id: 5500
+    name: Lincoln
+  - id: 5600
+    name: Lotus
+  - id: 5700
+    name: Luxgen
+  - id: 5800
+    name: MG
+  - id: 5900
+    name: MINI
+  - id: 6000
+    name: Maserati
+  - id: 6100
+    name: Maybach
+  - id: 6200
+    name: Mazda
+  - id: 6300
+    name: Mercedes-Benz
+  - id: 6400
+    name: Mercury
+  - id: 6500
+    name: Mitsubishi
+  - id: 6600
+    name: Mitsuoka
+  - id: 6700
+    name: Nissan
+  - id: 6800
+    name: Opel
+  - id: 6900
+    name: Peugeot
+  - id: 7000
+    name: Pontiac
+  - id: 7100
+    name: Porsche
+  - id: 7200
+    name: Renault
+  - id: 7300
+    name: Rolls-Royce
+  - id: 7400
+    name: Rover
+  - id: 7500
+    name: Saab
+  - id: 7600
+    name: Scion
+  - id: 7700
+    name: Seat
+  - id: 7800
+    name: Skoda
+  - id: 7900
+    name: Smart
+  - id: 8000
+    name: SsangYong
+  - id: 8100
+    name: Subaru
+  - id: 8200
+    name: Suzuki
+  - id: 8300
+    name: Tagaz (ТагАЗ)
+  - id: 8400
+    name: Toyota
+  - id: 8500
+    name: Volkswagen
+  - id: 8600
+    name: Volvo
+  - id: 8700
+    name: Vortex
+  - id: 8800
+    name: ZAZ (ЗАЗ)
+  - id: 8900
+    name: ГАЗ
+  - id: 9000
+    name: ИЖ
+  - id: 9100
+    name: Москвич
+  - id: 9200
+    name: УАЗ

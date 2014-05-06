@@ -20,7 +20,7 @@ class ImageUploader < CarrierWave::Uploader::Base
   def extension_white_list
     %w(jpg jpeg gif png)
   end
-  process :resize_to_fit => [1280, 1024]
+  process :resize_to_limit => [1280, 1024]
   version :avatar64 do
     process :resize_to_fill => [64,64]
   end
@@ -99,26 +99,28 @@ class User
   property :status, Integer     #0 - active;
   property :description, Text,
     :messages => {
-      :length => "Описание пользователя должно быть менее 65535 символов"
+      :length => "Описание должно быть менее 65535 символов"
     }
   property :legalstatus, Integer
   mount_uploader :avatar, ImageUploader
   mount_uploader :pricelist, PricelistUploader
 
   validates_presence_of :fullname, :if => lambda { |t| t.type == "User" },
-    :message => "Не указано полное имя"
+    :message => "Введите полное имя контактного лица"
   validates_presence_of :familyname, :name, :fathersname, :if => lambda { |t| t.type == "Master" },
-    :message => "Не указаны ФИО"
+    :message => "Введите ФИО"
 
   has n, :orders
   has n, :offers
   has n, :messages, :child_key => [:sender_id]
   has n, :usertaggings
   has n, :tags, :through => :usertaggings
+  #has n, :taggings
+  #has n, :tags, :through => :taggings
   has 1, :profile
-  
   has n, :contracts, :child_key => [ :customer_id ]
   has n, :contractors, self, :through => :contracts, :via => :contractor
+  has n, :reviews, :child_key => [ :user_id ]
   
   belongs_to :placement, :required => false
   
@@ -145,6 +147,10 @@ end
 class Contract
   include DataMapper::Resource
   
+  property :id, Serial
+  property :date, DateTime
+  has 1, :review
+  belongs_to :order
   belongs_to :customer, 'User', :key => true
   belongs_to :contractor, 'User', :key => true
 end
@@ -166,6 +172,10 @@ class Message
   property :id, Serial
   property :unread, Boolean, :default  => true
   property :archived, Boolean, :default  => false
+  property :subject, String, :required => false, :length => 3..50,
+    :messages => {
+      :length => "Длина темы сообщения должна быть от 3 до 50 символов"
+    }
   property :text, Text, :required => true,
     :messages => {
       :presence => "Не указан текст сообщения"
@@ -192,7 +202,7 @@ class Order
   property :title, String, :required => true, :length => 3..50,
     :messages => {
       :presence => "Введите заголовок заявки",
-      :length => "Длина заголовка заявки должна быть от 3 и до 50 символов"
+      :length => "Длина заголовка заявки должна быть от 3 до 50 символов"
     }
   property :subject, Text, :required => true,
     :messages => {
@@ -207,14 +217,18 @@ class Order
   # property :location, String
   property :fd, DateTime, :required => true
   property :td, DateTime, :required => true
-  property :status, Integer    #0-active, 1-stopped, 2-deleted
+  property :status, Integer    #0-active, 1-stopped, 2-deleted, 3-wait for contractor's accept
   property :views, Integer
 
   has n, :offers
   has n, :messages
   has n, :ordertaggings
   has n, :tags, :through => :ordertaggings
+  #has n, :taggings
+  #has n, :tags, :through => :taggings
   has n, :orderimages
+  has 1, :vehicle
+  has 1, :contract
 
   belongs_to :user, :required => true
   belongs_to :placement, :required => true
@@ -230,6 +244,9 @@ class Tag
   has n, :orders, :through => :ordertaggings
   has n, :usertaggings
   has n, :users, :through => :usertaggings
+  #has n, :taggings
+  #has n, :orders, :through => :taggings
+  #has n, :users, :through => :taggings
 end
 
 class Ordertagging
@@ -245,6 +262,14 @@ class Usertagging
   belongs_to :tag, :key => true
   belongs_to :user, :key => true
 end
+
+#class Tagging
+#  include DataMapper::Resource
+#
+#  belongs_to :tag, :key => true
+#  belongs_to :order, :key => true
+#  belongs_to :user, :key => true
+#end
 
 class Placement
   include DataMapper::Resource
@@ -294,10 +319,47 @@ class ResetPasswords
   property :email, String, :required => true, :format => :email_address,
     :messages => {
       :format => "Не корректный формат электронной почты",
-      :presence  => "Обязательно укажите адрес электронной почты"
+      :presence => "Обязательно укажите адрес электронной почты"
     }
   property :myhash, BCryptHash
   property :td, DateTime
+end
+
+class Vehicle
+  include DataMapper::Resource
+  
+  property :id, Serial
+  property :make, String, :required => true,
+    :messages => {
+      :presence => "Введите марку автомобиля"
+    }
+  property :mdl, String, :required => true,
+    :messages => {
+      :presence => "Введете модель автомобиля"
+    }
+  property :year, Integer, :required => false
+  property :VIN, String, :required => false, :length => 17,
+    :messages => {
+      :length    => "VIN должен состоять из 17 символов"
+    }
+  
+  belongs_to :order
+end
+
+class Review
+  include DataMapper::Resource
+  
+  property :id, Serial
+  property :rating, Integer, :required => true,
+    :messages => {
+      :presence => "Не указан рейтинг"
+    }
+  property :text, Text
+  property :date, DateTime
+  
+  belongs_to :author, 'User', :key => true
+  belongs_to :user
+  belongs_to :contract
 end
 
 DataMapper.finalize

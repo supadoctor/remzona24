@@ -8,10 +8,13 @@
           %li.uk-active
             %a{:href=>""} Мои предложения
           %li
-            %a{:href=>""} Уведомления
-            - if @newmessages > 0
-              .uk-badge.uk-badge-notification.uk-badge-danger
-                #{@newmessages}
+            %a{:href=>""}
+              Уведомления
+              - if @newmessages > 0
+                .uk-badge.uk-badge-notification.uk-badge-danger
+                  #{@newmessages}
+          %li
+            %a{:href=>""} Возможности
           %li
             %a{:href=>""} Профиль
           %li
@@ -58,7 +61,7 @@
                     .uk-width-2-3
                       .uk-grid
                         .uk-width-3-4
-                          %p.uk-text-small Описание
+                          %p.uk-text-center.uk-text-small Описание
                         .uk-width-1-4
                           %p.uk-text-center.uk-text-small Окончание
                     - @myclosedoffers.each do |o|
@@ -92,7 +95,7 @@
                             %a{:href=>"/offer/"+o.id.to_s} Предложение #{o.id}
                           %td.uk-text-center
                             #{o.fd.strftime("%d.%m.%Y")}
-                          %td
+                          %td.uk-text-center
                             -if o.fd != o.td
                               #{o.fd.strftime("%d.%m.%Y")}
                             -else
@@ -131,9 +134,14 @@
                                 Новое
                           %td
                             %a{:href=>"/message/"+m.id.to_s}
-                              -case m.type
+                              -if !m.subject
+                                -case m.type
                                 -when "Offer"
-                                  Новое предложение
+                                  = "Новое предложение"
+                                -when "Request"
+                                  = "Предложение принято"
+                              -else
+                                #{m.subject}
                           %td
                             -if m.sender.id != 1
                               %a{:href=>"/user/"+m.sender.id.to_s}
@@ -167,9 +175,14 @@
                                 Новое
                           %td
                             %a{:href=>"/message/"+m.id.to_s}
-                              -case m.type
+                              -if !m.subject
+                                -case m.type
                                 -when "Offer"
-                                  Новое предложение
+                                  = "Новое предложение"
+                                -when "Request"
+                                  = "Предложение принято"
+                              -else
+                                #{m.subject}
                           %td
                             -if m.sender.id != 1
                               %a{:href=>"/user/"+m.sender.id.to_s}
@@ -191,9 +204,63 @@
                           /    %input{:type=>"hidden", :name=>"_method", :value=>"delete"}
                           /    %button{:type => "submit"}
                           /      %i.uk-icon-trash-o{"data-uk-tooltip" => "", :title=>"Удалить"}
+          %li#possibilities
+            - if @mypossibilities.size < 1
+              %h3 Нет подходящих заявок
+            - elsif @tags.size == 0
+              .uk-alert.uk-alert-danger{"data-uk-alert"=>""}
+                %a.uk-alert-close.uk-close{:href=>""}
+                %strong Внимание!
+                Для корреткной работы функционала поиска подходящих для вас заявок, необходимо указать ключевые слова на вкладке "Профиль" вашего Личного кабинета.   
+            - else
+              .uk-width-1-1
+                %table.uk-table
+                  %thead
+                    %tr
+                      %th.uk-width-3-10
+                        Заголовок
+                      %th.uk-width-3-10
+                        Описание
+                      %th.uk-width-1-10
+                        Срок окончания
+                      %th.uk-width-1-10
+                        %i.uk-icon-eye{"data-uk-tooltip" => "", :title=>"Просмотры"}
+                      %th.uk-width-1-10
+                        %i.uk-icon-comments-o{"data-uk-tooltip" => "", :title=>"Предложения"}
+                      %th.uk-width-1-10
+                        %i.uk-icon-question-circle{"data-uk-tooltip" => "", :title=>"Обсуждения"}
+                  %tbody
+                    - @mypossibilities.each do |o|
+                      %tr
+                        %td
+                          %a{:href=>"/order/"+o.id.to_s} #{o.title}
+                        %td
+                          .uk-text-small #{o.subject}
+                        %td
+                          -if o.td != o.fd
+                            .uk-text-center #{o.td.strftime("%d.%m.%Y")}
+                          - else
+                            .uk-text-center -
+                        %td
+                          #{o.views}
+                        %td
+                          #{Offer.count(:order_id => o.id)}
+                        %td
+                          #{Message.count(:order_id => o.id, :sender.not => current_user, :type => "Question")}
+            /%p @current_user.tags.class >>> #{@current_user.tags.class}
+            /%p @mypossibilities.tags >>> #{@mypossibilities.tags.class}
+            /- @t = @current_user.tags
+            /%p Все ключевые слова пользователя:
+            /- @current_user.tags.all.each do |o|
+            /  %p #{o.tag}
+            /%p Все ключевые слова заявок:
+            /- @mypossibilities.tags.all.each do |o|
+            /  %p #{o.tag}
+            /%p Пересечение:
+            /=(@mypossibilities.tags.all(:tag => {:usertaging => @current_user.tags})).size
           %li#profile
-            %form.uk-form.uk-form-horizontal{:action=>"/updateprofile", :method=>"post", :enctype=>"multipart/form-data"}
-              .uk-form-row{:style=>"margin-bottom: 15px;"}
+            %form#updateprofile.uk-form.uk-form-horizontal{:action=>"/updateprofile", :method=>"post", :enctype=>"multipart/form-data"}
+              .uk-form-row{:style=>"margin-bottom: 15px; margin-top: 20px;"}
                 %h3.uk-form-label{:for=>"avatar"} Фотография
                 -if @current_user.avatar.present?
                   .uk-form-controls
@@ -205,20 +272,26 @@
                   .uk-form-controls{:style=>"margin-top: 5px;"}
                     %div.hidewhenedit{:style=>"padding-top: 5px; padding-bottom: 5px;"} Нет
                     %input.showwhenedit{:type=>"file", :name=>"avatar", :hidden=>"true"}
-              .uk-form-row
+              .uk-form-row{:style=>"margin-top: 20px;"}
                 %h3.uk-form-label{:for=>"familyname"} Фамилия
                 .uk-form-controls
                   %input#familyname.uk-width-1-1.editable{:type=>"text", :required=>"", :value=>@current_user.familyname, :name=>"familyname", :readonly=>""}
-              .uk-form-row
+                  %br
+                  %label.error.uk-text-small.uk-text-danger{:for=>"familyname"}
+              .uk-form-row{:style=>"margin-top: 20px;"}
                 %h3.uk-form-label{:for=>"name"} Имя
                 .uk-form-controls
                   %input#name.uk-width-1-1.editable{:type=>"text", :required=>"", :value=>@current_user.name, :name=>"name", :readonly=>""}
-              .uk-form-row
+                  %br
+                  %label.error.uk-text-small.uk-text-danger{:for=>"name"}
+              .uk-form-row{:style=>"margin-top: 20px;"}
                 %h3.uk-form-label{:for=>"fathersname"} Отчество
                 .uk-form-controls
                   %input#fathersname.uk-width-1-1.editable{:type=>"text", :required=>"", :value=>@current_user.fathersname, :name=>"fathersname", :readonly=>""}
+                  %br
+                  %label.error.uk-text-small.uk-text-danger{:for=>"fathersname"}
               %hr
-              .uk-form-row
+              .uk-form-row{:style=>"margin-top: 20px;"}
                 %h3.uk-form-label{:for=>"description"}
                   Описание деятельности
                   %span.uk-display-inline
@@ -226,8 +299,10 @@
                 .uk-form-controls
                   %textarea#description.uk-width-1-1.editable{:type=>"text", :required=>"", :name=>"description", :readonly=>"", :rows=>"6"}
                     #{@current_user.description}
+                  %br
+                  %label.error.uk-text-small.uk-text-danger{:for=>"description"}
               .uk-form-row
-                %h3.uk-form-label{:for=>"avatar"}
+                %h3.uk-form-label{:for=>"pricelist"}
                   Прайслист
                   %span.uk-display-inline
                     %i.uk-icon-question-circle{"data-uk-tooltip" => "", :title => "Если у вас есть прайслист на услуги, то вы можете загрузить его для просмотра другими участниками Портала. Можно загружать файлы с расширением doc docx xls xlsx pdf txt"}
@@ -241,40 +316,46 @@
                   .uk-form-controls{:style=>"margin-top: 5px;"}
                     %div.hidewhenedit{:style=>"padding-top: 5px; padding-bottom: 5px;"} Нет
                     %input.showwhenedit{:type=>"file", :name=>"pricelist", :hidden=>"true"}
-              .uk-form-row
-                %h3.uk-form-label{:for=>"description"}
+              .uk-form-row{:style=>"margin-top: 20px;"}
+                %h3.uk-form-label{:for=>"tags"}
                   Ключевые слова
                   %span.uk-display-inline
                     %i.uk-icon-question-circle{"data-uk-tooltip" => "", :title => "Укажите (или выберите из списка) ключевые слова. Ключевые слова используются при поиске мастеров заказчиками "}
                 .uk-form-controls
                   - if @tags.size > 0
-                    %input#tags.uk-width-1-1.editable{:type=>"text", :required=>"", :name=>"tags", :readonly=>"", :value=>@tags}
+                    %input#tags.uk-width-1-1.editable{:type=>"text", :name=>"tags", :readonly=>"", :value=>@tags}
                   - else
-                    %input#tags.uk-width-1-1.editable{:type=>"text", :required=>"", :name=>"tags", :readonly=>"", :value=>"Не определены"}
+                    %input#tags.uk-width-1-1.editable{:type=>"text", :name=>"tags", :readonly=>""}
               %hr
-              .uk-form-row
+              .uk-form-row{:style=>"margin-top: 20px;"}
                 %h3.uk-form-label{:for=>"email"}
                   Электронная почта
                   %span.uk-display-inline
                     %i.uk-icon-question-circle{"data-uk-tooltip" => "", :title => "Укажите корректный адрес электронной почты. Он будет использоваться для входа на Портал и получения уведомлений"}
                 .uk-form-controls
                   %input#email.uk-width-1-1.editable{:type=>"email", :required=>"", :value=>@current_user.email, :name=>"email", :readonly=>""}
-              .uk-form-row
+                  %br
+                  %label.error.uk-text-small.uk-text-danger{:for=>"email"}
+              .uk-form-row{:style=>"margin-top: 20px;"}
                 %h3.uk-form-label{:for=>"phone"}
                   Мобильный номер
                   %span.uk-display-inline
                     %i.uk-icon-question-circle{"data-uk-tooltip" => "", :title => "Укажите ваш мобильный номер начиная с '+7' или '8'"}
                 .uk-form-controls
                   %input#phone.uk-width-1-1.editable{:type=>"text", :value=>@current_user.phone, :name=>"phone", :readonly=>""}
+                  %br
+                  %label.error.uk-text-small.uk-text-danger{:for=>"phone"}
               %hr
-              .uk-form-row
+              .uk-form-row{:style=>"margin-top: 20px;"}
                 %h3.uk-form-label{:for=>"location"} Населенный пункт
                 .uk-form-controls
-                  %input#location.uk-width-1-1.editable{:type=>"text", :required=>"", :value=>Placement.get(@current_user.placement_id).location + (Placement.get(@current_user.placement_id).area.length > 1 ? ", " + Placement.get(@current_user.placement_id).area : "") + (Placement.get(@current_user.placement_id).region.length > 1 ? ", " + Placement.get(@current_user.placement_id).region : ""), :name=>"location", :readonly=>""}
+                  %input#fulllocation.uk-width-1-1.editable{:type=>"text", :required=>"", :value=>Placement.get(@current_user.placement_id).location + (Placement.get(@current_user.placement_id).area.length > 1 ? ", " + Placement.get(@current_user.placement_id).area : "") + (Placement.get(@current_user.placement_id).region.length > 1 ? ", " + Placement.get(@current_user.placement_id).region : ""), :name=>"fulllocation", :readonly=>""}
+                  %br
+                  %label.error.uk-text-small.uk-text-danger{:for=>"fulllocation"}
                   %input#locationtitle{:type=>"text", :name=>"locationtitle", :hidden=>"true", :value=>Placement.get(@current_user.placement_id).location}
                   %input#area{:type=>"text", :name=>"area", :hidden=>"true", :value=>Placement.get(@current_user.placement_id).area}
                   %input#region{:type=>"text", :name=>"region", :hidden=>"true", :value=>Placement.get(@current_user.placement_id).region}
-              .uk-form-row
+              .uk-form-row{:style=>"margin-top: 20px;"}
                 %h3.uk-form-label{:for=>"maplabel"} Расположение на карте
                 -if @current_user.mapx && @current_user.mapy
                   .uk-form-controls
@@ -285,21 +366,21 @@
                     #maplabel{:style=>"margin-top: 5px; padding-top: 5px; padding-bottom: 5px;"}
                       %a{:href=>"#openmap", "data-uk-modal" => "{bgclose:false}"} Определить
               %hr
-              .uk-form-row
+              .uk-form-row{:style=>"margin-top: 20px;"}
                 %h3.uk-form-label{:for=>"site"} На сайте с
                 .uk-form-controls
                   %input#site.uk-width-1-1{:type=>"text", :required=>"", :value=>@current_user.created_at.strftime("%d.%m.%Y"), :readonly=>""}
-              .uk-form-row
+              .uk-form-row{:style=>"margin-top: 20px;"}
                 %h3.uk-form-label{:for=>"pass"} Моя страница
                 .uk-form-controls
                   #pass{:style=>"margin-top: 5px; padding-top: 5px; padding-bottom: 5px;"}
                     %a{:href=>"/user/" + @current_user.id.to_s} Показать
               %hr
-              .uk-form-row
+              .uk-form-row{:style=>"margin-top: 20px;"}
                 %h3.uk-form-label{:for=>"pass"} Пароль
                 .uk-form-controls
                   #pass{:style=>"margin-top: 5px; padding-top: 5px; padding-bottom: 5px;"}
-                    %a{:href=>"#changepass", "data-uk-modal" => "{bgclose:false}"} Изменить пароль
+                    %a.onscreenlink{:href=>"#changepass", "data-uk-modal" => "{bgclose:false}"} Изменить пароль
               %br
               / %a#editprofile.uk-button.uk-button-primary.uk-align-center.uk-text-center{:style => "cursor: pointer;"} Изменить профиль
               .uk-grid
@@ -307,7 +388,7 @@
                   %button#apply.uk-button.uk-button-success{:type=>"submit", :style=>"display: none;"} Сохранить изменения
                 .uk-width-1-2.uk-container-center.uk-text-center
                   %button#cancel.uk-button{:type=>"reset", :style=>"display: none;"} Отменить изменения
-            %button#editprofile.uk-button
+            %button#editprofile.uk-button.uk-button-success
               %i.uk-icon-edit
               Изменить          
           %li#settings
@@ -354,16 +435,25 @@
     %a.uk-modal-close.uk-close
     %h1.uk-text-center Изменение пароля
     %hr
-    %form.uk-form.uk-form-horizontal{:action => "/changepassword", :method => "post"}
-      .uk-form-row
+    %form#changepassword.uk-form.uk-form-horizontal{:action => "/changepassword", :method => "post"}
+      .uk-form-row{:style=>"width: 400px;"}
         %label.uk-form-label{:for=>"oldpass"} Текущий пароль
-        %input#oldpass{:type=>"password", :required=>"", :name=>"oldpass"}
-      .uk-form-row
+        .uk-form-controls
+          %input#oldpass{:type=>"password", :required=>"", :name=>"oldpass"}
+          %br
+          %label.error.uk-text-small.uk-text-danger{:for=>"oldpass"}
+      .uk-form-row{:style=>"width: 400px;"}
         %label.uk-form-label{:for=>"newpass1"} Новый пароль
-        %input#newpass1{:type=>"password", :required=>"", :name=>"newpass1"}
-      .uk-form-row
+        .uk-form-controls
+          %input#newpass1{:type=>"password", :required=>"", :name=>"newpass1"}
+          %br
+          %label.error.uk-text-small.uk-text-danger{:for=>"newpass1"}
+      .uk-form-row{:style=>"width: 400px;"}
         %label.uk-form-label{:for=>"newpass2"} Повторите новый пароль
-        %input#newpass2{:type=>"password", :required=>"", :name=>"newpass2"}
+        .uk-form-controls
+          %input#newpass2{:type=>"password", :required=>"", :name=>"newpass2"}
+          %br
+          %label.error.uk-text-small.uk-text-danger{:for=>"newpass2"}
       %br
       %button#submit.uk-button.uk-button-success.uk-align-center{:type=>"submit"} Изменить пароль
 
@@ -386,8 +476,6 @@
 :javascript
   $(function() {
   
-    //$('##{session[:activetab]}').addClass("uk-active");
-    
     $('#editprofile').click(function() {
       $('.editable').removeAttr("readonly");
       $('.editable').addClass("uk-form-success");
@@ -438,7 +526,7 @@
       $('.hidewhenedit').removeAttr("hidden");
     });
 
-    $('#location').autocomplete({
+    $('#fulllocation').autocomplete({
       source: function( request, response ) {
         $.ajax({
           url: "http://api.vk.com/method/database.getCities?v=5&country_id=1&count=5",
@@ -450,7 +538,8 @@
             response( $.map( data.response.items, function( item ) {
               return {
                 label: item.title + (item.area ? ", " + item.area : "") + (item.region ? ", " + item.region : ""),
-                value: item.title,
+                value: item.title + (item.area ? ", " + item.area : "") + (item.region ? ", " + item.region : ""),
+                title: item.title,
                 area: item.area ? item.area : "",
                 region: item.region ? item.region : ""
               }
@@ -460,27 +549,122 @@
       },
       minLength: 2,
       select: function (event, ui) {
-        $('#locationtitle').val(ui.item.value);
+        $('#locationtitle').val(ui.item.title);
         $('#area').val(ui.item.area);
         $('#region').val(ui.item.region);
         regionselected = true;
       }
     });
 
-    //$('#addorder').click(function() {
-    //  window.location.href = "/neworder";
-    //});
+    var profilevalidator = $("#updateprofile").validate({
+      debug: true,
+      rules: {
+        email: {
+          required: true,
+          email: true,
+          remote: {
+            url: "/ajax/checkemail",
+            type: "post"
+          }
+        },
+        name: {
+          required: true,
+          remote: {
+            url: "/ajax/checkname",
+            type: "post"
+          }
+        },
+        familyname: {
+          required: true,
+          remote: {
+            url: "/ajax/checkfamilyname",
+            type: "post"
+          }
+        },
+        fathersname: {
+          required: true,
+          remote: {
+            url: "/ajax/checkfathersname",
+            type: "post"
+          }
+        },
+        phone: {
+          remote: {
+            url: "/ajax/checkphone",
+            type: "post"
+          }
+        },
+        fulllocation: {
+          required: true,
+          remote: {
+            url: "/ajax/checklocation",
+            type: "post",
+            data: {
+              locationtitle: function() {
+                return $("#locationtitle").val()
+              },
+              area: function() {
+                return $("#area").val()
+              },
+              region: function() {
+                return $("#region").val()
+              }
+            }
+          }
+        },
+        description: {
+          required: false,
+          maxlength: 65535
+        }
+      },
+      messages: {
+        email: "Введите корректный адрес электронной почты",
+        name: "Введите имя контактного лица",
+        familyname: "Введите фамилию контактного лица",
+        farthersname: "Введите отчество контактного лица",
+        fulllocation: "Выберите населенный пункт из списка",
+        phone: "Введите мобильный телефонный номер",
+        description: "Описание должно быть менее 65535 символов"
+      },
+      submitHandler: function(form) {
+        form.submit();
+      }
+    });
 
+        
+    var passwordvalidator = $("#changepassword").validate({
+      debug: true,
+      rules: {
+        oldpass: {
+          required: true
+        },
+        newpass1: {
+          required: true,
+          minlength: 6
+        },
+        newpass2: {
+          equalTo: "#newpass1"
+        }
+      },
+      messages: {
+        oldpass: "Введите текущий пароль",
+        newpass1: "Введите пароль длиною не менее 6 символов",
+        newpass2: "Ошибка при повторном вводе пароля"
+      },
+      submitHandler: function(form) {
+        form.submit();
+      }
+    });
     ymaps.ready(init);
 
     function init() {
-      var location = $('#location').val();
+      var location = $('#fulllocation').val();
       var familyname = $('#familyname').val(), name = $('#name').val(), fathersname = $('#fathersname').val(), email = $('#email').val()
       var coords;
       var mapx = $('#mapx').val(), mapy = $('#mapy').val();
       var myGeocoder = ymaps.geocode(location, {results: 1});
       myGeocoder.then(function (res) {
-        coords =  res.geoObjects.get(0).geometry.getCoordinates();
+        coords = res.geoObjects.get(0).geometry.getCoordinates();
         if (mapx>0 && mapy>0) {coords = [mapx,mapy];}
         var myMap = new ymaps.Map('map', {
             center: coords,

@@ -1,63 +1,203 @@
-.bg-img.bg-img-fixed{:style=>"background-image: url('/img/homepage/road.jpg'); height: 70vh;"}
-.uk-container.uk-container-center{:style=>"height: 30vh;"}
-  .ul-grid
-    .uk-width-2-3.uk-container-center
+.bg-img.bg-img-fixed{:style=>"background-image: url('/img/homepage/road.jpg'); height: 60vh;"}
+.uk-width-1-1
+  .uk-container-center.uk-vertical-align{:style=>"height: 40vh;"}
+    .uk-vertical-align-middle.uk-width-1-1
+      %h2.uk-text-center Добро пожаловать на РемЗона24.ру - круглосуточную ремонтную зону!
       %br
-      %h2.uk-text-center Добро пожаловать на РемЗона24.ру - круглосуточную ремонтную зону для вашего автомобиля!
-      %br
+      .uk-width-1-1
+        .uk-text-center.uk-margin-bottom
+          %a.uk-button.uk-button-success.uk-button-large{:href=>"#express", "data-uk-smooth-scroll"=>""}
+            %i.uk-icon-long-arrow-down
+            Вы автовладелец и у вас проблема с автомобилем?
+        .uk-text-center
+          %a.uk-button.uk-button-large{:href=>"#orders", "data-uk-smooth-scroll"=>""}
+            %i.uk-icon-long-arrow-down
+            Вы автомастер и хотите найти новый подряд?
 .bg-img.bg-img-fixed{:style=>"background-image: url('/img/homepage/underhood.jpg'); height: 70vh;"}
 .uk-container.uk-container-center
   .ul-grid
-    .uk-width-2-3.uk-container-center
+    #express.uk-width-2-3.uk-container-center
       %br
       %h2 Если у вас проблема с машиной, то просто заполните форму ниже и выберите наиболее выгодное предложение от мастеров и сервисных центров
-      %hr
       %br
-      %form.uk-form.uk-form-horizontal{:action => "/addexpressorder", :method => "post", :enctype=>"multipart/form-data"}
-        .uk-form-row
-          %label.uk-form-label{:for=>"location"}
-            %i.uk-icon-home
-            Населенный пункт
-          .uk-form-controls
-            %input#expressuserlocation.uk-width-1-1{:type=>"text", :required=>""}
-            %input#expressuserlocationtitle{:type=>"text", :name=>"locationtitle", :hidden=>"true"}
-            %input#expressuserarea{:type=>"text", :name=>"area", :hidden=>"true"}
-            %input#expressuserregion{:type=>"text", :name=>"region", :hidden=>"true"}
-        .uk-form-row
+      %form#expressorder.uk-form.uk-form-horizontal{:action => "/expressorder", :method => "post", :enctype=>"multipart/form-data"}
+        .uk-form-row{:style=>"margin-top: 20px;"}
           %label.uk-form-label{:for=>"title"}
             %i.uk-icon-edit
             Заголовок заявки
           .uk-form-controls
-            %input#expresstitle.uk-width-1-1{:type=>"text", :name=>"title", :required=>""}
-        .uk-form-row
+            %input#expresstitle.uk-width-1-1{:type=>"text", :name=>"title", :required=>"", "data-uk-tooltip" => "", :title => "Укажите заголовок вашей заявки"}
+            %br
+            %label.error.uk-text-small.uk-text-danger{:for=>"expresstitle"}
+        .uk-form-row{:style=>"margin-top: 20px;"}
+          %label.uk-form-label{:for=>"vehicle"}
+            %i.uk-icon-truck
+            Автомобиль
+          .uk-form-controls
+            %table
+              %tr
+                %td{:style=>"padding-bottom: 20px; padding-right: 20px;"}
+                  %label{:for=>"vehiclemake"} Марка
+                %td{:style=>"padding-bottom: 20px;"}
+                  %select#vehiclemake{:type=>"text", :name=>"vehiclemake"}
+                    %option{:disabled =>"", :selected=>""} Выберите марку
+                    %option Acura
+                    %option Alfa Romeo
+                    %option Alpina
+                    %option Aro
+                    %option Asia
+                    %option Aston Martin
+                    %option Audi
+                    %option BMW
+                    %option BYD
+                    %option Bentley
+                    %option Bogdan
+                    %option Brilliance
+                    %option Bugatti
+                    %option Buick
+                    %option Cadillac
+                    %option Changan
+                    %option Changfeng
+                    %option Chery
+                    %option Chevrolet
+                    %option Chrysler
+                    %option Citroen
+                    %option Dacia
+                    %option Dadi
+                    %option Daewoo
+                    %option Daihatsu
+                    %option DeLorean
+                    %option Derways
+                    %option Dodge
+                    %option Eagle
+                    %option FAW
+                    %option Ferrari
+                    %option Fiat
+                    %option Ford
+                    %option GMC
+                    %option Geely
+                    %option Great Wall
+                    %option Hafei
+                    %option Haima
+                    %option Honda
+                    %option Hummer
+                    %option Hyundai
+                    %option Infiniti
+                    %option Iran Khodro
+                    %option Isuzu
+                    %option JMC
+                    %option Jaguar
+                    %option Jeep
+                    %option Kia
+                    %option Lada (ВАЗ)
+                    %option Lamborghini
+                    %option Lancia
+                    %option Land Rover
+                    %option Lexus
+                    %option Lifan
+                    %option Lincoln
+                    %option Lotus
+                    %option Luxgen
+                    %option MG
+                    %option MINI
+                    %option Maserati
+                    %option Maybach
+                    %option Mazda
+                    %option Mercedes-Benz
+                    %option Mercury
+                    %option Mitsubishi
+                    %option Mitsuoka
+                    %option Nissan
+                    %option Opel
+                    %option Peugeot
+                    %option Pontiac
+                    %option Porsche
+                    %option Renault
+                    %option Rolls-Royce
+                    %option Rover
+                    %option Saab
+                    %option Scion
+                    %option Seat
+                    %option Skoda
+                    %option Smart
+                    %option SsangYong
+                    %option Subaru
+                    %option Suzuki
+                    %option Tagaz (ТагАЗ)
+                    %option Toyota
+                    %option Volkswagen
+                    %option Volvo
+                    %option Vortex
+                    %option ZAZ (ЗАЗ)
+                    %option ГАЗ
+                    %option ИЖ
+                    %option Москвич
+                    %option УАЗ
+                  %br
+                  %label.error.uk-text-small.uk-text-danger{:for=>"vehiclemake"}
+                %td{:style=>"padding-bottom: 20px; padding-right: 20px; padding-left: 20px;"}
+                  %label{:for=>"vehiclemodel"} Модель
+                %td{:style=>"padding-bottom: 20px;"}
+                  %input#vehiclemodel{:type=>"text", :name=>"vehiclemodel"}
+                  %br
+                  %label.error.uk-text-small.uk-text-danger{:for=>"vehiclemodel"}
+        .uk-form-row{:style=>"margin-top: 0px;"}
           %label.uk-form-label{:for=>"subject"}
             %i.uk-icon-wrench
             Максимально подробное описание
           .uk-form-controls
-            %textarea#expresssubject.uk-width-1-1{:name=>"subject", :cols=>"100%", :rows=>"4"}
-        .uk-form-row
-          %label.uk-form-label{:for=>"photo"} Прикрепить фотографии                    
+            %textarea#expresssubject.uk-width-1-1{:name=>"subject", :cols=>"100%", :rows=>"4", "data-uk-tooltip" => "", :title => "Опиште суть вашей заявки. Например, укажите состав и объем требуемых работ, пожелания к срокам, стоимости и т.п. Внесите сюда максимум информации, которая бы помогла потенциальным исполнителям подготовить наиболее оптимальное предложение"}
+            %br
+            %label.error.uk-text-small.uk-text-danger{:for=>"expresssubject"}
+        .uk-form-row{:style=>"margin-top: 20px;"}
+          %label.uk-form-label{:for=>"photo"}
+            %i.uk-icon-camera
+            Прикрепить фотографии                    
           .uk-form-controls
             %input#expressphotos{:type=>"file", :name=>"photos[]", :multiple=>""}
-        .uk-form-row
+        .uk-form-row{:style=>"margin-top: 20px;"}
+          %label.uk-form-label{:for=>"fullname"}
+            %i.uk-icon-user
+            Контактное лицо
+          .uk-form-controls
+            %input#expressfullname.uk-width-1-1{:type=>"text", :required=>"", :name=>"fullname", "data-uk-tooltip" => "", :title => "Пожалуйста, представьтесь. Это имя будет использоваться при публикации заявок и для идентификации других ваших действий на Портале"}
+            %br
+            %label.error.uk-text-small.uk-text-danger{:for=>"expressfullname"}
+        .uk-form-row{:style=>"margin-top: 20px;"}
           %label.uk-form-label{:for=>"email"}
-            %i.uk-icon-envelope-alt
+            %i.uk-icon-envelope
             Электронная почта для получения уведомлений
           .uk-form-controls
-            %input#expressemail.uk-width-1-1{:type=>"text", :required=>""}
-        %hr
-        .uk-grid
-          .uk-container-center.uk-text-center
-            %button#expresssubmit.uk-button.uk-button-success{:type=>"submit"}Создать заявку
+            %input#expressemail.uk-width-1-1{:type=>"text", :required=>"", :name=>"email", "data-uk-tooltip" => "", :title => "Укажите корректный адрес электронной почты. Он будет использоваться для входа на Портал и получения уведомлений"}
+            %br
+            %label.error.uk-text-small.uk-text-danger{:for=>"expressemail"}
+        .uk-form-row{:style=>"margin-top: 20px;"}
+          %label.uk-form-label{:for=>"location"}
+            %i.uk-icon-home
+            Населенный пункт
+          .uk-form-controls
+            %input#expressuserlocation.uk-width-1-1{:type=>"text", :required=>"", :name=>"fulllocation", "data-uk-tooltip" => "", :title => "Введите первые буквы неселенного пункта где вы находитесь. Выберите из списка нужный вариант. При выборе небольших населенных пунктов обратите внимание на корректность района и области!"}
+            %br
+            %label.error.uk-text-small.uk-text-danger{:for=>"expressuserlocation"}
+            %input#expressuserlocationtitle{:type=>"text", :name=>"locationtitle", :hidden=>"true"}
+            %input#expressuserarea{:type=>"text", :name=>"area", :hidden=>"true"}
+            %input#expressuserregion{:type=>"text", :name=>"region", :hidden=>"true"}
+        .uk-form-row{:style=>"margin-top: 20px;"}
+          %label
+            %input.masterrules{:type=>"checkbox", :name=>"terms"}
+            Я принимаю правила использования портала РемЗона24.ру
+        .uk-form-row{:style=>"margin-top: 20px;"}
+          .uk-width-1-1
+            .uk-container-center.uk-text-center
+              %button#expresssubmit.uk-button.uk-button-success{:type=>"submit"} Создать заявку
       %br
 .bg-img.bg-img-fixed{:style=>"background-image: url('/img/homepage/autorepair.jpg'); height: 70vh;"}
 .uk-container.uk-container-center
   .ul-grid
-    .uk-width-2-3.uk-container-center
+    #orders.uk-width-2-3.uk-container-center
       %br
       .uk-text-center
-        %a{:name => "orders", :style => "cursor: pointer; text-decoration: none !important; border-bottom: 1px dashed !important;"}
-          %h2 Последние заявки на Портале
+        %h2 Последние заявки на Портале
       %br
 =yield
 :javascript
@@ -65,7 +205,7 @@
     $('#expressuserlocation').autocomplete({
       source: function( request, response ) {
         $.ajax({
-          url: "http://api.vk.com/method/database.getCities?v=5&country_id=1",
+          url: "http://api.vk.com/method/database.getCities?v=5&country_id=1&count=10",
           dataType: "jsonp",
           data: {
             q: request.term
@@ -89,5 +229,72 @@
         $('#expressuserarea').val(ui.item.area);
         $('#expressuserregion').val(ui.item.region);
       }
-    });  
+    });
+    
+    var expressordervalidator = $("#expressorder").validate({
+      debug: true,
+      rules: {
+        email: {
+          required: true,
+          email: true,
+          remote: {
+            url: "/ajax/checkemail",
+            type: "post"
+          }
+        },
+        title: {
+          required: true,
+        },
+        vehiclemake: {
+          required: true
+        },
+        vehiclemodel: {
+          required: true
+        },
+        subject: {
+          required: true,
+        },
+        fulllocation: {
+          required: true,
+          remote: {
+            url: "/ajax/checklocation",
+            type: "post",
+            data: {
+              locationtitle: function() {
+                return $("#expressuserlocationtitle").val()
+              },
+              area: function() {
+                return $("#expressuserarea").val()
+              },
+              region: function() {
+                return $("#expressuserregion").val()
+              }
+            }
+          }
+        },
+        fullname: {
+          required: true,
+          remote: {
+            url: "/ajax/checkfullname",
+            type: "post"
+          }
+        },
+        terms: {
+          required: true
+        }
+      },
+      messages: {
+        email: "Введите корректный адрес электронной почты",
+        fullname: "Введите полное имя контактного лица",
+        fulllocation: "Выберите населенный пункт из списка",
+        title: "Введите заголовок заявки",
+        subject: "Введите описание заявки",
+        vehiclemake: "Выберите марку из списка",
+        vehiclemodel: "Введите модель",
+        terms: " "
+      },
+      submitHandler: function(form) {
+        form.submit();
+      }
+    });
   });

@@ -4,12 +4,44 @@
     .uk-width-2-3
       .uk-panel.uk-panel-box
         %h1.uk-text-right Сброс пароля
-        %form.uk-form.uk-form-horizontal{:action => "/updatepassword?reset=" + @mynewhash, :method => "post"}
+        %form#resetpassword.uk-form.uk-form-horizontal{:action => "/updatepassword?reset=" + @mynewhash, :method => "post"}
           .uk-form-row
             %label.uk-form-label{:for=>"newpass1"} Новый пароль
-            %input#newpass1{:type=>"password", :required=>"", :name=>"newpass1"}
-          .uk-form-row
+            .uk-form-controls
+              %input#newpass1{:type=>"password", :required=>"", :name=>"newpass1"}
+              %br
+              %label.error.uk-text-small.uk-text-danger{:for=>"newpass1"}
+          .uk-form-row{:style=>"margin-top: 20px;"}
             %label.uk-form-label{:for=>"newpass2"} Повторите новый пароль
-            %input#newpass2{:type=>"password", :required=>"", :name=>"newpass2"}
+            .uk-form-controls
+              %input#newpass2{:type=>"password", :required=>"", :name=>"newpass2"}
+              %br
+              %label.error.uk-text-small.uk-text-danger{:for=>"newpass2"}
           %br
-          %button#submit.uk-button.uk-button-success.uk-align-center{:type=>"submit"} Изменить пароль
+          %br
+          %button.uk-button.uk-button-success.uk-align-center{:type=>"submit"} Изменить пароль
+          
+:javascript
+  $(function() {
+
+    var resetpass = $("#resetpassword").validate({
+      debug: true,
+      rules: {
+        newpass1: {
+          required: true,
+          minlength: 6
+        },
+        newpass2: {
+          equalTo: "#newpass1"
+        }
+      },
+      messages: {
+        newpass1: "Введите пароль длиною не менее 6 символов",
+        newpass2: "Ошибка при повторном вводе пароля"
+      },
+      submitHandler: function(form) {
+        form.submit();
+      }
+    });
+    
+  });

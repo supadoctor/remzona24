@@ -2,101 +2,115 @@
   %br
   .uk-grid
     .uk-width-2-3
+      %h1.uk-text-right Заявка № #{@order.id}
+      -if @order.user == current_user
+        %ul.uk-subnav.uk-subnav-line.uk-text-right
+          -if @order.status != 1
+            %li
+              %a{:href=>"#"}
+                %form{:action => "/order/"+@order.id.to_s, :method => "post"}
+                  %input{:type=>"hidden", :name=>"_method", :value=>"put"}
+                  %input{:type=>"submit", :value=>"В архив", :style=>"background:none!important; border:none; padding:0!important;"}
+                  //В архив
+          %li
+            %a{:href=>"#"}
+              %form{:action => "/order/"+@order.id.to_s, :method => "post"}
+                %input{:type=>"hidden", :name=>"_method", :value=>"delete"}
+                %input{:type=>"submit", :value=>"Удалить", :style=>"background:none!important; border:none; padding:0!important;"}
+                //Удалить
       .uk-panel.uk-panel-box
-        %h1.uk-display-inline Заявка № #{@order.id}
-        -if @order.user == current_user
-          .uk-button-dropdown.uk-align-right{"data-uk-dropdown"=>""}
-            %button.uk-button
-              %h2.uk-display-inline.uk-margin-right Действие
-              %i.uk-icon-caret-down
-              /%i.uk-icon-gear
-            .uk-dropdown.uk-dropdown-small
-              %ul.uk-nav.uk-nav-dropdown
-                -if @order.status != 1
-                  %li
-                    %a{:href=>"#"}
-                      %form{:action => "/order/"+@order.id.to_s, :method => "post"}
-                        %input{:type=>"hidden", :name=>"_method", :value=>"put"}
-                        %input{:type=>"submit", :value=>"В архив", :style=>"background:none!important; border:none; padding:0!important;"}
-                        //В архив
-                %li
-                  %a{:href=>"#"}
-                    %form{:action => "/order/"+@order.id.to_s, :method => "post"}
-                      %input{:type=>"hidden", :name=>"_method", :value=>"delete"}
-                      %input{:type=>"submit", :value=>"Удалить", :style=>"background:none!important; border:none; padding:0!important;"}
-                      //Удалить
         %h2 #{@order.title}
         %table.uk-table.uk-table-striped.uk-table-condensed
           %tbody
             %tr
-              %td.uk-width-1-10
+              %td.uk-width-1-10.uk-text-center
                 %i.uk-icon-check
               %td.uk-width-3-10
                 %h3.uk-margin-bottom-remove Статус
               %td.uk-width-6-10
-                - if @order.status == 1
-                  .uk-text-bold.uk-text-danger Закрыта
-                - else
+                - if @order.status == 0
                   -if @order.td === @order.fd
                     .uk-text-bold.uk-text-success Активна
                   -else
                     .uk-text-bold.uk-text-success Активна до #{@order.td.strftime("%d.%m.%Y")}
+                - elsif @order.status == 1
+                  .uk-text-bold.uk-text-danger Закрыта
+                - elsif @order.status == 3
+                  .uk-text-bold.uk-text-warning Необходимо подтверждение исполнителя
             %tr
-              %td
+              %td.uk-text-center
                 %i.uk-icon-user
               %td
                 %h3.uk-margin-bottom-remove Заказчик
               %td
                 %a{:href=>"/user/"+@order.user_id.to_s}
                   #{@order.user.displayedname}
+            -if @order.contract
+              %tr
+                %td.uk-text-center
+                  %i.uk-icon-users
+                %td
+                  %h3.uk-margin-bottom-remove Исполнитель
+                %td
+                  %a{:href=>"/user/"+@order.contract.contractor_id.to_s}
+                    #{@order.contract.contractor.displayedname}
+                  %br
+                  .uk-text-small (подтверждение от #{@order.contract.date.strftime("%d.%m.%Y %H:%M")})
             %tr
-              %td
+              %td.uk-text-center
                 %i.uk-icon-map-marker
               %td
                 %h3.uk-margin-bottom-remove Населенный пункт
               %td
                 =Placement.get(@order.placement_id).location + (Placement.get(@order.placement_id).area.length > 1 ? ", " + Placement.get(@order.placement_id).area : "") + (Placement.get(@order.placement_id).region.length > 1 ? ", " + Placement.get(@order.placement_id).region : "")
             %tr
+              %td.uk-text-center
+                %i.uk-icon-truck
               %td
+                %h3.uk-margin-bottom-remove Автомобиль
+              %td
+                #{vehicleinfo(@order)}            
+            %tr
+              %td.uk-text-center
                 %i.uk-icon-wrench
               %td
                 %h3.uk-margin-bottom-remove Описание
               %td
-                #{@order.subject}
+                %strong #{@order.subject}
             %tr
-              %td
+              %td.uk-text-center
                 %i.uk-icon-calendar
               %td
                 %h3.uk-margin-bottom-remove Сроки
               %td
                 -if @order.td === @order.fd
-                  не определены
+                  .uk-text-warning не определены
                 -else
                   #{@order.fd.strftime("%d.%m.%Y")} - #{@order.td.strftime("%d.%m.%Y")}
             %tr
-              %td
+              %td.uk-text-center
                 %i.uk-icon-money
               %td
                 %h3.uk-margin-bottom-remove Бюджет
               %td
                 -if @order.budget < 0
-                  не определен
+                  .uk-text-warning не определен
                 -else
                   #{rur @order.budget}
                   / %i.uk-icon-rub
             %tr
-              %td
+              %td.uk-text-center
                 %i.uk-icon-tags
               %td
                 %h3.uk-margin-bottom-remove Ключевые слова
               %td
-                - if @tags.size < 1
+                - if @order.tags.size < 1
                   не определены
                 - else
-                  %small
-                    =@tags
+                  -@order.tags.each do |t|
+                    %span.uk-badge #{t.tag}
             %tr
-              %td
+              %td.uk-text-center
                 %i.uk-icon-camera
               %td
                 %h3.uk-margin-bottom-remove Фотографии
@@ -108,14 +122,14 @@
                 - else
                   Нет
             %tr
-              %td
+              %td.uk-text-center
                 %i.uk-icon-comments-o
               %td
                 %h3.uk-margin-bottom-remove Вопросы и ответы
               %td
                 %a{:href=>"/order/#{@order.id}/comments"}
                   Обсудить (#{@questionsnumber})
-      -if @order.status == 0
+      -if @order.status == 0 && @order.user != @current_user
         %h1
           Разместить предложение
         -if !logged_in?
@@ -135,19 +149,24 @@
             %small потому что Вы вошли на сайт не как Мастер или представитель Сервиса
         -else
           .uk-panel.uk-panel-box
-            %form.uk-form.uk-form-horizontal{:action => "/order/#{@order.id}/addoffer", :method => "post"}
-              .uk-form-row
+            %form#offer.uk-form.uk-form-horizontal{:action => "/order/#{@order.id}/addoffer", :method => "post"}
+              .uk-form-row{:style=>"margin-top: 20px;"}
                 %label.uk-form-label{:for=>"subject"}
                   //%i.uk-icon-edit
                   %h3 Описание предложения
                 .uk-form-controls
                   %textarea#subject.uk-width-1-1{:type=>"text", :required=>"", :name=>"subject", :rows=>"6"}
-              .uk-form-row
+                  %br
+                  %label.error.uk-text-small.uk-text-danger{:for=>"subject"}
+              %hr
+              .uk-form-row{:style=>"margin-top: 20px;"}
                 %label.uk-form-label.details{:for=>"budget"}
                   //%i.uk-icon-money
                   %h3 Стоимость (руб.)
                 .uk-form-controls
                   %input#budget.uk-width-1-1.details{:type=>"text", :name=>"budget"}
+                  %br
+                  %label.details.error.uk-text-small.uk-text-danger{:for=>"budget"}
               .uk-form-row
                 %label.uk-form-label.details{:for=>"time"}
                   //%i.uk-icon-calendar
@@ -168,7 +187,8 @@
                 .uk-form-controls#nodetails
                   %input#nodetailschk{:type=>"checkbox", :name=>"nodetails"}
                     Цена и сроки будут сообщены позднее
-              .uk-form-row
+              %hr
+              .uk-form-row{:style=>"margin-top: 20px;"}
                 %label.uk-form-label{:for=>"lifetime"}
                   //%i.uk-icon-arrows-h
                   %h3 Время жизни предложения
@@ -185,55 +205,99 @@
                     %option{:selected=>"", :value=>"0"}
                       Не закрывать автоматически
               / %hr
+              -if current_user.placement_id != @order.placement_id
+                .uk-alert.uk-alert-danger{"data-uk-alert"=>""}
+                  %a.uk-alert-close.uk-close{:href=>""}
+                  %strong Внимание!
+                  Ваш населенный пункт не соответствует населенному пункту Заказчика. Вы дейсвительно хотите подать предложение?
               .uk-container-center.uk-text-center
-                %button#submit.uk-button.uk-button-success{:type=>"submit"}Разместить предложение
-        %br
-        .uk-width-1-1
-          .uk-panel.uk-panel-box
-            %h2 Yandex Direct AD
-        - if @offers && @offers.size > 0
-          %h1.uk-text-right Предложения
-          - @offers.each do |o|
-            .uk-panel.uk-panel-box.uk-margin-bottom
-              %article.uk-comment
-                %header.uk-comment-header
-                  %img.uk-comment-avatar{:src => User.get(o.user_id).avatar.avatar64.url}
-                  %h5.uk-comment-title
-                    %a{:href=>"/offer/"+o.id.to_s}
-                      Предложение №
-                      #{o.id}
-                  .uk-comment-meta
-                    Исполнитель:
-                    %a{:href=>"/user/"+o.user_id.to_s}
-                      #{o.user.displayedname}
-                    %br
-                    Дата:
-                    #{o.fd.strftime("%d.%m.%Y, %H:%M:%S")}
-                    %br
-                    Статус:
-                    - if o.status == 1
-                      .uk-text-bold.uk-text-danger не действительно
-                    - else
-                      .uk-text-bold.uk-text-success.uk-display-inline-block действительно
-                    - if o.fd != o.td
-                      %span.uk-text-bold.uk-text-success до #{o.td.strftime("%d.%m.%Y")}
-                .uk-comment-body
-                  %table.uk-table.uk-table-condensed
-                    %tbody
+                %button.uk-button.uk-button-success{:type=>"submit"}Разместить предложение
+      %br
+      .uk-width-1-1
+        .uk-panel.uk-panel-box
+          %h2 Yandex Direct AD
+      - if @offers && @offers.size > 0 && !@order.contract
+        %h1.uk-text-right Предложения
+        - @offers.each do |o|
+          .uk-panel.uk-panel-box.uk-margin-bottom
+            %article.uk-comment
+              %header.uk-comment-header
+                %img.uk-comment-avatar{:src => User.get(o.user_id).avatar.avatar64.url}
+                %h5.uk-comment-title
+                  %a{:href=>"/offer/"+o.id.to_s}
+                    Предложение №
+                    #{o.id}
+                .uk-comment-meta
+                  Исполнитель:
+                  %a{:href=>"/user/"+o.user_id.to_s}
+                    #{o.user.displayedname}
+                  %br
+                  Дата:
+                  #{o.fd.strftime("%d.%m.%Y, %H:%M:%S")}
+                  %br
+                  Статус:
+                  - if o.status == 1
+                    .uk-text-bold.uk-text-danger не действительно
+                  - else
+                    .uk-text-bold.uk-text-success.uk-display-inline-block действительно
+                  - if o.fd != o.td
+                    %span.uk-text-bold.uk-text-success до #{o.td.strftime("%d.%m.%Y")}
+              .uk-comment-body
+                %table.uk-table.uk-table-condensed
+                  %tbody
+                    %tr
+                      %td.uk-width-1-5
+                        %h3.uk-margin-bottom-remove Предложение:
+                      %td.uk-width-4-5
+                        #{o.subject}
+                    -if o.budget > 0
                       %tr
-                        %td.uk-width-1-5
-                          %h3.uk-margin-bottom-remove Предложение:
-                        %td.uk-width-4-5
-                          #{o.subject}
-                      -if o.budget > 0
-                        %tr
-                          %td
-                            %h3.uk-margin-bottom-remove Бюджет:
-                          %td
-                            #{rur o.budget}
-        - else
-          %h1.uk-text-left Нет предложений
-
+                        %td
+                          %h3.uk-margin-bottom-remove Бюджет:
+                        %td
+                          #{rur o.budget}
+      - elsif !@order.contract
+        %h1.uk-text-left Нет предложений
+      - if @order.contract && logged_in? && !@order.contract.review && !@alreadyreviewed
+        -if @current_user.type == "User"
+          %h1#review.uk-text-right Оцените работу исполнителя
+        -else
+          %h1#review.uk-text-right Оцените заказчика
+        .uk-panel.uk-panel-box.uk-margin-bottom
+          -if @current_user.type == "User"
+            %form#review.uk-form.uk-form-horizontal{:action => "/order/#{@order.id}/reviewcontractor", :method => "post"}
+              .uk-form-row
+                %label.uk-form-label{:for=>"rating"}
+                  %h3 Оценка
+                .uk-form-controls
+                  #stars
+                  %br
+                  %label.details.error.uk-text-small.uk-text-danger{:for=>"rating"}
+              .uk-form-row
+                %label.uk-form-label{:for=>"text"}
+                  %h3 Комментарии
+                .uk-form-controls
+                  %textarea#text.uk-width-1-1{:type=>"text", :name=>"text", :rows=>"3"}
+              .uk-form-row
+                .uk-container-center.uk-text-center
+                  %button.uk-button.uk-button-success{:type=>"submit"}Оценить
+          -else
+            %form#review.uk-form.uk-form-horizontal{:action => "/order/#{@order.id}/reviewcustomer", :method => "post"}
+              .uk-form-row
+                %label.uk-form-label{:for=>"rating"}
+                  %h3 Оценка
+                .uk-form-controls
+                  #stars
+                  %br
+                  %label.details.error.uk-text-small.uk-text-danger{:for=>"rating"}
+              .uk-form-row
+                %label.uk-form-label{:for=>"text"}
+                  %h3 Комментарии
+                .uk-form-controls
+                  %textarea#text.uk-width-1-1{:type=>"text", :name=>"text", :rows=>"3"}
+              .uk-form-row
+                .uk-container-center.uk-text-center
+                  %button.uk-button.uk-button-success{:type=>"submit"}Оценить
     .uk-width-1-3
       .uk-panel.uk-panel-box{:style=>"width:240px;"}
         %h2 Yandex Direct AD
@@ -244,15 +308,17 @@
       $(".details").toggle(this.cheked);
     });
 
+    /*
     $(".orderimage").fancybox({
       wrapCSS    : 'fancybox-custom',
       closeClick : true,
       openEffect : 'none',
       closeBtn  : true,
+      fitToView	: true,
       helpers : {
         //buttons : {},
         title : {
-          type : 'inside'
+          //type : 'inside'
         },
         overlay : {
           css : {
@@ -261,4 +327,52 @@
         }
       }
     });
+    */
+    
+    $(".orderimage").fancybox({
+      openEffect	: 'none',
+      closeEffect	: 'none'
+    });
+    
+    var offervalidator = $("#offer").validate({
+      debug: true,
+      rules: {
+        subject: {
+          required: true
+        },
+        budget: {
+          required: true
+        },
+      },
+      messages: {
+        subject: "Введите ваше предложение",
+        budget: "Введите стоимость"
+      },
+      submitHandler: function(form) {
+        form.submit();
+      }
+    });
+    
+    $('#stars').raty({
+      path: '../img/raty',
+      hints: ['Ужасно!','Плохо','Нормально','Хорошо','Супер!'],
+      scoreName: 'rating'
+    });
+    
+    var reviewvalidator = $("#review").validate({
+      debug: true,
+      ignore: "",
+      rules: {
+        rating: {
+          required: true
+        }
+      },
+      messages: {
+        rating: "Введите оценку"
+      },
+      submitHandler: function(form) {
+        form.submit();
+      }
+    });
+    
   });

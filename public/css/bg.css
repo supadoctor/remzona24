@@ -27,3 +27,99 @@
     padding: 120px 0;
     background: none repeat scroll 0 0 #252525;
 }
+
+label.error {
+    position: absolute;
+}
+
+html {
+  font-size: 14px;
+}
+
+body {
+  background: #FFE4B5;
+  font-family: 'PT Serif', serif;
+}
+
+body, html {
+    height:100%;
+}
+
+a:hover {
+  color: #FF8C00;
+}
+
+mark {
+  background: #FF8C00;
+  color: #000000;
+  text-shadow: none;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: 'Open Sans Condensed', sans-serif;
+}
+
+.uk-pagination > li > span {
+  border-radius: 0px;
+}
+
+.uk-tab > li > a {
+  color: inherit;
+  border-radius: 0px;
+  font-family: 'Open Sans Condensed', sans-serif;
+  font-weight: normal;
+  font-size: 18px;
+}
+
+.uk-table thead th {
+  font-family: 'Open Sans Condensed', sans-serif;
+  font-weight: normal;
+}
+
+.uk-table-striped tbody tr:nth-of-type(even) td {
+  background: #ffffff;
+}
+
+.uk-button {
+  font-family: 'Open Sans Condensed', sans-serif;
+  border-radius: 0px;
+}
+
+.uk-form select,
+.uk-form textarea,
+.uk-form input[type="text"],
+.uk-form input[type="password"],
+.uk-form input[type="datetime"],
+.uk-form input[type="datetime-local"],
+.uk-form input[type="date"],
+.uk-form input[type="month"],
+.uk-form input[type="time"],
+.uk-form input[type="week"],
+.uk-form input[type="number"],
+.uk-form input[type="email"],
+.uk-form input[type="url"],
+.uk-form input[type="search"],
+.uk-form input[type="tel"],
+.uk-form input[type="color"] {
+  border-radius: 0px;
+}
+
+.uk-button-mini {
+    font-size: 14px;
+}
+
+.onscreenlink {
+    border-bottom: 1px dashed !important;
+    cursor: pointer;
+    text-decoration: none !important;
+}
+
+
+.uk-badge {
+    font-weight: inherit;
+}

@@ -76,6 +76,7 @@ GEM
     i18n (0.6.9)
     json (1.8.1)
     json_pure (1.8.1)
+    keepass-password-generator (0.1.1)
     mail (2.5.4)
       mime-types (~> 1.16)
       treetop (~> 1.4.8)
@@ -126,6 +127,7 @@ DEPENDENCIES
   data_mapper
   dm-postgres-adapter
   haml
+  keepass-password-generator
   mini_magick
   nokogiri
   pony

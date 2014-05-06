@@ -2,20 +2,20 @@
   %br
   .uk-grid
     .uk-width-2-3
+      %h1.uk-text-right Информация о заказчике
       .uk-panel.uk-panel-box
-        %h1.uk-text-right Информация о заказчике
-        %table.uk-table.uk-table-striped
+        %table.uk-table.uk-table-striped.uk-table-condensed
           %tbody
             - if @user.avatar.present?
               %tr
-                %td.uk-width-1-10
+                %td.uk-width-1-10.uk-text-center
                   %i.uk-icon-camera
                 %td.uk-width-3-10
                   %h3.uk-margin-bottom-remove Фотография
                 %td.uk-width-6-10
                   %img{:src => @user.avatar.avatar64.url}
             %tr
-              %td.uk-width-1-10
+              %td.uk-width-1-10.uk-text-center
                 %i.uk-icon-user
               %td.uk-width-3-10
                 %h3.uk-margin-bottom-remove Контактное лицо
@@ -23,27 +23,117 @@
                 %span{:style=>"margin-top: 5px;"} #{@user.fullname}
             -if get_settings(@user, "showemail")
               %tr
-                %td.uk-width-1-10
+                %td.uk-width-1-10.uk-text-center
                   %i.uk-icon-envelope
                 %td.uk-width-3-10
                   %h3.uk-margin-bottom-remove  Электронная почта
                 %td.uk-width-6-10
                   %a{:href=>"mailto:" + @user.email}
                     #{@user.email}
+            -if @user != current_user
+              %tr
+                %td.uk-width-1-10.uk-text-center
+                  %i.uk-icon-exchange
+                %td.uk-width-3-10
+                  %h3.uk-margin-bottom-remove Связаться с пользователем 
+                %td.uk-width-6-10
+                  %a.onscreenlink{:href=>"#message", "data-uk-modal" => "{bgclose:false}"}
+                    Отправить сообщение
             %tr
-              %td.uk-width-1-10
-                %i.uk-icon-globe
+              %td.uk-width-1-10.uk-text-center
+                %i.uk-icon-map-marker
               %td.uk-width-3-10
                 %h3.uk-margin-bottom-remove Населенный пункт
               %td.uk-width-6-10
-                %span{:style=>"margin-top: 5px;"}= Placement.get(@user.placement_id).location + (Placement.get(@user.placement_id).area.length > 1 ? ", " + Placement.get(@user.placement_id).area : "") + (Placement.get(@user.placement_id).region.length > 1 ? ", " + Placement.get(@user.placement_id).region : "")
+                %span{:style=>"margin-top: 5px;"} #{fulllocation(@user)}
             %tr
-              %td.uk-width-1-10
+              %td.uk-width-1-10.uk-text-center
                 %i.uk-icon-calendar
               %td.uk-width-3-10
                 %h3.uk-margin-bottom-remove На сайте с
               %td.uk-width-6-10
-                %span{:style=>"margin-top: 5px;"}= @user.created_at.strftime("%d.%m.%Y")
+                %span{:style=>"margin-top: 5px;"} #{@user.created_at.strftime("%d.%m.%Y")}
+            %tr
+              %td.uk-width-1-10.uk-text-center
+                %i.uk-icon-sign-in
+              %td.uk-width-3-10
+                %h3.uk-margin-bottom-remove Последний раз был на сайте
+              %td.uk-width-6-10
+                %span{:style=>"margin-top: 5px;"} #{@user.lastlogon.strftime("%d.%m.%Y %H:%M")} (МСК)
+      - if @reviews && @reviews.size > 0
+        %h3.uk-text-right Отзывы
+        - @reviews.each do |q|
+          .uk-panel.uk-panel-box.uk-margin-bottom
+            %article.uk-comment
+              %header.uk-comment-header
+                %img.uk-comment-avatar{:src => User.get(q.author_id).avatar.avatar64.url}
+                .uk-comment-meta
+                  Автор:
+                  %a{:href=>"/user/#{q.author_id}"}
+                    =User.get(q.author_id).displayedname
+                  %br
+                  Дата:
+                  #{q.date.strftime("%d.%m.%Y, %H:%M:%S")}
+              .uk-comment-body
+                #stars{"data-score" => q.rating}
+                #{q.text}
     .uk-width-1-3
       .uk-panel.uk-panel-box
         %h2 Yandex Direct AD
+
+#message.uk-modal
+  .uk-modal-dialog.uk-modal-dialog-slide
+    %a.uk-modal-close.uk-close
+    %h1 Отправить сообщение
+    %form#newmessage.uk-form.uk-form-horizontal{:action => "/addquestionto?user=#{@user.id}", :method => "post"}
+      .uk-form-row
+        %label.uk-form-label{:for=>"subject"}
+          %h3 Тема
+        .uk-form-controls
+          %input#subject.uk-width-1-1{:type=>"text", :name=>"subject"}
+          %br
+          %label.error.uk-text-small.uk-text-danger{:for=>"subject"}
+      .uk-form-row{:style=>"margin-top: 15px;"}
+        %label.uk-form-label{:for=>"question"}
+          %h3 Сообщение
+        .uk-form-controls
+          %textarea#question.uk-width-1-1{:type=>"text", :name=>"question", :rows=>"6"}
+          %br
+          %label.error.uk-text-small.uk-text-danger{:for=>"question"}
+      .uk-container-center.uk-text-center{:style=>"margin-top: 20px;"}
+        %button.uk-button.uk-button-success{:type=>"submit"}Отправить
+
+:javascript
+  $(function() {
+    $('#stars').raty({
+      path: '/img/raty',
+      readOnly: true,
+      hints: ['Ужасно!','Плохо','Нормально','Хорошо','Супер!'],
+      score: function() {
+        return $(this).attr('data-score');
+      }
+    });
+  
+    var messagevalidator = $("#newmessage").validate({
+      debug: true,
+      rules: {
+        subject: {
+          required: true,
+          minlength: 3,
+          maxlength: 50
+        },
+        question: {
+          required: true,
+          maxlength: 65535
+        }
+      },
+      messages: {
+        subject: "Введите тему сообщения длинной от 3 до 50 символов",
+        question: "Введите текст сообщения длинной до 65535 символов"
+      },
+      submitHandler: function(form) {
+        form.submit();
+      }
+    });
+  
+  });
