@@ -6,22 +6,22 @@
       .uk-panel.uk-panel-box
         %h1.uk-text-right Личный кабинет
         %ul.uk-tab.uk-margin-bottom{"data-uk-tab"=>"{connect:'#operation'}"}
-          %li.uk-active
+          %li#ordertab
             %a{:href=>"#"}
               Мои заявки
               /- if @newoffers.first > 0
               /  .uk-badge.uk-badge-notification.uk-badge-danger
               /    #{@newoffers.first}
-          %li
+          %li#notificationtab
             %a{:href=>"#"}
               Уведомления
               - if @newmessages > 0
                 .uk-badge.uk-badge-notification.uk-badge-danger
                   #{@newmessages}
-          %li
+          %li#profiletab
             %a{:href=>"#"}
               Профиль     
-          %li
+          %li#settingtab
             %a{:href=>""} Настройки
         %ul#operation.uk-switcher
           %li#orders
@@ -377,7 +377,30 @@
   var old_fullname;
   var old_email;
   var old_location
+  
+  
+  //$( window ).load(function() {
+  //  $('#settingtab').trigger( "click" );
+  //});
+ 
+  
   $(function() {
+    if ($.cookie('activetab') == "ordertab") {
+      $('#ordertab').trigger( "click" );
+    }
+    
+    if ($.cookie('activetab') == "notificationtab") {
+      $('#notificationtab').trigger( "click" );
+    }
+    
+    if ($.cookie('activetab') == "profiletab") {
+      $('#profiletab').trigger( "click" );
+    }
+    
+    if ($.cookie('activetab') == "settingtab") {
+      $('#settingtab').trigger( "click" );
+    }
+    
     $('#editprofile').click(function() {
       $('.editable').removeAttr("readonly");
       $('.editable').addClass("uk-form-success");
@@ -428,8 +451,26 @@
       }
     });
 
+    /*
     $('#addorder').click(function() {
       window.location.href = "/neworder";
+    });
+    */
+    
+    $('#ordertab').click(function() {
+      $.cookie('activetab', 'ordertab');
+    });
+    
+    $('#notificationtab').click(function() {
+      $.cookie('activetab', 'notificationtab');
+    });
+    
+    $('#profiletab').click(function() {
+      $.cookie('activetab', 'profiletab');
+    });
+    
+    $('#settingtab').click(function() {
+      $.cookie('activetab', 'settingtab');
     });
     
     var profilevalidator = $("#updateprofile").validate({

@@ -13,7 +13,7 @@
                 %span.uk-display-inline
                   %i.uk-icon-question-circle{"data-uk-tooltip" => "", :title => "Укажите заголовок вашей заявки"}
             .uk-form-controls
-              %input#title.uk-form-width-large{:type=>"text", :name=>"title"}
+              %input#title.uk-form-width-large.uk-form-success{:type=>"text", :name=>"title"}
               %br
               %label.error.uk-text-small.uk-text-danger{:for=>"title"}
           .uk-form-row
@@ -29,7 +29,7 @@
                   %td{:style=>"padding-bottom: 20px; padding-right: 20px;"}
                     %label{:for=>"vehiclemake"} Марка
                   %td{:style=>"padding-bottom: 20px;"}
-                    %select#vehiclemake{:type=>"text", :name=>"vehiclemake"}
+                    %select#vehiclemake.uk-form-success{:type=>"text", :name=>"vehiclemake"}
                       %option{:disabled =>"", :selected=>""} Выберите марку
                       %option Acura
                       %option Alfa Romeo
@@ -129,7 +129,7 @@
                   %td{:style=>"padding-bottom: 20px; padding-right: 20px;"}
                     %label{:for=>"vehiclemodel"} Модель
                   %td{:style=>"padding-bottom: 20px;"}
-                    %input#vehiclemodel{:type=>"text", :name=>"vehiclemodel"}
+                    %input#vehiclemodel.uk-form-success{:type=>"text", :name=>"vehiclemodel"}
                     %br
                     %label.error.uk-text-small.uk-text-danger{:for=>"vehiclemodel"}
                 %tr
@@ -154,7 +154,7 @@
                 %span.uk-display-inline
                   %i.uk-icon-question-circle{"data-uk-tooltip" => "", :title => "Опиште суть вашей заявки. Например, укажите состав и объем требуемых работ, пожелания к срокам, стоимости и т.п. Внесите сюда максимум информации, которая бы помогла потенциальным исполнителям подготовить наиболее оптимальное предложение"}
             .uk-form-controls
-              %textarea#subject{:name=>"subject", :cols=>"100%", :rows=>"4"}
+              %textarea#subject.uk-form-success{:name=>"subject", :cols=>"100%", :rows=>"4"}
               %br
               %label.error.uk-text-small.uk-text-danger{:for=>"subject"}
           .uk-form-row{:style=>"margin-top: 20px;"}
@@ -185,9 +185,11 @@
                   %i.uk-icon-question-circle{"data-uk-tooltip" => "", :title => "Вы можете указать примерный бюджет вашей заявки. Эта цифра поможет понять потенциальным исполнителям ваши ожидания"}
             .uk-form-controls#budgettype
               %input{:type=>"radio", :name=>"budgettype", :value=>"1", :checked => ""} Не определен
-              %input{:type=>"radio", :name=>"budgettype", :value=>"2"} Определен
-              %input#budget{:type=>"text", :name=>"budget", :style=>"display: none;"}
+              %input.uk-margin-left{:type=>"radio", :name=>"budgettype", :value=>"2"} Определен
+              %input#budget.uk-form-success{:type=>"text", :name=>"budget", :style=>"display: none;"}
               %label#budgetlabel{:for=>"budget", :style=>"display: none;"} руб.
+              %br
+              %label.error.uk-text-small.uk-text-danger#budgeterror{:for=>"budget", :style=>"margin-left: 212px;"}
           .uk-form-row{:style=>"margin-top: 20px;"}
             %label.uk-form-label{:for=>"lifetime"}
               /%i.uk-icon-arrows-h
@@ -222,7 +224,8 @@
               .uk-form-controls
                 %input#email.uk-width-1-1{:type=>"text", :value => @current_user.email, :disabled=>""}
           %hr
-          .uk-grid
+          .uk-text-small Выделенные поля обязательны для заполнения
+          .uk-grid.uk-margin-top
             .uk-width-1-2.uk-container-center.uk-text-center
               %button.uk-button.uk-button-success{:type=>"submit"}Создать заявку
             .uk-width-1-2.uk-container-center.uk-text-center
@@ -239,11 +242,13 @@
       //if($(this).value == "1") {
         $('#budget').css("display", "inline-block");
         $('#budgetlabel').css("display", "inline-block");
+        $('#budgeterror').css("display", "inline-block");
       }
       else
       {
         $('#budget').css("display", "none");
         $('#budgetlabel').css("display", "none");
+        $('#budgeterror').css("display", "none");
       }
     });
 
@@ -307,6 +312,9 @@
         },
         tags: {
           required: false
+        },
+        budget: {
+          required: true
         }
       },
       messages: {
@@ -315,7 +323,8 @@
         vehiclemodel: "Введите модель",
         vehicleyear: "Введите 4-х значный год выпуска",
         vehicleVIN: "VIN должен состоять из 17 символов",
-        subject: "Введите описание заявки"
+        subject: "Введите описание заявки",
+        budget: "Введите бюджет заявки"
       },
       submitHandler: function(form) {
         form.submit();
