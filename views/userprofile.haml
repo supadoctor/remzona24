@@ -352,26 +352,26 @@
     %h1.uk-text-center Изменение пароля
     %hr
     %form#changepassword.uk-form.uk-form-horizontal{:action => "/changepassword", :method => "post"}
-      .uk-form-row{:style=>"width: 400px;"}
+      .uk-form-row
         %label.uk-form-label{:for=>"oldpass"} Текущий пароль
         .uk-form-controls
           %input#oldpass{:type=>"password", :required=>"", :name=>"oldpass"}
           %br
           %label.error.uk-text-small.uk-text-danger{:for=>"oldpass"}
-      .uk-form-row{:style=>"width: 400px;"}
+      .uk-form-row{:style=>"margin-top: 20px;"}
         %label.uk-form-label{:for=>"newpass1"} Новый пароль
         .uk-form-controls
           %input#newpass1{:type=>"password", :required=>"", :name=>"newpass1"}
           %br
           %label.error.uk-text-small.uk-text-danger{:for=>"newpass1"}
-      .uk-form-row{:style=>"width: 400px;"}
+      .uk-form-row{:style=>"margin-top: 20px;"}
         %label.uk-form-label{:for=>"newpass2"} Повторите новый пароль
         .uk-form-controls
           %input#newpass2{:type=>"password", :required=>"", :name=>"newpass2"}
           %br
           %label.error.uk-text-small.uk-text-danger{:for=>"newpass2"}
       %br
-      %button#submit.uk-button.uk-button-primary.uk-align-center{:type=>"submit"} Изменить пароль
+      %button.uk-button.uk-button-primary.uk-align-center{:type=>"submit"} Изменить пароль
 
 :javascript
   var old_fullname;

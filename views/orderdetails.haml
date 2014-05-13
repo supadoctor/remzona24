@@ -105,7 +105,7 @@
                 %h3.uk-margin-bottom-remove Ключевые слова
               %td
                 - if @order.tags.size < 1
-                  не определены
+                  .uk-text-warning не определены
                 - else
                   -@order.tags.each do |t|
                     %span.uk-badge #{t.tag}
@@ -120,7 +120,7 @@
                     %a.orderimage{:href=>f.image.url, :rel=>"gallery"}
                       %img{:src => f.image.avatar64.url}
                 - else
-                  Нет
+                  .uk-text-warning не предоставлены
             %tr
               %td.uk-text-center
                 %i.uk-icon-comments-o
@@ -166,7 +166,7 @@
                 .uk-form-controls
                   %input#budget.uk-width-1-1.details{:type=>"text", :name=>"budget"}
                   %br
-                  %label.details.error.uk-text-small.uk-text-danger{:for=>"budget"}
+                  %label.error.uk-text-small.uk-text-danger{:for=>"budget"}
               .uk-form-row
                 %label.uk-form-label.details{:for=>"time"}
                   //%i.uk-icon-calendar
@@ -237,7 +237,9 @@
                   %br
                   Статус:
                   - if o.status == 1
-                    .uk-text-bold.uk-text-danger не действительно
+                    .uk-text-bold.uk-text-danger.uk-display-inline-block не действительно
+                  - elsif o.status == 4
+                    .uk-text-bold.uk-text-danger.uk-display-inline-block отозвано
                   - else
                     .uk-text-bold.uk-text-success.uk-display-inline-block действительно
                   - if o.fd != o.td

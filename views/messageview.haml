@@ -38,28 +38,28 @@
                 %h3.uk-margin-bottom-remove Дата
               %td.uk-width-6-10
                 #{@msg.date.strftime("%d.%m.%Y %H:%M")}
-            -if @order
-              %tr
-                %td.uk-width-1-10.uk-text-center
-                  %i.uk-icon-comments-o
-                %td.uk-width-3-10
-                  %h3.uk-margin-bottom-remove Страница обсуждения заявки
-                %td.uk-width-6-10
-                  %a{:href=>"/order/#{@order.id}/comments"}
-                    Перейти
-            -if @offer
-              %tr
-                %td.uk-width-1-10.uk-text-center
-                  %i.uk-icon-comments-o
-                %td.uk-width-3-10
-                  %h3.uk-margin-bottom-remove Страница обсуждения предложения
-                %td.uk-width-6-10
-                  %a{:href=>"/offer/#{@offer.id}/comments"}
-                    Перейти
-        /%hr
+            //-if @order
+            //  %tr
+            //    %td.uk-width-1-10.uk-text-center
+            //      %i.uk-icon-comments-o
+            //    %td.uk-width-3-10
+            //      %h3.uk-margin-bottom-remove Страница обсуждения заявки
+            //    %td.uk-width-6-10
+            //      %a{:href=>"/order/#{@order.id}/comments"}
+            //        Перейти
+            //-if @offer
+            //  %tr
+            //    %td.uk-width-1-10.uk-text-center
+            //      %i.uk-icon-comments-o
+            //    %td.uk-width-3-10
+            //      %h3.uk-margin-bottom-remove Страница обсуждения предложения
+            //    %td.uk-width-6-10
+            //      %a{:href=>"/offer/#{@offer.id}/comments"}
+            //        Перейти
+        //%hr
         %h3
           =@msg.text
-        /%hr
+        //%hr
 
     .uk-width-1-3
       .uk-panel.uk-panel-box

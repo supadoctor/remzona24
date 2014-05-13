@@ -2,7 +2,7 @@
   %br
   .uk-grid
     .uk-width-2-3
-      %h1.uk-text-right Предложение № #{@offer.id}
+      %h1.uk-textright Предложение № #{@offer.id}
       -if @offer.user == current_user
         %ul.uk-subnav.uk-subnav-line.uk-text-right
           -if @offer.status == 0
@@ -143,12 +143,14 @@
                 %i#arrowup.uk-icon-long-arrow-up{:style => "display: none;"}
                 Я передумал
             #refuse.uk-margin-top{:style => "display: none;"}
-              %form.uk-form{:action=>"/offer/#{@offer.id}/refusework", :method=>"post"}
+              %form#refuseform.uk-form{:action=>"/offer/#{@offer.id}/refusework", :method=>"post"}
                 .uk-form-row
                   %label.uk-form-label{:for=>"message"}
                     %h3 Причина отказа
-                  .uk-form-controls
+                  .uk-form-controls{:style=>"margin-bottom:20px;"}
                     %textarea#refusereason.uk-width-1-1{:type=>"text", :name=>"refusereason", :rows=>"6"}
+                    %br
+                    %label.error.uk-text-small.uk-text-danger{:for=>"refusereason"}
                   %button.uk-button.uk-button-large.uk-button-danger.uk-align-center.uk-margin-top{:type=>"submit"}
                     Отказаться от предложения
     .uk-width-1-3
@@ -168,5 +170,20 @@
         $("#info").toggle();
         $("#arrowdown").toggle();
         $("#arrowup").toggle();
+      });
+      
+      var refusevalidator = $("#refuseform").validate({
+        debug: true,
+        rules: {
+          refusereason: {
+            required: true
+          }
+        },
+        messages: {
+          refusereason: "Введите обоснование отзыва предложения"
+        },
+        submitHandler: function(form) {
+          form.submit();
+        }
       });
   });

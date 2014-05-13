@@ -1,0 +1,20 @@
+.uk-container.uk-container-center
+  %br
+  .uk-grid
+    .uk-width-2-3
+      %h1.uk-text-right Частые вопросы
+      .uk-panel.uk-panel-box
+        %ul#top.ik-list
+          -@faq["question"].each do |id,q|
+            %li
+              %a{:href=>"#"+id.to_s} #{q}
+      .uk-panel.uk-panel-box
+        %ul.ik-list.uk-list-line
+          -@faq["answer"].each do |id,a|
+            %li{:id=>id}
+              #{a}
+            %p.uk-text-right
+              %a.uk-text-small{:href=>"#top"} Наверх
+    .uk-width-1-3
+      .uk-panel.uk-panel-box
+        %h2 Yandex Direct AD

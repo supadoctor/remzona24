@@ -378,7 +378,7 @@ class Remzona24App < Sinatra::Base
       redirect back
     end
     session[:user_id] = user.id
-    @msg = "Здравствуйте, " + user.displayedname + "!\n" + @@text["email"]["registration"]
+    @msg = "Здравствуйте, " + user.displayedname + "!\n" + @@text["email"]["registration"] + @@text["email"]["regards"]
     Pony.mail(:to => user.email, :subject => 'Регистрация на РемЗона24.ру', :body => @msg)
     env['warden'].authenticate!
     redirect '/profile'
@@ -417,7 +417,7 @@ class Remzona24App < Sinatra::Base
       redirect back
     end
     session[:user_id] = user.id
-    @msg = "Здравствуйте, " + user.displayedname + "!\n" + @@text["email"]["registration"]
+    @msg = "Здравствуйте, " + user.displayedname + "!\n" + @@text["email"]["registration"] + @@text["email"]["regards"]
     Pony.mail(:to => user.email, :subject => 'Регистрация на РемЗона24.ру', :body => @msg)
     env['warden'].authenticate!
     redirect '/profile'
@@ -576,7 +576,8 @@ class Remzona24App < Sinatra::Base
       end
       @current_user.update(:password => params[:newpass1])
       haml :navbarafterlogin do
-        haml :profile
+        session[:messagetodisplay] = @@text["notify"]["updatepassword"]
+        redirect back
       end
     else
       redirect back
@@ -598,7 +599,7 @@ class Remzona24App < Sinatra::Base
         redirect back
       end
       session[:messagetodisplay] = @@text["notify"]["resetpassword"]
-      @msg = @@text["email"]["resetpassword1"] + request.host + ":" + request.port.to_s + "/resetpass?reset=" + resetrequest.myhash + @@text["email"]["resetpassword2"]
+      @msg = @@text["email"]["resetpassword1"] + request.host + ":" + request.port.to_s + "/resetpass?reset=" + resetrequest.myhash + @@text["email"]["resetpassword2"] + @@text["email"]["regards"]
       Pony.mail(:to => user.email, :subject => 'Сброс пароля на РемЗона24.ру', :body => @msg)
       redirect back
     end
@@ -749,8 +750,7 @@ class Remzona24App < Sinatra::Base
       :password => password,
       :placement => placement,
       :status => 0,
-      :profile => Profile.new(:showemail => true, :showphone => true, :sendmessagestoemail => true),
-      :vehicle => Vehicle.first_or_new(:make => params[:vehiclemake], :mdl => h(params[:vehiclemodel])))
+      :profile => Profile.new(:showemail => true, :showphone => true, :sendmessagestoemail => true))
     begin
       user.save
     rescue
@@ -758,7 +758,7 @@ class Remzona24App < Sinatra::Base
       redirect back
     end
     session[:user_id] = user.id
-    @msg = "Здравствуйте, " + user.displayedname + "!\n" + @@text["email"]["expressregistration1"] + "логин: " + user.email + "\nпароль: " + password + @@text["email"]["expressregistration2"]
+    @msg = "Здравствуйте, " + user.displayedname + "!\n" + @@text["email"]["expressregistration1"] + "логин: " + user.email + "\nпароль: " + password + @@text["email"]["expressregistration2"] + @@text["email"]["regards"]
     Pony.mail(:to => user.email, :subject => 'Регистрация на РемЗона24.ру', :body => @msg)
 
     env['warden'].authenticate! :scope => :express
@@ -774,7 +774,8 @@ class Remzona24App < Sinatra::Base
       :td => fd,
       :status => 0,
       :views => 0,
-      :placement => user.placement)
+      :placement => user.placement,
+      :vehicle => Vehicle.first_or_new(:make => params[:vehiclemake], :mdl => h(params[:vehiclemodel])))
     begin
       order.save
     rescue
@@ -836,7 +837,7 @@ class Remzona24App < Sinatra::Base
       redirect back
     end
     #email_msg = "Здравствуйте!\nПо вашей заявке (http://" + request.host + ":" + request.port.to_s + "/order/" + order.id.to_s + ") было размещено новое предложение. Ознакомиться с ним вы можете по этой ссылке: http://" + request.host + ":" + request.port.to_s + "/offer/" + offer.id.to_s + "\n--\nС уважением, РемЗона24.ру"
-    email_msg = @@text["email"]["newoffer"] + request.host + ":" + request.port.to_s + "/offer/" + offer.id.to_s + "\n\nССылка на исходную заявку: http://" + request.host + ":" + request.port.to_s + "/order/" + order.id.to_s + "\n--\nС уважением, РемЗона24.ру"
+    email_msg = @@text["email"]["newoffer"] + request.host + ":" + request.port.to_s + "/offer/" + offer.id.to_s + "\n\nССылка на исходную заявку: http://" + request.host + ":" + request.port.to_s + "/order/" + order.id.to_s + @@text["email"]["regards"]
     if get_settings(order.user, "sendmessagestoemail")
       Pony.mail(:to => order.user.email, :subject => 'Вы получили новое предложение на РемЗона24.ру', :body => email_msg)
     end
@@ -1012,7 +1013,7 @@ class Remzona24App < Sinatra::Base
     end
     if !logged_in?
       haml :navbarbeforelogin do
-        session[:messagetodisplay] = "Для просмотра комментариев к заявке, пожалуйста, войдите в систему"
+        session[:messagetodisplay] = @@text["notify"]["plsloginforordercomments"]
         redirect back
       end
     else
@@ -1038,7 +1039,7 @@ class Remzona24App < Sinatra::Base
           redirect back
         else
           order.update(:status => 1, :td => DateTime.now)
-          session[:messagetodisplay] = "Заявка была перенесена в архив"
+          session[:messagetodisplay] = @@text["notify"]["orderwasarchived"]
           redirect '/profile'
         end
       end
@@ -1054,11 +1055,11 @@ class Remzona24App < Sinatra::Base
       haml :navbarafterlogin do
         order = Order.get(params[:order].to_i)
         if order.user != current_user
-          session[:messagetodisplay] = "Вы не можете удалить заявку"
+          session[:messagetodisplay] = @@text["notify"]["cantdeleteorder"]
           redirect back
         else
           order.update(:status => 2, :td => DateTime.now)
-          session[:messagetodisplay] = "Заявка была удалена"
+          session[:messagetodisplay] = @@text["notify"]["orderwasdeleted"]
           redirect '/profile'
         end
       end
@@ -1082,7 +1083,7 @@ class Remzona24App < Sinatra::Base
       end  
     end
     if !logged_in?
-      session[:messagetodisplay] = "Для просмотра предложения, пожалуйста, войдите в систему"
+      session[:messagetodisplay] = @@text["notify"]["plsloginforoffer"]
       redirect back
     else
       haml :navbarafterlogin do
@@ -1106,7 +1107,7 @@ class Remzona24App < Sinatra::Base
       end
     end
     if !logged_in?
-      session[:messagetodisplay] = "Для просмотра комментариев к предложению, пожалуйста, войдите в систему"
+      session[:messagetodisplay] = @@text["notify"]["plsloginforoffercomments"]
       redirect back
     else
       @order = Order.get(@offer.order_id)
@@ -1126,12 +1127,12 @@ class Remzona24App < Sinatra::Base
     else
       haml :navbarafterlogin do
         offer = Ofer.get(params[:offer].to_i)
-        if offer.user != current_user
+        if offer.user != current_user || offer.status == 3
           session[:messagetodisplay] = "Вы не можете снять предложение"
           redirect back
         else
           offer.update(:status => 1, :td => DateTime.now)
-          session[:messagetodisplay] = "Предложение было отменено и перенесено в архив"
+          session[:messagetodisplay] = @@text["notify"]["offerwasarchvied"]
           redirect back
         end
       end
@@ -1158,7 +1159,7 @@ class Remzona24App < Sinatra::Base
       redirect '/'
     else
       if @offer.status != 0
-        session[:messagetodisplay] = "Предложение не действительно"
+        session[:messagetodisplay] = @@text["notify"]["invalidoffer"]
         redirect back
       end
       @offer.update(:status => 2)
@@ -1176,15 +1177,15 @@ class Remzona24App < Sinatra::Base
         session[:messagetodisplay] = @message.errors.values.join("; ")
         redirect back
       end
-      email_msg = "Здравствуйте!\nВаше предложение было принято. Пожалуйста, подтвердите свою готовность выполнить работу по этой ссылке: http://" + request.host + ":" + request.port.to_s + "/offer/" + @offer.id.to_s
+      email_msg = @@text["email"]["acceptoffer"] + request.host + ":" + request.port.to_s + "/offer/" + @offer.id.to_s
       if params[:message] && params[:message].size>0
         email_msg += "\nДополнительная информация от заказчика:\n" + params[:message]
       end
-      email_msg += "\n--\nС уважением, РемЗона24.ру"
+      email_msg += @@text["email"]["regards"]
       if get_settings(@offer.user, "sendmessagestoemail")
         Pony.mail(:to => @offer.user.email, :subject => 'Ваше предложение было принято на РемЗона24.ру', :body => email_msg)
       end
-      session[:messagetodisplay] = "Вы приняли предложение. Соответствующее уведомление было отправлено исполнителю; После подтверждения со строны исполнителя вы можете оставить свой отзыв о качестве его работы"
+      session[:messagetodisplay] = @@text["notify"]["acceptoffer"]
       redirect 'profile'
       #rescue
       #  session[:messagetodisplay] = @contract.errors.values.join("; ")
@@ -1236,17 +1237,17 @@ class Remzona24App < Sinatra::Base
         session[:messagetodisplay] = @message.errors.values.join("; ")
         redirect back
       end
-      email_msg = "Здравствуйте!\nПредложение было принято."
-      email_msg += "\n--\nС уважением, РемЗона24.ру"
+      email_msg = @@text["email"]["confirmoffer"] + request.host + ":" + request.port.to_s + "/user/" + @offer.user_id
+      email_msg += @@text["email"]["regards"]
       if get_settings(@order.user, "sendmessagestoemail")
         Pony.mail(:to => @order.user.email, :subject => 'Потверждение начала работ на РемЗона24.ру', :body => email_msg)
       end
-      session[:messagetodisplay] = "Вы подтвердили готовность выполнить работы. Соответствующее уведомление было отправлено заказчику."
+      session[:messagetodisplay] = @@text["notify"]["confirmoffer"]
       redirect 'profile'
     end
   end
 
-  post '/offer/:offer/refusereason' do
+  post '/offer/:offer/refusework' do
     begin
       @offer = Offer.get(params[:offer].to_i)
       #if @offer.status != 0
@@ -1269,7 +1270,27 @@ class Remzona24App < Sinatra::Base
         session[:messagetodisplay] = "Предложение не принято заказчиком"
         redirect back
       end
-      @order = Order.get(@offer.order)
+      @order = Order.get(@offer.order_id)
+      @offer.update(:status => 4)
+      @order.update(:status => 0)
+      int_msg = "Здравствуйте!<br/>К сожалению, предложение было отозвано исполнителем."
+      int_msg += "<br/><mark>Причина отзыва, указанная исполнителем:</mark><br/><blockquote>"
+      int_msg += h (params[:refusereason]) + "</blockquote>"
+      int_msg += "<br/>--<br/>С уважением, РемЗона24.ру"
+      @message = Message.new(:unread => true, :date => DateTime.now, :text => int_msg, :sender => User.get(1), :receiver => @order.user, :type => "Accept", :offer => @offer, :order => @order)
+      begin
+        @message.save
+      rescue
+        session[:messagetodisplay] = @message.errors.values.join("; ")
+        redirect back
+      end
+      email_msg = @@text["email"]["refuseoffer"] + h(params[:refusereason])
+      email_msg += @@text["email"]["regards"]
+      if get_settings(@order.user, "sendmessagestoemail")
+        Pony.mail(:to => @order.user.email, :subject => 'Отзыв предложения на РемЗона24.ру', :body => email_msg)
+      end
+      session[:messagetodisplay] = @@text["notify"]["refuseoffer"]
+      redirect 'profile'
       #@contract = Contract.new(:customer => User.get(@offer.order).user, :contractor => current_user)
       #begin
       #redirect 'profile'
@@ -1286,11 +1307,11 @@ class Remzona24App < Sinatra::Base
     else
       @msg = Message.get(params[:id].to_i)
       if !@msg
-        session[:messagetodisplay] = "Сообщение не найдено"
+        session[:messagetodisplay] = @@text["notify"]["nomessage"]
         redirect back
       end
       if @msg.receiver != current_user
-        session[:messagetodisplay] = "Вы не можете прочитать это сообщение"
+        session[:messagetodisplay] = @@text["notify"]["cantreadmessage"]
         redirect back
       end
       @msg.update(:unread => false)
@@ -1312,11 +1333,11 @@ class Remzona24App < Sinatra::Base
         redirect back
       end
       if @msg.receiver != current_user
-        session[:messagetodisplay] = "Вы не можете поместить это сообщение в архив"
+        session[:messagetodisplay] = @@text["notify"]["cantarchivemessage"]
         redirect back
       end
       @msg.update(:archived => true)
-      session[:messagetodisplay] = "Сообщение было помещенно в архив"
+      session[:messagetodisplay] = @@text["notify"]["messagewasarchived"]
     end
     redirect '/profile'
   end
@@ -1331,13 +1352,27 @@ class Remzona24App < Sinatra::Base
         redirect back
       end
       if @msg.receiver != current_user
-        session[:messagetodisplay] = "Вы не можете удалить это сообщение"
+        session[:messagetodisplay] = @@text["notify"]["cantdeletemessage"]
         redirect back
       end
       @msg.destroy
-      session[:messagetodisplay] = "Сообщение было удалено"
+      session[:messagetodisplay] = @@text["notify"]["messagewasdeleted"]
     end
     redirect '/profile'
+  end
+  
+  get '/faq' do
+    @faq = @@text["faq"]
+    puts "====", @faq.class, @faq.inspect
+    if !logged_in?
+      haml :navbarbeforelogin do
+        haml :faq
+      end
+    else
+      haml :navbarafterlogin do
+        haml :faq
+      end
+    end
   end
 
   get '/ajax/tags.json' do
