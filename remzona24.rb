@@ -906,6 +906,7 @@ class Remzona24App < Sinatra::Base
       )
       begin
         @message.save
+        session[:messagetodisplay] = @@text["notify"]["messagesent"]
       rescue
         session[:messagetodisplay] = @message.errors.values.join("; ")
       ensure
@@ -925,6 +926,7 @@ class Remzona24App < Sinatra::Base
       )
       begin
         @message.save
+        session[:messagetodisplay] = @@text["notify"]["messagesent"]
       rescue
         session[:messagetodisplay] = @message.errors.values.join("; ")
       ensure
@@ -1363,7 +1365,6 @@ class Remzona24App < Sinatra::Base
   
   get '/faq' do
     @faq = @@text["faq"]
-    puts "====", @faq.class, @faq.inspect
     if !logged_in?
       haml :navbarbeforelogin do
         haml :faq
@@ -1371,6 +1372,50 @@ class Remzona24App < Sinatra::Base
     else
       haml :navbarafterlogin do
         haml :faq
+      end
+    end
+  end
+    
+  get '/support' do
+    if !logged_in?
+      session[:messagetodisplay] = @@text["notify"]["plsloginforsupport"]
+      redirect back
+    else
+      haml :navbarafterlogin do
+        haml :support
+      end
+    end
+  end
+  
+  post '/support' do
+    @message = Message.new(
+      :sender => current_user,
+      :receiver => User.get(1),
+      :unread => true,
+      :subject => h(params[:subject]),
+      :text => h(params[:question]),
+      :date => DateTime.now,
+      :type => "Support"
+    )
+    begin
+      @message.save
+      session[:messagetodisplay] = @@text["notify"]["messagesent"]
+    rescue
+      session[:messagetodisplay] = @message.errors.values.join("; ")
+    ensure
+      redirect '/'
+    end
+  end
+  
+  get '/about' do
+    @about = @@text["about"]
+    if !logged_in?
+      haml :navbarbeforelogin do
+        haml :about
+      end
+    else
+      haml :navbarafterlogin do
+        haml :about
       end
     end
   end

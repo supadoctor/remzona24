@@ -1,0 +1,54 @@
+.uk-container.uk-container-center
+  %br
+  .uk-grid
+    .uk-width-2-3
+      %h1.uk-text-right Запрос подержки
+      .uk-panel.uk-panel-box
+        %form#newmessage.uk-form.uk-form-horizontal{:action => "/support", :method => "post"}
+          .uk-form-row
+            %label.uk-form-label{:for=>"subject"}
+              %h3 Тема
+            .uk-form-controls
+              %input#subject.uk-width-1-1{:type=>"text", :name=>"subject"}
+              %br
+              %label.error.uk-text-small.uk-text-danger{:for=>"subject"}
+          .uk-form-row{:style=>"margin-top: 15px;"}
+            %label.uk-form-label{:for=>"question"}
+              %h3
+                Сообщение
+                %span.uk-display-inline
+                  %i.uk-icon-question-circle{"data-uk-tooltip" => "", :title => "Максимально подробно опишите суть вопроса или проблемы. Если ваше обращение касается заявки или предложения, то укажите номер"}
+            .uk-form-controls
+              %textarea#question.uk-width-1-1{:type=>"text", :name=>"question", :rows=>"6"}
+              %br
+              %label.error.uk-text-small.uk-text-danger{:for=>"question"}
+          .uk-container-center.uk-text-center{:style=>"margin-top: 20px;"}
+            %button.uk-button.uk-button-success{:type=>"submit"}Отправить
+    .uk-width-1-3
+      .uk-panel.uk-panel-box{:style=>"width:240px;"}
+        %h2 Yandex Direct AD
+
+:javascript
+  $(function() {
+    var questionvalidator = $("#newmessage").validate({
+      debug: true,
+      rules: {
+        subject: {
+          required: true,
+          minlength: 3,
+          maxlength: 50
+        },
+        question: {
+          required: true,
+          maxlength: 65535
+        }
+      },
+      messages: {
+        subject: "Введите тему сообщения длинной от 3 до 50 символов",
+        question: "Введите текст сообщения длинной до 65535 символов"
+      },
+      submitHandler: function(form) {
+        form.submit();
+      }
+    });
+  });

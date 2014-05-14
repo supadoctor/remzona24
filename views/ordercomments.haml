@@ -2,8 +2,8 @@
   %br
   .uk-grid
     .uk-width-2-3
+      %h1.uk-text-right Обсуждение заявки № #{@order.id}
       .uk-panel.uk-panel-box
-        %h1.uk-display-inline Обсуждение заявки № #{@order.id}
         %table.uk-table.uk-table-striped.uk-table-condensed
           %tbody
           %tr
@@ -16,17 +16,19 @@
                 Заявка № #{@order.id}
         -if (@current_user.type == "Master") || (@current_user.type == "User" && @current_user == @order.user)
           .uk-panel.uk-panel-box
-            %form.uk-form.uk-form-horizontal{:action => "/addquestionto?order=" + @order.id.to_s, :method => "post"}
+            %form#newmessage.uk-form.uk-form-horizontal{:action => "/addquestionto?order=" + @order.id.to_s, :method => "post"}
               .uk-form-row
                 %label.uk-form-label{:for=>"question"}
                   %h3 Текст
                 .uk-form-controls
                   %textarea#subject.uk-width-1-1{:type=>"text", :required=>"", :name=>"question", :rows=>"6"}
+                  %br
+                  %label.error.uk-text-small.uk-text-danger{:for=>"question"}
               .uk-container-center.uk-text-center{:style=>"margin-top: 15px;"}
                 -if @current_user.type == "User"
-                  %button#submit.uk-button.uk-button-success{:type=>"submit"}Разместить доп.информацию
+                  %button.uk-button.uk-button-success{:type=>"submit"}Разместить доп.информацию
                 -else
-                  %button#submit.uk-button.uk-button-success{:type=>"submit"}Разместить вопрос
+                  %button.uk-button.uk-button-success{:type=>"submit"}Разместить вопрос
                       
       - if @questions && @questions.size > 0
         %h1.uk-text-right Вопросы и ответы
@@ -69,3 +71,28 @@
     .uk-width-1-3
       .uk-panel.uk-panel-box{:style=>"width:240px;"}
         %h2 Yandex Direct AD
+
+:javascript
+  $(function() {
+    var questionvalidator = $("#newmessage").validate({
+      debug: true,
+      rules: {
+        subject: {
+          required: true,
+          minlength: 3,
+          maxlength: 50
+        },
+        question: {
+          required: true,
+          maxlength: 65535
+        }
+      },
+      messages: {
+        subject: "Введите тему сообщения длинной от 3 до 50 символов",
+        question: "Введите текст сообщения длинной до 65535 символов"
+      },
+      submitHandler: function(form) {
+        form.submit();
+      }
+    });
+  });
