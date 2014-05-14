@@ -15,20 +15,19 @@
               %a{:href=>"/order/#{@order.id}"}
                 Заявка № #{@order.id}
         -if (@current_user.type == "Master") || (@current_user.type == "User" && @current_user == @order.user)
-          .uk-panel.uk-panel-box
-            %form#newmessage.uk-form.uk-form-horizontal{:action => "/addquestionto?order=" + @order.id.to_s, :method => "post"}
-              .uk-form-row
-                %label.uk-form-label{:for=>"question"}
-                  %h3 Текст
-                .uk-form-controls
-                  %textarea#subject.uk-width-1-1{:type=>"text", :required=>"", :name=>"question", :rows=>"6"}
-                  %br
-                  %label.error.uk-text-small.uk-text-danger{:for=>"question"}
-              .uk-container-center.uk-text-center{:style=>"margin-top: 15px;"}
-                -if @current_user.type == "User"
-                  %button.uk-button.uk-button-success{:type=>"submit"}Разместить доп.информацию
-                -else
-                  %button.uk-button.uk-button-success{:type=>"submit"}Разместить вопрос
+          %form#newmessage.uk-form.uk-form-horizontal{:action => "/addquestionto?order=" + @order.id.to_s, :method => "post"}
+            .uk-form-row
+              %label.uk-form-label{:for=>"question"}
+                %h3 Текст
+              .uk-form-controls
+                %textarea#question.uk-width-1-1{:type=>"text", :required=>"", :name=>"question", :rows=>"6"}
+                %br
+                %label.error.uk-text-small.uk-text-danger{:for=>"question"}
+            .uk-container-center.uk-text-center{:style=>"margin-top: 20px;"}
+              -if @current_user.type == "User"
+                %button.uk-button.uk-button-success{:type=>"submit"}Разместить доп.информацию
+              -else
+                %button.uk-button.uk-button-success{:type=>"submit"}Разместить вопрос
                       
       - if @questions && @questions.size > 0
         %h1.uk-text-right Вопросы и ответы
@@ -77,18 +76,12 @@
     var questionvalidator = $("#newmessage").validate({
       debug: true,
       rules: {
-        subject: {
-          required: true,
-          minlength: 3,
-          maxlength: 50
-        },
         question: {
           required: true,
           maxlength: 65535
         }
       },
       messages: {
-        subject: "Введите тему сообщения длинной от 3 до 50 символов",
         question: "Введите текст сообщения длинной до 65535 символов"
       },
       submitHandler: function(form) {

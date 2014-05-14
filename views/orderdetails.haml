@@ -18,7 +18,7 @@
                 %input{:type=>"hidden", :name=>"_method", :value=>"delete"}
                 %input{:type=>"submit", :value=>"Удалить", :style=>"background:none!important; border:none; padding:0!important;"}
                 //Удалить
-      .uk-panel.uk-panel-box
+      .uk-panel.uk-panel-box.uk-margin-bottom
         %h2 #{@order.title}
         %table.uk-table.uk-table-striped.uk-table-condensed
           %tbody
@@ -130,27 +130,17 @@
                 %a{:href=>"/order/#{@order.id}/comments"}
                   Обсудить (#{@questionsnumber})
       -if @order.status == 0 && @order.user != @current_user
-        %h1
-          Разместить предложение
-        -if !logged_in?
-          .uk-alert.uk-alert-success
-            Вы не можете разместить предложение по этой заявке,
-            %br
-            %small потому что Вы не вошли на сайт в качестве Мастера или представителя Сервиса.
-            %small
-              %a{:href=>"#register", "data-uk-modal" => "{bgclose:false}"} Зарегистрируйтесь
-              или
-              %a{:href=>"#login", "data-uk-modal" => "{bgclose:false}"} войдите
-              в систему.
-        -elsif @current_user.type == "User"
-          .uk-alert.uk-alert-success
-            Вы не можете подать предложение по этой заявке,
-            %br
-            %small потому что Вы вошли на сайт не как Мастер или представитель Сервиса
-        -else
-          .uk-panel.uk-panel-box
+        -if logged_in? && @current_user.type == "Master"
+          %button#makeoffer.uk-button.uk-button-success
+            Разместить предложение
+          .uk-panel.uk-panel-box.uk-margin-top#makeofferform{:style => "display: none;"}
+            -if current_user.placement_id != @order.placement_id
+              .uk-alert.uk-alert-danger{"data-uk-alert"=>""}
+                %a.uk-alert-close.uk-close{:href=>""}
+                %strong Внимание!
+                Ваш населенный пункт не соответствует населенному пункту Заказчика. Вы дейсвительно хотите подать предложение?
             %form#offer.uk-form.uk-form-horizontal{:action => "/order/#{@order.id}/addoffer", :method => "post"}
-              .uk-form-row{:style=>"margin-top: 20px;"}
+              .uk-form-row{:style=>"margin-bottom: 20px;"}
                 %label.uk-form-label{:for=>"subject"}
                   //%i.uk-icon-edit
                   %h3 Описание предложения
@@ -159,20 +149,20 @@
                   %br
                   %label.error.uk-text-small.uk-text-danger{:for=>"subject"}
               %hr
-              .uk-form-row{:style=>"margin-top: 20px;"}
-                %label.uk-form-label.details{:for=>"budget"}
+              .uk-form-row.details
+                %label.uk-form-label{:for=>"budget"}
                   //%i.uk-icon-money
                   %h3 Стоимость (руб.)
                 .uk-form-controls
-                  %input#budget.uk-width-1-1.details{:type=>"text", :name=>"budget"}
+                  %input#budget.uk-width-1-1{:type=>"text", :name=>"budget"}
                   %br
                   %label.error.uk-text-small.uk-text-danger{:for=>"budget"}
-              .uk-form-row
-                %label.uk-form-label.details{:for=>"time"}
+              .uk-form-row.details
+                %label.uk-form-label{:for=>"time"}
                   //%i.uk-icon-calendar
                   %h3 Срок выполнения
                 .uk-form-controls
-                  %select#time.details{:name=>"time"}
+                  %select#time{:name=>"time"}
                     %option{:selected=>"", :value=>"1"}
                       В течение 1 дня
                     %option{:value=>"3"}
@@ -205,16 +195,14 @@
                     %option{:selected=>"", :value=>"0"}
                       Не закрывать автоматически
               / %hr
-              -if current_user.placement_id != @order.placement_id
-                .uk-alert.uk-alert-danger{"data-uk-alert"=>""}
-                  %a.uk-alert-close.uk-close{:href=>""}
-                  %strong Внимание!
-                  Ваш населенный пункт не соответствует населенному пункту Заказчика. Вы дейсвительно хотите подать предложение?
-              .uk-container-center.uk-text-center
-                %button.uk-button.uk-button-success{:type=>"submit"}Разместить предложение
+              .uk-grid
+                .uk-width-1-2.uk-container-center.uk-text-center
+                  %button.uk-button.uk-button-success{:type=>"submit"} Разместить предложение
+                .uk-width-1-2.uk-container-center.uk-text-center
+                  %button#cancel.uk-button{:type=>"reset"} Отменить
       %br
       .uk-width-1-1
-        .uk-panel.uk-panel-box
+        .uk-panel.uk-panel-box.uk-margin-top
           %h2 Yandex Direct AD
       - if @offers && @offers.size > 0 && !@order.contract
         %h1.uk-text-right Предложения
@@ -259,7 +247,7 @@
                         %td
                           #{rur o.budget}
       - elsif !@order.contract
-        %h1.uk-text-left Нет предложений
+        %h1.uk-text-right Нет предложений
       - if @order.contract && logged_in? && !@order.contract.review && !@alreadyreviewed
         -if @current_user.type == "User"
           %h1#review.uk-text-right Оцените работу исполнителя
@@ -308,6 +296,7 @@
   $(function() {
     $('#nodetailschk').click(function() {
       $(".details").toggle(this.cheked);
+      
     });
 
     /*
@@ -375,6 +364,16 @@
       submitHandler: function(form) {
         form.submit();
       }
+    });
+    
+    $('#makeoffer').click(function() {
+      $("#makeofferform").toggle();
+      $("#makeoffer").toggle();
+    });
+    
+    $('#cancel').click(function() {
+      $("#makeofferform").toggle();
+      $("#makeoffer").toggle();
     });
     
   });
