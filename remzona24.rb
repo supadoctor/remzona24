@@ -155,6 +155,10 @@ class Remzona24App < Sinatra::Base
       v = order.vehicle
       (v.make && v.make.size > 0 ? v.make : "") + (v.mdl && v.mdl.size > 0 ? " " + v.mdl : "") + (v.year && v.year>0 ? ", год выпуска: " + v.year.to_s : "") + (v.VIN && v.VIN.size > 0 ? ", VIN: " + v.VIN : "")
     end
+    
+    def unreadmessages
+      Message.count(:receiver => current_user, :sender.not => current_user, :unread => true)
+    end
   end
 
   #*************************************************************************************************************
@@ -427,7 +431,7 @@ class Remzona24App < Sinatra::Base
     if logged_in?
       @messages = Message.all(:receiver => current_user, :sender.not => current_user, :archived => false, :order => [ :date.desc ])
       @archivedmessages = Message.all(:receiver => current_user, :sender.not => current_user, :archived => true, :order => [ :date.desc ])      
-      @newmessages = Message.count(:receiver => current_user, :sender.not => current_user, :unread => true)
+      #@newmessages = Message.count(:receiver => current_user, :sender.not => current_user, :unread => true)
       haml :navbarafterlogin do
         case @current_user.type
           when "User"
@@ -446,6 +450,8 @@ class Remzona24App < Sinatra::Base
             #@mypossibilities = Order.all(:status => 0, :placement => current_user.placement, :order => [ :fd.desc ], :limit => 10)
             @mypossibilities = repository(:default).adapter.select('select * from orders where id in (select order_id from ordertaggings where tag_id in (select id from tags where tag in (select tag from tags where id in (select tag_id from usertaggings where user_id = ?)))) and status = 0 and placement_id = ? order by fd desc limit 10;', current_user.id, current_user.placement_id)
             haml :masterprofile
+          when "Admin"
+            haml :admin
         end
       end
     else

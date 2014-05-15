@@ -12,6 +12,9 @@
         %a.uk-navbar-nav-subtitle{:href=>"/profile"}
           %i.uk-icon-user
           Личный кабинет
+          - if unreadmessages > 0
+            .uk-badge.uk-badge-notification.uk-badge-danger{"data-uk-tooltip" => "", :title => "У вас есть непрочитанные уведомления"}
+              =unreadmessages
           %div
             %mark
               = @current_user.fullname ? @current_user.fullname : @current_user.name + " " + @current_user.familyname

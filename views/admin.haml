@@ -1,0 +1,119 @@
+.uk-container.uk-container-center
+  %br
+  / %h1#fullname.uk-text-left #{@current_user.fullname}
+  .uk-grid
+    .uk-width-2-3
+      .uk-panel.uk-panel-box
+        %h1.uk-text-right Личный кабинет
+        %ul.uk-tab.uk-margin-bottom{"data-uk-tab"=>"{connect:'#operation'}"}
+          %li#notificationtab
+            %a{:href=>"#"}
+              Уведомления
+              - if @newmessages > 0
+                .uk-badge.uk-badge-notification.uk-badge-danger
+                  #{@newmessages}
+        %ul#operation.uk-switcher
+          %li#notifications
+            %ul.uk-tab.uk-margin-bottom.uk-tab-flip{"data-uk-tab"=>"{connect:'#allnotifications'}"}
+              %li
+                %a{:href=>"#"}
+                  Архив              
+              %li.uk-active
+                %a{:href=>"#"}
+                  Входящие
+            %ul#allnotifications.uk-switcher   
+              %li
+                - if @archivedmessages.size < 1
+                  %h3 У вас нет архивных уведомлений
+                - else
+                  %table.uk-table
+                    %thead
+                      %tr
+                        %th
+                        %th
+                          Тема
+                        %th
+                          Отправитель
+                        %th
+                          Дата
+                        /%th
+                        /  Сообщение
+                    %tbody
+                      - @archivedmessages.each do |m|
+                        %tr
+                          %td
+                            -if m.unread
+                              .uk-badge
+                                Новое
+                          %td
+                            %a{:href=>"/message/"+m.id.to_s}
+                              -if !m.subject
+                                -case m.type
+                                -when "Offer"
+                                  = "Новое предложение"
+                                -when "Question"
+                                  = "Вопрос по заявке"
+                                -when "Accept"
+                                  = "Подтверждение начала работ"
+                              -else
+                                #{m.subject}
+                            %a.fancybox{:href=>"/ajax/message/#{m.id}"}
+                              -if !m.subject
+                                -case m.type
+                                -when "Offer"
+                                  = "Новое предложение"
+                                -when "Request"
+                                  = "Предложение принято"
+                              -else
+                                #{m.subject}
+                          %td
+                            -if m.sender.id != 1
+                              %a{:href=>"/user/"+m.sender.id.to_s}
+                                #{m.sender.displayedname}
+                            -else
+                              #{m.sender.displayedname}
+                          %td
+                            #{m.date.strftime("%d.%m.%Y %H:%M")}
+              %li
+                - if @messages.size < 1
+                  %h3 У вас нет входящих уведомлений
+                - else
+                  %table.uk-table
+                    %thead
+                      %tr
+                        %th
+                        %th
+                          Тема
+                        %th
+                          Отправитель
+                        %th
+                          Дата
+                        /%th
+                        /  Сообщение
+                    %tbody
+                      - @messages.each do |m|
+                        %tr
+                          %td
+                            -if m.unread
+                              .uk-badge
+                                Новое
+                          %td
+                            %a{:href=>"/message/"+m.id.to_s}
+                              -if !m.subject
+                                -case m.type
+                                -when "Offer"
+                                  = "Новое предложение"
+                                -when "Question"
+                                  = "Вопрос по заявке"
+                                -when "Accept"
+                                  = "Подтверждение начала работ"
+                              -else
+                                #{m.subject}
+                          %td
+                            -if m.sender.id != 1
+                              %a{:href=>"/user/"+m.sender.id.to_s}
+                                #{m.sender.displayedname}
+                            -else
+                              #{m.sender.displayedname}
+                          %td
+                            #{m.date.strftime("%d.%m.%Y %H:%M")}

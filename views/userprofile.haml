@@ -15,9 +15,9 @@
           %li#notificationtab
             %a{:href=>"#"}
               Уведомления
-              - if @newmessages > 0
-                .uk-badge.uk-badge-notification.uk-badge-danger
-                  #{@newmessages}
+              /- if @newmessages > 0
+              /  .uk-badge.uk-badge-notification.uk-badge-danger
+              /    #{@newmessages}
           %li#profiletab
             %a{:href=>"#"}
               Профиль     
