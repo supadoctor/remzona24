@@ -160,15 +160,8 @@
                                   = "Вопрос по заявке"
                                 -when "Accept"
                                   = "Подтверждение начала работ"
-                              -else
-                                #{m.subject}
-                            %a.fancybox{:href=>"/ajax/message/#{m.id}"}
-                              -if !m.subject
-                                -case m.type
-                                -when "Offer"
-                                  = "Новое предложение"
-                                -when "Request"
-                                  = "Предложение принято"
+                                -when "Refuse"
+                                  = "Отказ исполнителя"
                               -else
                                 #{m.subject}
                           %td
@@ -212,6 +205,8 @@
                                   = "Вопрос по заявке"
                                 -when "Accept"
                                   = "Подтверждение начала работ"
+                                -when "Refuse"
+                                  = "Отказ исполнителя"
                               -else
                                 #{m.subject}
                           %td

@@ -26,12 +26,12 @@
     %a.uk-modal-close.uk-close
     %h1 Регистрация
     %ul.uk-tab.uk-tab-grid.data-uk-tab{"data-uk-tab"=>"{connect:'#typesofuser'}"}
-      %li.uk-width-1-3.uk-active
-        %a{:href=>""}Пользователь
-      %li.uk-width-1-3
+      %li.uk-width-1-2.uk-active
+        %a{:href=>""}Заказчик
+      %li.uk-width-1-2
         %a{:href=>""}Мастер
-      %li.uk-width-1-3
-        %a{:href=>""}Сервис
+      /%li.uk-width-1-3
+      /  %a{:href=>""}Сервис
     %ul#typesofuser.uk-switcher.uk-margin
       %li
         %form#reguser.uk-form{:action => "/reguser", :method => "post"}
@@ -65,7 +65,9 @@
           .uk-form-row
             %label
               %input.userrules{:type=>"checkbox", :name=>"terms"}
-              Я принимаю правила использования портала РемЗона24.ру
+              Я принимаю
+              %a{:href=>"/terms"}
+                cоглашение об использовании интернет-сервиса «РемЗона24.ру
           %br
           %button#usersubmit.uk-button.uk-button-primary.uk-align-center{:type=>"submit"}Регистрация
       %li
@@ -108,23 +110,25 @@
           .uk-form-row{:style=>"margin-top: 20px;"}
             %label
               %input.masterrules{:type=>"checkbox", :name=>"terms"}
-              Я принимаю правила использования портала РемЗона24.ру
+              Я принимаю
+              %a{:href=>"/terms"}
+                cоглашение об использовании интернет-сервиса «РемЗона24.ру
           %br
           %button#mastersubmit.uk-button.uk-button-primary.uk-align-center{:type=>"submit"}Регистрация
-      %li
-        %form.uk-form
-          %fieldset
-            %legend
-              Вы представляете компанию, которая предоставляет услуги в сфере ремонта и обслуживания автомобилей и хотели бы продавать свои услуги через портал РемЗона24.ру
-          .uk-form-row
-            .uk-text-small
-              Все поля обязательны для заполнения
-          .uk-form-row
-            %label
-              %input.servicerules{:type=>"checkbox"}
-              Я принимаю правила использования портала РемЗона24.ру
-          %br
-          %button#servicesubmit.uk-button.uk-button-primary.uk-align-center{:type=>"submit", :disabled => ""}Регистрация
+      /%li
+      /  %form.uk-form
+      /    %fieldset
+      /      %legend
+      /        Вы представляете компанию, которая предоставляет услуги в сфере ремонта и обслуживания автомобилей и хотели бы продавать свои услуги через портал РемЗона24.ру
+      /    .uk-form-row
+      /      .uk-text-small
+      /        Все поля обязательны для заполнения
+      /    .uk-form-row
+      /      %label
+      /        %input.servicerules{:type=>"checkbox"}
+      /        Я принимаю правила использования портала РемЗона24.ру
+      /    %br
+      /    %button#servicesubmit.uk-button.uk-button-primary.uk-align-center{:type=>"submit", :disabled => ""}Регистрация
 
 #login.uk-modal
   .uk-modal-dialog.uk-modal-dialog-slide

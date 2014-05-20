@@ -31,7 +31,7 @@ class Remzona24App < Sinatra::Base
     set :vehicles => YAML.load_file("public/makes.yml")
   end    
     @@text = YAML.load_file("public/texts.yml")
-    
+    @@terms = YAML.load_file("public/terms.yml")
     # use Rack::Session::Cookie, secret: "rem_zona_24_ru_secret"
   
   Pony.options = {
@@ -716,7 +716,7 @@ class Remzona24App < Sinatra::Base
       :status => 0,
       :views => 0,
       :placement => @current_user.placement,
-      :vehicle => Vehicle.first_or_new(:make => params[:vehiclemake], :mdl => h(params[:vehiclemodel]), :year => params[:vehicleyear].to_i, :VIN => h(params[:vehicleVIN])))
+      :vehicle => Vehicle.new(:make => params[:vehiclemake], :mdl => h(params[:vehiclemodel]), :year => params[:vehicleyear].to_i, :VIN => h(params[:vehicleVIN])))
     begin
       order.save
     rescue
@@ -1223,7 +1223,7 @@ class Remzona24App < Sinatra::Base
       redirect '/'
     else
       if @offer.status != 2
-        session[:messagetodisplay] = "Предложение не принято заказчиком"
+        session[:messagetodisplay] = "Предложение еще не принято заказчиком"
         redirect '/'
       end
       @order = Order.get(@offer.order_id)
@@ -1282,10 +1282,10 @@ class Remzona24App < Sinatra::Base
       @offer.update(:status => 4)
       @order.update(:status => 0)
       int_msg = "Здравствуйте!<br/>К сожалению, предложение было отозвано исполнителем."
-      int_msg += "<br/><mark>Причина отзыва, указанная исполнителем:</mark><br/><blockquote>"
-      int_msg += h (params[:refusereason]) + "</blockquote>"
+      int_msg += "<br/><mark>Причина отзыва, указанная исполнителем:</mark><br/>"
+      int_msg += "<blockquote>" + h(params[:refusereason]) + "</blockquote>"
       int_msg += "<br/>--<br/>С уважением, РемЗона24.ру"
-      @message = Message.new(:unread => true, :date => DateTime.now, :text => int_msg, :sender => User.get(1), :receiver => @order.user, :type => "Accept", :offer => @offer, :order => @order)
+      @message = Message.new(:unread => true, :date => DateTime.now, :text => int_msg, :sender => User.get(1), :receiver => @order.user, :type => "Refuse", :offer => @offer, :order => @order)
       begin
         @message.save
       rescue
@@ -1378,6 +1378,20 @@ class Remzona24App < Sinatra::Base
     else
       haml :navbarafterlogin do
         haml :faq
+      end
+    end
+  end
+  
+    
+  get '/terms' do
+    @terms = @@terms["terms"]
+    if !logged_in?
+      haml :navbarbeforelogin do
+        haml :terms
+      end
+    else
+      haml :navbarafterlogin do
+        haml :terms
       end
     end
   end
