@@ -4,7 +4,17 @@
 # DataMapper.setup(:default, 'postgres://sergey_rodionov:remzonapass@localhost/remzona') 
 
 # settings for nitrous.io
-DataMapper.setup(:default, 'postgres://action:action@localhost/remzona24')
+# DataMapper.setup(:default, 'postgres://action:action@localhost/remzona24')
+
+# settings for VPS
+configure :production do
+  DataMapper.setup(:default, 'postgres://postgres:postgres@localhost/remzona24')
+end
+
+configure :test, :development do
+  DataMapper.setup(:default, 'postgres://postgres:postgres@localhost/remzona24test')
+end
+
 DataMapper::Model.raise_on_save_failure = true
 
 class ImageUploader < CarrierWave::Uploader::Base
@@ -92,7 +102,7 @@ class User
       :format    => "Отчество может содержать только буквы"
     }
   property :mapx, Float
-  property :mapy, Float    
+  property :mapy, Float
   property :password, BCryptHash, :required => true
   property :created_at, DateTime
   property :lastlogon, DateTime
@@ -102,6 +112,8 @@ class User
       :length => "Описание должно быть менее 65535 символов"
     }
   property :legalstatus, Integer
+  property :adstatus, Integer #0 - no ads, 1 - only vertical ad blosk, 2 - only horizontal ad block, 3 - all ad
+
   mount_uploader :avatar, ImageUploader
   mount_uploader :pricelist, PricelistUploader
 

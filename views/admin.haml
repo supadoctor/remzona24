@@ -9,9 +9,6 @@
           %li#notificationtab
             %a{:href=>"#"}
               Уведомления
-              - if @newmessages > 0
-                .uk-badge.uk-badge-notification.uk-badge-danger
-                  #{@newmessages}
         %ul#operation.uk-switcher
           %li#notifications
             %ul.uk-tab.uk-margin-bottom.uk-tab-flip{"data-uk-tab"=>"{connect:'#allnotifications'}"}

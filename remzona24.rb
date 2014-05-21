@@ -21,31 +21,49 @@ require 'unicode'
 require './models.rb'
 
 class Remzona24App < Sinatra::Base
-  register Sinatra::Subdomain
+  #register Sinatra::Subdomain
+  set :environment, :test
   
+  configure :production do
+    set :port => 80, :bind => '46.254.20.57'
+  end
+
+  configure :test do
+    #set :port => 8888, :bind => '0.0.0.0'
+    set :port => 8888, :bind => '46.254.20.57'
+  end
   configure do
-    set :port => 8888, :bind => '0.0.0.0'
     enable :sessions, :logging, :method_override
     I18n.enforce_available_locales = false
-    set :edminds_api => 'dqrths629w35vurjaz5yrn7c'
+    #set :edminds_api => 'dqrths629w35vurjaz5yrn7c'
     set :vehicles => YAML.load_file("public/makes.yml")
-  end    
+  end
     @@text = YAML.load_file("public/texts.yml")
     @@terms = YAML.load_file("public/terms.yml")
     # use Rack::Session::Cookie, secret: "rem_zona_24_ru_secret"
   
+#  Pony.options = {
+#    :from => 'noreply@remzona24.ru',
+#    :via => :smtp,
+#    :charset => 'utf-8',
+#    :via_options => {
+#      :address => 'smtp.gmail.com',
+#      :port => '587',
+#      :enable_starttls_auto => true,
+#      :user_name => 'sergey.rodionov@gmail.com',
+#      :password => 'Neverfoget1',
+#      :authentication => :login, # :plain, :login, :cram_md5, no auth by default
+#      :domain => "localhost.localdomain" # the HELO domain provided by the client to the server
+#    }
+#  }
+
   Pony.options = {
     :from => 'noreply@remzona24.ru',
-    :via => :smtp,
     :charset => 'utf-8',
+    :via => :sendmail,
     :via_options => {
-      :address => 'smtp.gmail.com',
-      :port => '587',
-      :enable_starttls_auto => true,
-      :user_name => 'sergey.rodionov@gmail.com',
-      :password => 'Neverfoget1',
-      :authentication => :login, # :plain, :login, :cram_md5, no auth by default
-      :domain => "localhost.localdomain" # the HELO domain provided by the client to the server
+      :location  => 'which sendmail', # defaults to 'which sendmail' or '/usr/sbin/sendmail' if 'which' fails
+      :arguments => '-t' # -t and -i are the defaults
     }
   }
 
@@ -158,6 +176,22 @@ class Remzona24App < Sinatra::Base
     
     def unreadmessages
       Message.count(:receiver => current_user, :sender.not => current_user, :unread => true)
+    end
+
+    def showverticalad?
+      if current_user.adstatus == 1 or current_user.adstatus == 3
+        true
+      else
+        false
+      end
+    end
+
+    def showhorizontalad?
+      if current_user.adstatus == 2 or current_user.adstatus == 3
+        true
+      else
+        false
+      end
     end
   end
 
@@ -374,6 +408,7 @@ class Remzona24App < Sinatra::Base
       :password => params[:password],
       :placement => placement,
       :status => 0,
+      :adstatus => 0,
       :profile => Profile.new(:showemail => true, :showphone => true, :sendmessagestoemail => true))
     begin
       user.save
@@ -413,6 +448,7 @@ class Remzona24App < Sinatra::Base
       :password => params[:password],
       :placement => placement,
       :status => 0,
+      :adstatus => 0,
       :profile => Profile.new(:showemail => true, :showphone => true, :sendmessagestoemail => true))
     begin
       user.save

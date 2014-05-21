@@ -77,9 +77,10 @@
               .uk-comment-body
                 #stars{"data-score" => q.rating}
                 #{q.text}
-    .uk-width-1-3
-      .uk-panel.uk-panel-box
-        %h2 Yandex Direct AD
+    -if showverticalad?
+      .uk-width-1-3
+        .uk-panel.uk-panel-box
+          %h2 Yandex Direct AD
 
 #message.uk-modal
   .uk-modal-dialog.uk-modal-dialog-slide

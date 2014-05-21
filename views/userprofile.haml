@@ -337,9 +337,10 @@
               %button.uk-button.uk-button-success{:type=>"submit"}
                 %i.uk-icon-edit
                 Сохранить          
-    .uk-width-1-3
-      .uk-panel.uk-panel-box
-        %h2 Yandex Direct AD
+    -if showverticalad?
+      .uk-width-1-3
+        .uk-panel.uk-panel-box
+          %h2 Yandex Direct AD
 
 #changepass.uk-modal
   .uk-modal-dialog.uk-modal-dialog-slide
