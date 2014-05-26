@@ -29,42 +29,10 @@
                 %button.uk-button.uk-button-success{:type=>"submit"}Разместить доп.информацию
               -else
                 %button.uk-button.uk-button-success{:type=>"submit"}Разместить вопрос
-      - if @questions && @questions.size > 0
+      - if @rootquestions && @rootquestions.size > 0
         %h1.uk-text-right Вопросы и ответы
-        - @questions.each do |q|
-          - if User.get(q.sender_id).type == "User"
-            .uk-width-9-10.uk-push-1-10
-              .uk-panel.uk-panel-box.uk-margin-bottom
-                %article.uk-comment
-                  %header.uk-comment-header
-                    %img.uk-comment-avatar{:src => User.get(q.sender_id).avatar.avatar64.url}
-                    .uk-comment-meta
-                      Заказчик:
-                      %a{:href=>"/user/"+q.sender_id.to_s}
-                        =User.get(q.sender_id).fullname
-                      %br
-                      Дата:
-                      #{q.date.strftime("%d.%m.%Y, %H:%M:%S")}
-                  .uk-comment-body
-                    #{q.text}
-          - else
-            .uk-width-9-10
-              .uk-panel.uk-panel-box.uk-margin-bottom
-                %article.uk-comment
-                  %header.uk-comment-header
-                    %img.uk-comment-avatar{:src => User.get(q.sender_id).avatar.avatar64.url}
-                    .uk-comment-meta
-                      - if User.get(q.sender_id).type == "Master"
-                        Мастер:
-                        %a{:href=>"/user/"+q.sender_id.to_s}
-                          =User.get(q.sender_id).name + " " + User.get(q.sender_id).familyname
-                      - if User.get(q.sender_id).type == "Service"
-                        Сервис:
-                      %br
-                      Дата:
-                      #{q.date.strftime("%d.%m.%Y, %H:%M:%S")}
-                  .uk-comment-body
-                    #{q.text}
+        - @rootquestions.each do |q|
+          -showmessagebranch(q,0)
       - else
         .uk-alert.uk-alert-danger{"data-uk-alert"=>""}
           - if @current_user.type == "Master"

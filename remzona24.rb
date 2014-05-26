@@ -201,16 +201,42 @@ class Remzona24App < Sinatra::Base
       end
     end
 
+    def showmessage(msg, l)
+      haml_tag :div,:class=>"uk-width-5-10 uk-push-#{l}-10" do
+        haml_tag :div, :class=>"uk-panel uk-panel-box uk-margin-bottom" do
+          haml_tag :article, :class=>"uk-comment" do
+            haml_tag :header, :class=>"uk-comment-header" do
+              haml_tag :img, :class=>"uk-comment-avatar", :src => User.get(msg.sender_id).avatar.avatar64.url
+              haml_tag :div, :class=> "uk-comment-meta" do
+                if User.get(msg.sender_id).type == "User"
+                  haml_concat "Заказчик:"
+                end
+                if User.get(msg.sender_id).type == "Master"
+                  haml_concat "Мастер:"
+                end
+                haml_tag :a, :href=>"/user/"+msg.sender_id.to_s do
+                  haml_concat User.get(msg.sender_id).displayedname
+                end
+                haml_tag :br
+                haml_concat "Дата:"
+                haml_concat msg.date.strftime("%d.%m.%Y, %H:%M:%S")
+              end
+            end
+            haml_tag :div, :class=>"uk-comment-body" do
+              haml_concat msg.text
+            end
+          end
+        end
+      end
+    end
+
     def showmessagebranch(msg, level)
-	haml_tag :li do
-	    haml_concat msg.text
-	    haml_concat level
-	    children = Message.all(:parent => msg)
-	    l = level+1
-	    children.each do |c|
-		showmessagebranch(c, l)
-	    end
-	end
+      showmessage(msg, level)
+      children = Message.all(:parent => msg)
+      l = level+1
+      children.each do |c|
+        showmessagebranch(c, l)
+      end
     end
 
   end
@@ -980,8 +1006,8 @@ class Remzona24App < Sinatra::Base
   post '/addquestionto' do
     #current_user
     if params.has_key?("order")
+      @order = Order.get(params[:order].to_i)
       if current_user.type == "Master"
-        @order = Order.get(params[:order].to_i)
         @message = Message.new(
           :sender => current_user,
           :receiver => @order.user,
@@ -1013,8 +1039,8 @@ class Remzona24App < Sinatra::Base
       end
     end
     if params.has_key?("offer")
+      @offer = Offer.get(params[:offer].to_i)
       if current_user.type == "User"
-        @offer = Offer.get(params[:offer].to_i)
         @message = Message.new(
           :sender => current_user,
           :receiver => @offer.user,
@@ -1162,7 +1188,7 @@ class Remzona24App < Sinatra::Base
     else
       #@offer = Offer.get(@order.offer_id)
       #@questions = Message.all(:order_id => params[:order].to_i, :type => "Question")
-      @questions = Message.all(:order_id => params[:order].to_i)
+      @rootquestions = Message.all(:order_id => params[:order].to_i, :parent => nil)
       haml :navbarafterlogin do
         haml :ordercomments
       end
@@ -1256,7 +1282,7 @@ class Remzona24App < Sinatra::Base
     else
       @order = Order.get(@offer.order_id)
       #@questions = Message.all(:offer_id => params[:offer].to_i, :type => "Question")
-      @questions = Message.all(:offer_id => params[:offer].to_i)
+      @rootquestions = Message.all(:offer_id => params[:offer].to_i, :parent => nil)
       haml :navbarafterlogin do
         haml :offercomments
       end

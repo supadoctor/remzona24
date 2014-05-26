@@ -111,8 +111,6 @@
             %td
               %a{:href=>"/offer/#{@offer.id}/comments"}
                 Обсудить (#{@questionsnumber})
-              %a{:href=>"/offer/#{@offer.id}/newcomments"}
-                Новое обсуждение (#{@questionsnumber})
         -if Order.get(@offer.order_id).user == @current_user
           -if @offer.status == 0
             %form.uk-form{:action=>"/offer/#{@offer.id}/startwork", :method=>"post"}
