@@ -21,7 +21,7 @@
             %a{:href=>""} Настройки
         %ul#operation.uk-switcher.uk-margin
           %li#offers
-            %ul.uk-tab.uk-margin-bottom.uk-tab-flip{"data-uk-tab"=>"{connect:'#alloffers'}"}         
+            %ul.uk-tab.uk-margin-bottom.uk-tab-flip{"data-uk-tab"=>"{connect:'#alloffers'}"}
               %li
                 %a{:href=>"#"}
                   Архив              
@@ -48,13 +48,13 @@
                         %tr
                           %td
                             .uk-width-4-10
-                              %a{:href=>"/order/"+o.order.id.to_s} #{o.order.title}                          
+                              %a{:href=>"/order/"+o.order.id.to_s} #{o.order.title}
                           %td
                             .uk-width-4-10
                               //.uk-text-truncate #{o.subject}
                           %td
                             .uk-width-2-10
-                              //.uk-text-center #{o.td.strftime("%d.%m.%Y")}           
+                              //.uk-text-center #{o.td.strftime("%d.%m.%Y")}
                   .uk-grid
                     .uk-width-1-3
                       %p.uk-text-small Заголовок
@@ -104,11 +104,11 @@
             %ul.uk-tab.uk-margin-bottom.uk-tab-flip{"data-uk-tab"=>"{connect:'#allnotifications'}"}
               %li
                 %a{:href=>"#"}
-                  Архив              
+                  Архив
               %li.uk-active
                 %a{:href=>"#"}
                   Входящие
-            %ul#allnotifications.uk-switcher   
+            %ul#allnotifications.uk-switcher
               %li
                 - if @archivedmessages.size < 1
                   %h3 У вас нет архивных уведомлений
@@ -140,6 +140,8 @@
                                   = "Новое предложение"
                                 -when "Request"
                                   = "Предложение принято"
+                                -when "Question"
+                                  = "Вопрос по предложению"
                               -else
                                 #{m.subject}
                           %td
@@ -181,6 +183,8 @@
                                   = "Новое предложение"
                                 -when "Request"
                                   = "Предложение принято"
+                                -when "Question"
+                                  = "Вопрос по предложению"
                               -else
                                 #{m.subject}
                           %td
@@ -205,14 +209,14 @@
                           /    %button{:type => "submit"}
                           /      %i.uk-icon-trash-o{"data-uk-tooltip" => "", :title=>"Удалить"}
           %li#possibilities
-            - if @mypossibilities.size < 1
-              %h3 Нет подходящих заявок
-            - elsif @tags.size == 0
+            - if @tags.size == 0
               .uk-alert.uk-alert-danger{"data-uk-alert"=>""}
                 %a.uk-alert-close.uk-close{:href=>""}
                 %strong Внимание!
-                Для корреткной работы функционала поиска подходящих для вас заявок, необходимо указать ключевые слова на вкладке "Профиль" вашего Личного кабинета.   
-            - else
+                Для корреткной работы функционала поиска подходящих для вас заявок, необходимо указать ключевые слова на вкладке "Профиль" вашего Личного кабинета
+            - elsif @mypossibilities.size < 1
+              %h3 Нет подходящих заявок
+            - if @mypossibilities.size > 0
               .uk-width-1-1
                 %table.uk-table
                   %thead

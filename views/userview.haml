@@ -26,7 +26,7 @@
                 %td.uk-width-1-10.uk-text-center
                   %i.uk-icon-envelope
                 %td.uk-width-3-10
-                  %h3.uk-margin-bottom-remove  Электронная почта
+                  %h3.uk-margin-bottom-remove Электронная почта
                 %td.uk-width-6-10
                   %a{:href=>"mailto:" + @user.email}
                     #{@user.email}
@@ -77,7 +77,11 @@
               .uk-comment-body
                 #stars{"data-score" => q.rating}
                 #{q.text}
-    -if showverticalad?
+      - else
+        .uk-alert.uk-alert-danger{"data-uk-alert"=>""}
+          %a.uk-alert-close.uk-close{:href=>""}
+          Нет отзывов о пользователе.
+    - if showverticalad?
       .uk-width-1-3
         .uk-panel.uk-panel-box
           %h2 Yandex Direct AD

@@ -122,11 +122,11 @@
             %ul.uk-tab.uk-margin-bottom.uk-tab-flip{"data-uk-tab"=>"{connect:'#allnotifications'}"}
               %li
                 %a{:href=>"#"}
-                  Архив              
+                  Архив
               %li.uk-active
                 %a{:href=>"#"}
                   Входящие
-            %ul#allnotifications.uk-switcher   
+            %ul#allnotifications.uk-switcher
               %li
                 - if @archivedmessages.size < 1
                   %h3 У вас нет архивных уведомлений
@@ -237,11 +237,13 @@
                 -if @current_user.avatar.present?
                   .uk-form-controls
                     %img{:src => @current_user.avatar.avatar64.url}
-                    %input#avatarfrm{:type=>"file", :name=>"avatar", :hidden=>"true"}
+                    %input.showwhenedit{:type=>"file", :name=>"avatar", :hidden=>"true"}
+                    %input.showwhenedit{:type=>"checkbox", :name=>"delete_avatar", :hidden=>"true"}
+                    %span.showwhenedit{:hidden => "true"} Удалить
                 -else
                   .uk-form-controls{:style=>"margin-top: 5px;"}
-                    %span#avatarlbl Нет
-                    %input#avatarfrm{:type=>"file", :name=>"avatar", :hidden=>"true"}
+                    %span.hidewhenedit Нет
+                    %input.showwhenedit{:type=>"file", :name=>"avatar", :hidden=>"true"}
               .uk-form-row{:style=>"margin-top: 20px;"}
                 %h3.uk-form-label{:for=>"fullname"} Контактное лицо
                 .uk-form-controls
@@ -403,8 +405,8 @@
       $('#editprofile').css("display", "none");
       $('#apply').css("display", "inline-block");
       $('#cancel').css("display", "inline-block");
-      $('#avatarfrm').removeAttr("hidden");
-      $('#avatarlbl').css("display", "none");
+      $('.showwhenedit').removeAttr("hidden");
+      $('.hidewhenedit').css("display", "none");
     });
 
     $('#cancel').click(function() {
@@ -413,8 +415,8 @@
       $('#editprofile').css("display", "inline-block");
       $('#apply').css("display", "none");
       $('#cancel').css("display", "none");
-      $('#avatarfrm').attr("hidden", "true");
-      $('#avatarlbl').css("display", "inline-block");
+      $('.showwhenedit').attr("hidden", "true");
+      $('.hidewhenedit').css("display", "inline-block");
     });
 
     $('#fulllocation').autocomplete({

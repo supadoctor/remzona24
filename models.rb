@@ -20,7 +20,8 @@ DataMapper::Model.raise_on_save_failure = true
 class ImageUploader < CarrierWave::Uploader::Base
   include CarrierWave::MiniMagick
   storage :file
-  permissions 0777
+  permissions 0666
+  directory_permissions 0777
   def store_dir
     'uploads/images'
   end
@@ -38,7 +39,8 @@ end
 
 class PricelistUploader < CarrierWave::Uploader::Base
   storage :file
-  permissions 0777
+  permissions 0666
+  directory_permissions 0777
   def store_dir
     'uploads/pricelists'
   end
@@ -199,8 +201,10 @@ class Message
   property :type, String
 
   has 1, :child, self, :child_key => [:parent_id]
+  has 1, :parent, self, :child_key => [:child_id]
 
   belongs_to :parent,  self, :required => false
+  belongs_to :child, self, :required => false
   belongs_to :order, :required => false
   belongs_to :offer, :required => false
   belongs_to :sender, 'User'

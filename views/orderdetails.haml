@@ -138,7 +138,7 @@
               .uk-alert.uk-alert-danger{"data-uk-alert"=>""}
                 %a.uk-alert-close.uk-close{:href=>""}
                 %strong Внимание!
-                Ваш населенный пункт не соответствует населенному пункту Заказчика. Вы дейсвительно хотите подать предложение?
+                Ваш населенный пункт не соответствует населенному пункту Заказчика. Вы дейсвительно хотите сделать предложение?
             %form#offer.uk-form.uk-form-horizontal{:action => "/order/#{@order.id}/addoffer", :method => "post"}
               .uk-form-row{:style=>"margin-bottom: 20px;"}
                 %label.uk-form-label{:for=>"subject"}
@@ -248,7 +248,12 @@
                         %td
                           #{rur o.budget}
       - elsif !@order.contract
-        %h1.uk-text-right Нет предложений
+        .uk-alert.uk-alert-danger{"data-uk-alert"=>""}
+          %a.uk-alert-close.uk-close{:href=>""}
+          - if  logged_in? && current_user.type == "Master"
+            %strong Предложений пока не представлено. Сделайте это первым!
+          - else
+            %strong Предложений пока не представлено
       - if @order.contract && logged_in? && !@order.contract.review && !@alreadyreviewed
         -if @current_user.type == "User"
           %h1#review.uk-text-right Оцените работу исполнителя
@@ -267,8 +272,10 @@
               .uk-form-row
                 %label.uk-form-label{:for=>"text"}
                   %h3 Комментарии
-                .uk-form-controls
+                .uk-form-controls{:style=>"padding-bottom: 20px;"}
                   %textarea#text.uk-width-1-1{:type=>"text", :name=>"text", :rows=>"3"}
+                  %br
+                  %label.error.uk-text-small.uk-text-danger{:for=>"text"}
               .uk-form-row
                 .uk-container-center.uk-text-center
                   %button.uk-button.uk-button-success{:type=>"submit"}Оценить
@@ -284,8 +291,10 @@
               .uk-form-row
                 %label.uk-form-label{:for=>"text"}
                   %h3 Комментарии
-                .uk-form-controls
+                .uk-form-controls{:style=>"padding-bottom: 20px;"}
                   %textarea#text.uk-width-1-1{:type=>"text", :name=>"text", :rows=>"3"}
+                  %br
+                  %label.error.uk-text-small.uk-text-danger{:for=>"text"}
               .uk-form-row
                 .uk-container-center.uk-text-center
                   %button.uk-button.uk-button-success{:type=>"submit"}Оценить
@@ -358,10 +367,14 @@
       rules: {
         rating: {
           required: true
+        },
+        text: {
+          required: true
         }
       },
       messages: {
-        rating: "Введите оценку"
+        rating: "Введите оценку",
+        text: "Введите текст отзыва"
       },
       submitHandler: function(form) {
         form.submit();
