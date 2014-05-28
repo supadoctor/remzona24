@@ -69,7 +69,7 @@
               %td
                 %h3.uk-margin-bottom-remove Автомобиль
               %td
-                #{vehicleinfo(@order)}            
+                #{vehicleinfo(@order)}
             %tr
               %td.uk-text-center
                 %i.uk-icon-wrench
@@ -225,14 +225,12 @@
                   #{o.fd.strftime("%d.%m.%Y, %H:%M:%S")}
                   %br
                   Статус:
-                  - if o.status == 1
-                    .uk-text-bold.uk-text-danger.uk-display-inline-block не действительно
-                  - elsif o.status == 4
+                  - if o.status == 1 || o.status == 4
                     .uk-text-bold.uk-text-danger.uk-display-inline-block отозвано
                   - else
                     .uk-text-bold.uk-text-success.uk-display-inline-block действительно
-                  - if o.fd != o.td
-                    %span.uk-text-bold.uk-text-success до #{o.td.strftime("%d.%m.%Y")}
+                    - if o.fd != o.td
+                      %span.uk-text-bold.uk-text-success до #{o.td.strftime("%d.%m.%Y")}
               .uk-comment-body
                 %table.uk-table.uk-table-condensed
                   %tbody
@@ -298,10 +296,7 @@
               .uk-form-row
                 .uk-container-center.uk-text-center
                   %button.uk-button.uk-button-success{:type=>"submit"}Оценить
-    -if showverticalad?
-      .uk-width-1-3
-        .uk-panel.uk-panel-box{:style=>"width:240px;"}
-          %h2 Yandex Direct AD
+    - showverticalad
 
 :javascript
   $(function() {

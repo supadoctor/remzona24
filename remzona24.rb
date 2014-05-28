@@ -18,6 +18,9 @@ require 'carrierwave/datamapper'
 require 'yaml'
 require 'unicode'
 require 'mini_magick'
+require 'will_paginate'
+require 'will_paginate/data_mapper'
+#require 'will_paginate/view_helpers/sinatra'
 
 require './models.rb'
 
@@ -60,7 +63,7 @@ class Remzona24App < Sinatra::Base
 #  }
 
   Pony.options = {
-    :from => 'noreply@remzona24.ru',
+    :from => 'РемЗона24.ру <noreply@remzona24.ru>',
     :charset => 'utf-8',
     :via => :sendmail
   }
@@ -115,6 +118,8 @@ class Remzona24App < Sinatra::Base
       end
     end
   end
+
+  #helpers WillPaginate::Sinatra::Helpers
 
   helpers do
     def current_user
@@ -189,6 +194,16 @@ class Remzona24App < Sinatra::Base
       end
     end
 
+    def showverticalad
+      if showverticalad?
+        haml_tag :div, :class=>"uk-width-1-3" do
+          haml_tag :div, :class=>"uk-panel uk-panel-box" do
+            haml_concat "AD"
+          end
+        end
+      end
+    end
+
     def showhorizontalad?
       if logged_in?
         if current_user.adstatus == 2 or current_user.adstatus == 3
@@ -239,6 +254,131 @@ class Remzona24App < Sinatra::Base
       end
     end
 
+  def showmyoffers(offerscollection)
+    haml_tag :div, :class=>"uk-width-1-1" do
+      haml_tag :table, :class=>"uk-table" do
+        haml_tag :thead do
+          haml_tag :tr do
+            haml_tag :th, :class=>"uk-width-3-10" do
+              haml_concat "Предложение"
+            end
+            haml_tag :th, :class=>"uk-width-3-10" do
+              haml_concat "Исходная заявка"
+            end
+            haml_tag :th, :class=>"uk-width-2-10 uk-text-center" do
+              haml_concat "Дата подачи"
+            end
+            haml_tag :th, :class=>"uk-width-2-10 uk-text-center" do
+              haml_concat "Окончание"
+            end
+          end
+        end
+        haml_tag :tbody do
+          offerscollection.each do |o|
+            haml_tag :tr do
+              haml_tag :td do
+                haml_tag :a, :href=>"/offer/#{o.id}" do 
+                  haml_concat "Предложение #{o.id}"
+                end
+              end
+              haml_tag :td do
+                haml_tag :a, :href=>"/order/#{o.id}" do 
+                  haml_concat Order.get(o.order_id).title
+                end
+              end
+              haml_tag :td, :class=>"uk-text-center" do
+                haml_concat o.fd.strftime("%d.%m.%Y")
+              end
+              haml_tag :td, :class=>"uk-text-center" do
+                if o.fd != o.td
+                  haml_concat o.fd.strftime("%d.%m.%Y")
+                else
+                  haml_tag :span, :class=>"uk-text-center" do
+                    haml_concat "-"
+                  end
+                end
+              end
+            end
+          end
+        end
+      end
+    end
+  end
+
+  def showmymessages(messagescollection)
+    haml_tag :div, :class=>"uk-width-1-1" do
+      haml_tag :table, :class=>"uk-table" do
+        haml_tag :thead do
+          haml_tag :tr do
+            haml_tag :th
+            haml_tag :th do
+              haml_concat "Тема"
+            end
+            haml_tag :th do
+              haml_concat "Отправитель"
+            end
+            haml_tag :th do
+              haml_concat "Дата"
+            end
+          end
+        end
+        haml_tag :tbody do
+          messagescollection.each do |m|
+            haml_tag :tr do
+              haml_tag :td do
+                if m.unread
+                  haml_tag :div, :class=>"uk-badge" do
+                    haml_concat "Новое"
+                  end
+                end
+              end
+              haml_tag :td do
+                haml_tag :a, :href=>"/message/#{m.id}" do
+                  if !m.subject
+                    case m.type
+                    when "Offer"
+                      haml_concat "Новое предложение"
+                    when "Question"
+                      haml_concat "Вопрос"
+                    when "Accept"
+                      haml_concat "Подтверждение работ"
+                    when "Refuse"
+                      haml_concat "Отказ"
+                    end
+                  else
+                    haml_concat m.subject
+                  end
+                end
+              end
+              haml_tag :td do
+                if m.sender.id != 1
+                  haml_tag :a, :href=>"/user/"+m.sender.id.to_s do
+                    haml_concat m.sender.displayedname
+                  end
+                else
+                  haml_concat m.sender.displayedname
+                end
+              end
+              haml_tag :td do
+                haml_concat m.date.strftime("%d.%m.%Y %H:%M")
+              end
+            end
+          end
+        end
+      end
+    end
+  end
+
+    #def paginate(collection)
+    #  options = {
+    #    inner_window: 0,
+    #    outer_window: 0,
+    #    previous_label: '&laquo;',
+    #    next_label: '&raquo;'
+    #  }
+    # will_paginate collection, options
+    #end
+
   end
 
   #*************************************************************************************************************
@@ -265,15 +405,18 @@ class Remzona24App < Sinatra::Base
     # resp = Net::HTTP.get_response(URI.parse(url))
     # puts "*******", JSON.parse(resp.body), "*******"
     @activelink = '/'
+    @orders_at_mainpage_total = (Order.all(:status => 0) & (Order.all(:conditions => ['fd = td']) | Order.all(:td.gte => DateTime.now))).count
+    #puts "TOTAL ORDERS >>>", @orders_at_mainpage_total
     if params[:page].nil?
-      @offset = 0
+      @offset = @orders_at_mainpage_total-10 > 0 ? @orders_at_mainpage_total-10 : 0
       @current_page = 1
     else
-      @offset = params[:page].to_i*10
+      @offset = @orders_at_mainpage_total-params[:page].to_i*10 > 0 ? @orders_at_mainpage_total-params[:page].to_i*10 : 0
       @current_page = params[:page].to_i
     end
-    @orders_at_mainpage = Order.all(:status => 0, :offset => @offset, :limit => 10, :order => [ :fd.desc ]) & (Order.all(:conditions => ['fd = td'], :order => [ :fd.desc ]) | Order.all(:td.gte => DateTime.now, :order => [ :fd.desc ]))
-    @orders_at_mainpage_total = @orders_at_mainpage.count
+    
+    #@orders_at_mainpage = Order.all(:status => 0, :offset => @offset, :limit => 10, :order => [ :fd.desc ]) & (Order.all(:conditions => ['fd = td'], :order => [ :fd.desc ]) | Order.all(:td.gte => DateTime.now, :order => [ :fd.desc ]))
+    @orders_at_mainpage = (Order.all(:status => 0, :order => [ :fd.desc ]) & (Order.all(:conditions => ['fd = td'], :order => [ :fd.desc ]) | Order.all(:td.gte => DateTime.now, :order => [ :fd.desc ]))).paginate(:page => params[:page], :per_page => 10)
     @total_pages = (@orders_at_mainpage_total/10.0).ceil
     @start_page  = (@current_page - 5) > 0 ? (@current_page - 5) : 1
     @end_page = @start_page + 10
@@ -282,6 +425,10 @@ class Remzona24App < Sinatra::Base
       @start_page = (@end_page - 10) > 0 ? (@end_page - 10) : 1
     end
     @pagination = @start_page..@end_page
+
+    #@orders_at_mainpage = (Order.all(:status => 0, :order => [ :fd.desc ]) & (Order.all(:conditions => ['fd = td'], :order => [ :fd.desc ]) | Order.all(:td.gte => DateTime.now, :order => [ :fd.desc ]))).paginate(:page => params[:page], :per_page => 10)
+    #@new_orders_at_mainpage = @orders_at_mainpage
+
     if !logged_in?
       #puts "БЕЗ АУТЕТНИФИКАЦИИ"
       if !session[:siteregionplaceholder]
@@ -768,18 +915,7 @@ class Remzona24App < Sinatra::Base
     end
     session[:messagetodisplay] = @@text["notify"]["updatesettings"]
     redirect back
-  end  
-
-  #get '/regsuccess' do
-  #  if logged_in?
-  #    haml :navbarafterlogin do
-  #      haml :regsuccess
-  #    end
-  #  else
-  #    session[:messagetodisplay] = "К сожалению, при входе в систему возникла ошибка. Пожалуйста, попробуйте войти еще раз"
-  #    redirect back
-  #  end
-  #end
+  end
 
   get '/neworder' do
     if !logged_in?
@@ -822,11 +958,16 @@ class Remzona24App < Sinatra::Base
     tagsstring.split(",").each do |t|
       tag = order.tags.first_or_create(:tag => t)
     end
-    puts "Кол-во фоток: ", params[:photos].size
-    if !params[:photos].empty?
+    #puts "Кол-во фоток: ", params[:photos].size
+    if  params[:photos] && !params[:photos].empty?
       params[:photos].each do |image|
-        oi = Orderimage.create(:order => order, :image => image)
-        puts oi.class
+        begin
+          oi = Orderimage.create(:order => order, :image => image)
+        rescue
+          session[:messagetodisplay] = oi.errors.values.join("; ")
+          redirect backsession[:messagetodisplay] = oi.errors.values.join("; ")
+        end
+        #puts oi.class
       end
     end
     session[:messagetodisplay] = @@text["notify"]["neworder"]
@@ -868,7 +1009,7 @@ class Remzona24App < Sinatra::Base
     env['warden'].authenticate! :scope => :express
 
     fd = DateTime.now
-    
+    #puts "*************", params[:vehiclemake], h(params[:vehiclemodel])
     order = Order.new(
       :user => user,
       :title => h(params[:title]),
@@ -879,24 +1020,23 @@ class Remzona24App < Sinatra::Base
       :status => 0,
       :views => 0,
       :placement => user.placement,
-      :vehicle => Vehicle.new(:make => params[:vehiclemake], :mdl => h(params[:vehiclemodel])))
+      :vehicle => Vehicle.new(:make => params[:vehiclemake], :mdl => h(params[:vehiclemodel]), :year => nil, :VIN => nil))
     begin
       order.save
     rescue
       session[:messagetodisplay] = order.errors.values.join("; ")
       redirect back
     end
-    puts "Кол-во фоток: ", params[:photos].size
-    if !params[:photos].empty?
+    if params[:photos] && !params[:photos].empty?
       params[:photos].each do |image|
-        puts "image >>>", image
+        #puts "image >>>", image
         begin
           oi = Orderimage.create(:order => order, :image => image)
         rescue
           session[:messagetodisplay] = oi.errors.values.join("; ")
-          redirect back
+          redirect backsession[:messagetodisplay] = oi.errors.values.join("; ")
         end
-        puts "oi.class >>>", oi.class
+        #puts "oi.class >>>", oi.class
       end
     end
     session[:messagetodisplay] = @@text["notify"]["expressregistration"]
@@ -1321,7 +1461,7 @@ class Remzona24App < Sinatra::Base
       end
     else
       haml :navbarafterlogin do
-        offer = Ofer.get(params[:offer].to_i)
+        offer = Offer.get(params[:offer].to_i)
         if offer.user != current_user || offer.status == 3
           session[:messagetodisplay] = "Вы не можете снять предложение"
           redirect back

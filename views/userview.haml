@@ -81,10 +81,7 @@
         .uk-alert.uk-alert-danger{"data-uk-alert"=>""}
           %a.uk-alert-close.uk-close{:href=>""}
           Нет отзывов о пользователе.
-    - if showverticalad?
-      .uk-width-1-3
-        .uk-panel.uk-panel-box
-          %h2 Yandex Direct AD
+    - showverticalad
 
 #message.uk-modal
   .uk-modal-dialog.uk-modal-dialog-slide

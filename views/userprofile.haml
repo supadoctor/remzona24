@@ -131,105 +131,12 @@
                 - if @archivedmessages.size < 1
                   %h3 У вас нет архивных уведомлений
                 - else
-                  %table.uk-table
-                    %thead
-                      %tr
-                        %th
-                        %th
-                          Тема
-                        %th
-                          Отправитель
-                        %th
-                          Дата
-                        /%th
-                        /  Сообщение
-                    %tbody
-                      - @archivedmessages.each do |m|
-                        %tr
-                          %td
-                            -if m.unread
-                              .uk-badge
-                                Новое
-                          %td
-                            %a{:href=>"/message/"+m.id.to_s}
-                              -if !m.subject
-                                -case m.type
-                                -when "Offer"
-                                  = "Новое предложение"
-                                -when "Question"
-                                  = "Вопрос по заявке"
-                                -when "Accept"
-                                  = "Подтверждение начала работ"
-                                -when "Refuse"
-                                  = "Отказ исполнителя"
-                              -else
-                                #{m.subject}
-                          %td
-                            -if m.sender.id != 1
-                              %a{:href=>"/user/"+m.sender.id.to_s}
-                                #{m.sender.displayedname}
-                            -else
-                              #{m.sender.displayedname}
-                          %td
-                            #{m.date.strftime("%d.%m.%Y %H:%M")}
+                  - showmymessages(@archivedmessages)
               %li
                 - if @messages.size < 1
                   %h3 У вас нет входящих уведомлений
                 - else
-                  %table.uk-table
-                    %thead
-                      %tr
-                        %th
-                        %th
-                          Тема
-                        %th
-                          Отправитель
-                        %th
-                          Дата
-                        /%th
-                        /  Сообщение
-                    %tbody
-                      - @messages.each do |m|
-                        %tr
-                          %td
-                            -if m.unread
-                              .uk-badge
-                                Новое
-                          %td
-                            %a{:href=>"/message/"+m.id.to_s}
-                              -if !m.subject
-                                -case m.type
-                                -when "Offer"
-                                  = "Новое предложение"
-                                -when "Question"
-                                  = "Вопрос по заявке"
-                                -when "Accept"
-                                  = "Подтверждение начала работ"
-                                -when "Refuse"
-                                  = "Отказ исполнителя"
-                              -else
-                                #{m.subject}
-                          %td
-                            -if m.sender.id != 1
-                              %a{:href=>"/user/"+m.sender.id.to_s}
-                                #{m.sender.displayedname}
-                            -else
-                              #{m.sender.displayedname}
-                          %td
-                            #{m.date.strftime("%d.%m.%Y %H:%M")}
-                          /%td
-                          /  .uk-width-4-10.uk-text-truncate
-                          /    #{m.text}
-                          /%td.uk-width-1-10.uk-text-center
-                          /  %form{:action => "/message/"+m.id.to_s, :method => "post"}
-                          /    %input{:type=>"hidden", :name=>"_method", :value=>"put"}
-                          /    %button{:type => "submit"}
-                          /      %i.uk-icon-archive{"data-uk-tooltip" => "", :title=>"В архив"}
-                          /%td.uk-width-1-10.uk-text-center
-                          /  %form{:action => "/message/"+m.id.to_s, :method => "post"}
-                          /    %input{:type=>"hidden", :name=>"_method", :value=>"delete"}
-                          /    %button{:type => "submit"}
-                          /      %i.uk-icon-trash-o{"data-uk-tooltip" => "", :title=>"Удалить"}          
+                  - showmymessages(@messages)
           %li#profile
             %form#updateprofile.uk-form.uk-form-horizontal{:action => "/updateprofile", :method => "post", :enctype=>"multipart/form-data"}
               .uk-form-row.uk-margin{:style=>"margin-top: 20px;"}
@@ -338,11 +245,8 @@
                     %input{:type=>"checkbox", :name=>"sendmessagestoemail"}
               %button.uk-button.uk-button-success{:type=>"submit"}
                 %i.uk-icon-edit
-                Сохранить          
-    -if showverticalad?
-      .uk-width-1-3
-        .uk-panel.uk-panel-box
-          %h2 Yandex Direct AD
+                Сохранить
+    -showverticalad
 
 #changepass.uk-modal
   .uk-modal-dialog.uk-modal-dialog-slide

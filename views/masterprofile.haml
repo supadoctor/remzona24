@@ -5,26 +5,26 @@
       .uk-panel.uk-panel-box
         %h1.uk-text-right Личный кабинет
         %ul.uk-tab.uk-margin-bottom{"data-uk-tab"=>"{connect:'#operation'}"}
-          %li.uk-active
+          %li#offertab
             %a{:href=>""} Мои предложения
-          %li
+          %li#notificationtab
             %a{:href=>""}
               Уведомления
               /- if @newmessages > 0
               /  .uk-badge.uk-badge-notification.uk-badge-danger
               /    #{@newmessages}
-          %li
+          %li#chansetab
             %a{:href=>""} Возможности
-          %li
+          %li#profiletab
             %a{:href=>""} Профиль
-          %li
+          %li#settingtab
             %a{:href=>""} Настройки
         %ul#operation.uk-switcher.uk-margin
           %li#offers
             %ul.uk-tab.uk-margin-bottom.uk-tab-flip{"data-uk-tab"=>"{connect:'#alloffers'}"}
               %li
                 %a{:href=>"#"}
-                  Архив              
+                  Архив
               %li.uk-active
                 %a{:href=>"#"}
                   Действующие
@@ -33,73 +33,12 @@
                 - if @myclosedoffers.size < 1
                   %h3 Нет архивных предложений
                 - else
-                  .uk-width-1-1
-                    %table.uk-table
-                      %thead
-                        %tr
-                          %th.uk-width-4-10
-                            Исходная заявка
-                          %th.uk-width-4-10
-                            Описание
-                          %th.uk-width-2-10
-                            Окончание
-                      %tbody
-                      - @myclosedoffers.each do |o|
-                        %tr
-                          %td
-                            .uk-width-4-10
-                              %a{:href=>"/order/"+o.order.id.to_s} #{o.order.title}
-                          %td
-                            .uk-width-4-10
-                              //.uk-text-truncate #{o.subject}
-                          %td
-                            .uk-width-2-10
-                              //.uk-text-center #{o.td.strftime("%d.%m.%Y")}
-                  .uk-grid
-                    .uk-width-1-3
-                      %p.uk-text-small Заголовок
-                    .uk-width-2-3
-                      .uk-grid
-                        .uk-width-3-4
-                          %p.uk-text-center.uk-text-small Описание
-                        .uk-width-1-4
-                          %p.uk-text-center.uk-text-small Окончание
-                    - @myclosedoffers.each do |o|
-                      .uk-width-1-3
-                        %p.uk-text-truncate
-                          %a{:href=>"/order/"+o.order.id.to_s} #{o.order.title}
-                      .uk-width-2-3
-                        .uk-grid
-                          .uk-width-3-4
-                            //%p.uk-text-truncate #{o.subject}
-                          .uk-width-1-4
-                            //%p.uk-text-center #{o.td.strftime("%d.%m.%Y")}
+                  - showmyoffers(@myclosedoffers)
               %li
                 - if @myactiveoffers.size < 1
                   %h3 Нет действующих предложений
                 - else
-                  .uk-width-1-1
-                    %table.uk-table
-                      %thead
-                        %tr
-                          %th.uk-width-4-10
-                            Предложение
-                          %th.uk-width-3-10.uk-text-center
-                            Дата подачи
-                          %th.uk-width-3-10.uk-text-center
-                            Окончание
-                      %tbody
-                      - @myactiveoffers.each do |o|
-                        %tr
-                          %td
-                            %a{:href=>"/offer/"+o.id.to_s} Предложение #{o.id}
-                          %td.uk-text-center
-                            #{o.fd.strftime("%d.%m.%Y")}
-                          %td.uk-text-center
-                            -if o.fd != o.td
-                              #{o.fd.strftime("%d.%m.%Y")}
-                            -else
-                              .uk-text-center -
+                  - showmyoffers(@myactiveoffers)
           %li#notifications
             %ul.uk-tab.uk-margin-bottom.uk-tab-flip{"data-uk-tab"=>"{connect:'#allnotifications'}"}
               %li
@@ -113,101 +52,12 @@
                 - if @archivedmessages.size < 1
                   %h3 У вас нет архивных уведомлений
                 - else
-                  %table.uk-table
-                    %thead
-                      %tr
-                        %th
-                        %th
-                          Тема
-                        %th
-                          Отправитель
-                        %th
-                          Дата
-                        /%th
-                        /  Сообщение
-                    %tbody
-                      - @archivedmessages.each do |m|
-                        %tr
-                          %td
-                            -if m.unread
-                              .uk-badge
-                                Новое
-                          %td
-                            %a{:href=>"/message/"+m.id.to_s}
-                              -if !m.subject
-                                -case m.type
-                                -when "Offer"
-                                  = "Новое предложение"
-                                -when "Request"
-                                  = "Предложение принято"
-                                -when "Question"
-                                  = "Вопрос по предложению"
-                              -else
-                                #{m.subject}
-                          %td
-                            -if m.sender.id != 1
-                              %a{:href=>"/user/"+m.sender.id.to_s}
-                                #{m.sender.displayedname}
-                            -else
-                              #{m.sender.displayedname}
-                          %td
-                            #{m.date.strftime("%d.%m.%Y %H:%M")}
+                  - showmymessages(@archivedmessages)
               %li
                 - if @messages.size < 1
                   %h3 У вас нет входящих уведомлений
                 - else
-                  %table.uk-table
-                    %thead
-                      %tr
-                        %th
-                        %th
-                          Тема
-                        %th
-                          Отправитель
-                        %th
-                          Дата
-                        /%th
-                        /  Сообщение
-                    %tbody
-                      - @messages.each do |m|
-                        %tr
-                          %td
-                            -if m.unread
-                              .uk-badge
-                                Новое
-                          %td
-                            %a{:href=>"/message/"+m.id.to_s}
-                              -if !m.subject
-                                -case m.type
-                                -when "Offer"
-                                  = "Новое предложение"
-                                -when "Request"
-                                  = "Предложение принято"
-                                -when "Question"
-                                  = "Вопрос по предложению"
-                              -else
-                                #{m.subject}
-                          %td
-                            -if m.sender.id != 1
-                              %a{:href=>"/user/"+m.sender.id.to_s}
-                                #{m.sender.displayedname}
-                            -else
-                              #{m.sender.displayedname}
-                          %td
-                            #{m.date.strftime("%d.%m.%Y %H:%M")}
-                          /%td
-                          /  .uk-width-4-10.uk-text-truncate
-                          /    #{m.text}
-                          /%td.uk-width-1-10.uk-text-center
-                          /  %form{:action => "/message/"+m.id.to_s, :method => "post"}
-                          /    %input{:type=>"hidden", :name=>"_method", :value=>"put"}
-                          /    %button{:type => "submit"}
-                          /      %i.uk-icon-archive{"data-uk-tooltip" => "", :title=>"В архив"}
-                          /%td.uk-width-1-10.uk-text-center
-                          /  %form{:action => "/message/"+m.id.to_s, :method => "post"}
-                          /    %input{:type=>"hidden", :name=>"_method", :value=>"delete"}
-                          /    %button{:type => "submit"}
-                          /      %i.uk-icon-trash-o{"data-uk-tooltip" => "", :title=>"Удалить"}
+                  - showmymessages(@messages)
           %li#possibilities
             - if @tags.size == 0
               .uk-alert.uk-alert-danger{"data-uk-alert"=>""}
@@ -394,7 +244,7 @@
                   %button#cancel.uk-button{:type=>"reset", :style=>"display: none;"} Отменить изменения
             %button#editprofile.uk-button.uk-button-success
               %i.uk-icon-edit
-              Изменить          
+              Изменить
           %li#settings
             %form.uk-form.uk-form-horizontal{:action=>"/updatesettings", :method=>"post"}
               .uk-form-row{:style=>"margin-top: 5px; margin-bottom: 15px;"}
@@ -430,9 +280,7 @@
               %button.uk-button.uk-button-success{:type=>"submit"}
                 %i.uk-icon-edit
                 Сохранить
-    .uk-width-1-3
-      .uk-panel.uk-panel-box
-        %h2 Yandex Direct AD
+    -showverticalad
 
 #changepass.uk-modal
   .uk-modal-dialog.uk-modal-dialog-slide
@@ -479,7 +327,39 @@
 
 :javascript
   $(function() {
-  
+
+    if ($.cookie('activetab') == "offertab") {
+      $('#offertab').trigger( "click" );
+    }
+    if ($.cookie('activetab') == "notificationtab") {
+      $('#notificationtab').trigger( "click" );
+    }
+    if ($.cookie('activetab') == "profiletab") {
+      $('#profiletab').trigger( "click" );
+    }
+    if ($.cookie('activetab') == "settingtab") {
+      $('#settingtab').trigger( "click" );
+    }
+    if ($.cookie('activetab') == "chansetab") {
+      $('#chansetab').trigger( "click" );
+    }
+
+    $('#offertab').click(function() {
+      $.cookie('activetab', 'offertab');
+    });
+    $('#notificationtab').click(function() {
+      $.cookie('activetab', 'notificationtab');
+    });
+    $('#profiletab').click(function() {
+      $.cookie('activetab', 'profiletab');
+    });
+    $('#settingtab').click(function() {
+      $.cookie('activetab', 'settingtab');
+    });
+    $('#chansetab').click(function() {
+      $.cookie('activetab', 'chansetab');
+    });
+
     $('#editprofile').click(function() {
       $('.editable').removeAttr("readonly");
       $('.editable').addClass("uk-form-success");
