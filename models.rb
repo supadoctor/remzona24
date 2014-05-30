@@ -7,12 +7,13 @@
 # DataMapper.setup(:default, 'postgres://action:action@localhost/remzona24')
 
 # settings for VPS
-configure :production do
-  DataMapper.setup(:default, 'postgres://postgres:postgres@localhost/remzona24')
-end
 
 configure :test, :development do
   DataMapper.setup(:default, 'postgres://postgres:postgres@localhost/remzona24test')
+end
+
+configure :production do
+  DataMapper.setup(:default, 'postgres://postgres:postgres@localhost/remzona24')
 end
 
 DataMapper::Model.raise_on_save_failure = true

@@ -20,22 +20,21 @@ require 'unicode'
 require 'mini_magick'
 require 'will_paginate'
 require 'will_paginate/data_mapper'
-#require 'will_paginate/view_helpers/sinatra'
 
 require './models.rb'
 
 class Remzona24App < Sinatra::Base
   #register Sinatra::Subdomain
-  set :environment, :test
+  set :environment, :production
 
-  configure :production do
-    set :port => 80, :bind => '46.254.20.57'
-  end
+#  configure :production do
+#    set :port => 8888, :bind => '46.254.20.57'
+#  end
 
-  configure :test do
-    #set :port => 8888, :bind => '0.0.0.0'
-    set :port => 8888, :bind => '46.254.20.57'
-  end
+#  configure :test do
+#    #set :port => 8888, :bind => '0.0.0.0'
+#    set :port => 8888, :bind => '46.254.20.57'
+#  end
 
   configure do
     enable :sessions, :logging, :method_override
@@ -45,7 +44,6 @@ class Remzona24App < Sinatra::Base
   end
     @@text = YAML.load_file("public/texts.yml")
     @@terms = YAML.load_file("public/terms.yml")
-    # use Rack::Session::Cookie, secret: "rem_zona_24_ru_secret"
 
 #  Pony.options = {
 #    :from => 'noreply@remzona24.ru',
@@ -305,6 +303,69 @@ class Remzona24App < Sinatra::Base
     end
   end
 
+  def showmyorders(orderscollection)
+    haml_tag :div, :class=>"uk-width-1-1" do
+      haml_tag :table, :class=>"uk-table" do
+        haml_tag :thead do
+          haml_tag :tr do
+            haml_tag :th, :class=>"uk-width-3-10" do
+              haml_concat "Заголовок"
+            end
+            haml_tag :th, :class=>"uk-width-3-10" do
+              haml_concat "Описание"
+            end
+            haml_tag :th, :class=>"uk-width-1-10" do
+              haml_concat "Срок окончания"
+            end
+            haml_tag :th, :class=>"uk-width-1-10 uk-text-center" do
+              haml_tag :i, :class=>"uk-icon-eye", :title=>"Просмотры"#, data: {"uk-tooltip": ""}
+            end
+            haml_tag :th, :class=>"uk-width-1-10 uk-text-center" do
+              haml_tag :i, :class=>"uk-icon-comments-o", :title=>"Предложения"#, data: {"uk-tooltip": ""}
+            end
+            haml_tag :th, :class=>"uk-width-1-10 uk-text-center" do
+              haml_tag :i, :class=>"uk-icon-question-circle", :title=>"Обсуждения"#, data: {"uk-tooltip": ""}
+            end
+          end
+        end
+        haml_tag :tbody do
+          orderscollection.each do |o|
+            haml_tag :tr do
+              haml_tag :td do
+                haml_tag :a, :href=>"/order/"+o.id.to_s do
+                  haml_concat o.title
+                end
+              end
+              haml_tag :td do
+                haml_tag :div, :class=>"uk-text-small" do
+                  haml_concat o.subject
+                end
+              end
+              haml_tag :td, :class=>"uk-text-center" do
+                if o.fd != o.td
+                  haml_concat o.fd.strftime("%d.%m.%Y")
+                else
+                  haml_tag :span, :class=>"uk-text-center" do
+                    haml_concat "-"
+                  end
+                end
+              end
+              haml_tag :td, :class=>"uk-text-center" do
+                haml_concat o.views
+              end
+              haml_tag :td, :class=>"uk-text-center" do
+                haml_concat Offer.count(:order_id => o.id)
+              end
+              haml_tag :td, :class=>"uk-text-center" do
+                haml_concat Message.count(:order_id => o.id) #, :sender.not => current_user)
+              end
+            end
+          end
+        end
+      end
+    end
+  end
+
   def showmymessages(messagescollection)
     haml_tag :div, :class=>"uk-width-1-1" do
       haml_tag :table, :class=>"uk-table" do
@@ -368,16 +429,6 @@ class Remzona24App < Sinatra::Base
       end
     end
   end
-
-    #def paginate(collection)
-    #  options = {
-    #    inner_window: 0,
-    #    outer_window: 0,
-    #    previous_label: '&laquo;',
-    #    next_label: '&raquo;'
-    #  }
-    # will_paginate collection, options
-    #end
 
   end
 
@@ -446,37 +497,10 @@ class Remzona24App < Sinatra::Base
   end
 
   post '/' do
-    #@activelink = '/'
-    #if params[:page].nil?
-    #  @offset = 0
-    #  @current_page = 1
-    #else
-    #  @offset = params[:page].to_i*10
-    #  @current_page = params[:page].to_i
-    #end
-    #@orders_at_mainpage = Order.all(:status => 0, :offset => @offset, :limit => 10, :order => [ :fd.desc ]) & (Order.all(:conditions => ['fd = td'], :order => [ :fd.desc ]) | Order.all(:td.gte => DateTime.now, :order => [ :fd.desc ]))
-    #@orders_at_mainpage_total = @orders_at_mainpage.count
-    #@total_pages = (@orders_at_mainpage_total/10.0).ceil
-    #@start_page = (@current_page - 5) > 0 ? (@current_page - 5) : 1
-    #@end_page = @start_page + 10
-    #if @end_page > @total_pages
-    #  @end_page = @total_pages
-    #  @start_page = (@end_page - 10) > 0 ? (@end_page - 10) : 1
-    #end
-    #@pagination = @start_page..@end_page
     session[:siteregion] = params[:siteregion]
     session[:sitearea] = params[:sitearea]
     session[:sitelocation] = params[:sitelocation]
     session[:siteregionplaceholder] = params[:sitelocation] + (params[:sitearea].size > 0 ? ", " + params[:sitearea] : "") + (params[:siteregion].size > 0 ? ", " + params[:siteregion] : "")
-    #if !logged_in?
-    #  haml :navbarbeforelogin do
-    #    haml :index, :layout => :promo
-    #  end
-    #else
-    #  haml :navbarafterlogin do
-    #    haml :index
-    #  end
-    #end
     if session[:sitelocation] && session[:sitelocation].size > 0
       redirect '/location/'+session[:sitelocation]
     elsif session[:sitearea] && session[:sitearea].size > 0
@@ -497,7 +521,8 @@ class Remzona24App < Sinatra::Base
       @offset = params[:page].to_i*10
       @current_page = params[:page].to_i
     end
-    @orders_at_mainpage = Order.all(:placement => {:region => params[:region]}, :status => 0, :order => [ :fd.desc ]) & (Order.all(:conditions => ['fd = td'], :order => [ :fd.desc ]) | Order.all(:td.gte => DateTime.now, :order => [ :fd.desc ]))
+    #@orders_at_mainpage = Order.all(:placement => {:region => params[:region]}, :status => 0, :order => [ :fd.desc ]) & (Order.all(:conditions => ['fd = td'], :order => [ :fd.desc ]) | Order.all(:td.gte => DateTime.now, :order => [ :fd.desc ]))
+    @orders_at_mainpage = Order.all(:placement => {:region => params[:region]}, :status => 0, :order => [ :fd.desc ]) & (Order.all(:conditions => ['fd = td'], :order => [ :fd.desc ]) | Order.all(:td.gte => DateTime.now, :order => [ :fd.desc ])).paginate(:page => params[:page], :per_page => 10)
     @orders_at_mainpage_total = @orders_at_mainpage.count
     @total_pages = (@orders_at_mainpage_total/10.0).ceil
     @start_page  = (@current_page - 5) > 0 ? (@current_page - 5) : 1
@@ -527,7 +552,8 @@ class Remzona24App < Sinatra::Base
       @offset = params[:page].to_i*10
       @current_page = params[:page].to_i
     end
-    @orders_at_mainpage = Order.all(:placement => {:area => params[:area]}, :status => 0, :order => [ :fd.desc ]) & (Order.all(:conditions => ['fd = td'], :order => [ :fd.desc ]) | Order.all(:td.gte => DateTime.now, :order => [ :fd.desc ]))
+    #@orders_at_mainpage = Order.all(:placement => {:area => params[:area]}, :status => 0, :order => [ :fd.desc ]) & (Order.all(:conditions => ['fd = td'], :order => [ :fd.desc ]) | Order.all(:td.gte => DateTime.now, :order => [ :fd.desc ]))
+    @orders_at_mainpage = Order.all(:placement => {:area => params[:area]}, :status => 0, :order => [ :fd.desc ]) & (Order.all(:conditions => ['fd = td'], :order => [ :fd.desc ]) | Order.all(:td.gte => DateTime.now, :order => [ :fd.desc ])).paginate(:page => params[:page], :per_page => 10)
     @orders_at_mainpage_total = @orders_at_mainpage.count
     @total_pages = (@orders_at_mainpage_total/10.0).ceil
     @start_page  = (@current_page - 5) > 0 ? (@current_page - 5) : 1
@@ -1931,10 +1957,10 @@ class Remzona24App < Sinatra::Base
   end
 
   not_found do
-    session[:messagetodisplay] = @@text["notify"]["pagenotfound"]
+    #session[:messagetodisplay] = @@text["notify"]["pagenotfound"]
     redirect '/'
   end
 
 end
 
-Remzona24App.run!
+#Remzona24App.run!

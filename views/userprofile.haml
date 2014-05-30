@@ -40,79 +40,12 @@
                 - if @myclosedorders.size < 1
                   %h3 Нет архивных заявок
                 - else
-                  .uk-width-1-1
-                    %table.uk-table
-                      %thead
-                        %tr
-                          %th.uk-width-3-10
-                            Заголовок
-                          %th.uk-width-3-10
-                            Описание
-                          %th.uk-width-1-10
-                            Срок окончания
-                          %th.uk-width-1-10
-                            %i.uk-icon-eye{"data-uk-tooltip" => "", :title=>"Просмотры"}
-                          %th.uk-width-1-10
-                            %i.uk-icon-comments-o{"data-uk-tooltip" => "", :title=>"Предложения"}
-                          %th.uk-width-1-10
-                            %i.uk-icon-question-circle{"data-uk-tooltip" => "", :title=>"Обсуждения"}
-                      %tbody
-                        - @myclosedorders.each do |o|
-                          %tr
-                            %td
-                              %a{:href=>"/order/"+o.id.to_s} #{o.title}
-                            %td
-                              .uk-text-small #{o.subject}
-                            %td
-                              -if o.td != o.fd
-                                .uk-text-center #{o.td.strftime("%d.%m.%Y")}
-                              - else
-                                .uk-text-center -
-                            %td
-                              #{o.views}
-                            %td
-                              #{Offer.count(:order_id => o.id)}
-                            %td
-                              #{Message.count(:order_id => o.id, :sender.not => current_user, :type => "Question")}
+                  - showmyorders(@myclosedorders)
               %li
                 - if @myactiveorders.size < 1
                   %h3 Нет активных заявок
                 - else
-                  .uk-width-1-1
-                    %table.uk-table
-                      %thead
-                        %tr
-                          %th.uk-width-3-10
-                            Заголовок
-                          %th.uk-width-3-10
-                            Описание
-                          %th.uk-width-1-10
-                            Срок окончания
-                          %th.uk-width-1-10
-                            %i.uk-icon-eye{"data-uk-tooltip" => "", :title=>"Просмотры"}
-                          %th.uk-width-1-10
-                            %i.uk-icon-comments-o{"data-uk-tooltip" => "", :title=>"Предложения"}
-                          %th.uk-width-1-10
-                            %i.uk-icon-question-circle{"data-uk-tooltip" => "", :title=>"Обсуждения"}
-                            /Предложения / Вопросы
-                      %tbody
-                        - @myactiveorders.each do |o|
-                          %tr
-                            %td
-                              %a{:href=>"/order/"+o.id.to_s} #{o.title}
-                            %td
-                              .uk-text-small #{o.subject}
-                            %td
-                              -if o.td != o.fd
-                                .uk-text-center #{o.td.strftime("%d.%m.%Y")}
-                              - else
-                                .uk-text-center -
-                            %td
-                              #{o.views}
-                            %td
-                              #{Offer.count(:order_id => o.id)}
-                            %td
-                              #{Message.count(:order_id => o.id, :sender.not => current_user, :type => "Question")}
+                  - showmyorders(@myactiveorders)
               %li
                 %a#addorder{:href=>"/neworder"}
                   %button.uk-button.uk-button-success
