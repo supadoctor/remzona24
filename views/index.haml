@@ -31,11 +31,11 @@
               %a{:href=>"/location/"+session[:sitelocation]+"#orders"} #{session[:sitelocation]}
       -if @orders_at_mainpage && @orders_at_mainpage.size > 0
         -@orders_at_mainpage.each do |order|
-          .uk-panel.uk-panel-box
-            / .uk-text-small.uk-text-left
+          .uk-panel.uk-panel-box{:itemscope=>"", :itemtype=>"http://schema.org/Thing"}
             %h3.uk-display-inline
               %a{:href=>"/order/"+order.id.to_s}
-                Заявка № #{order.id} "#{order.title}"
+                Заявка № #{order.id}
+                %span{:itemprop=>"name"} "#{order.title}"
             %h5.uk-display-inline
               %i.uk-icon-eye{"data-uk-tooltip"=>"", :title=>"Просмотры"}
               #{order.views}
@@ -47,8 +47,8 @@
                 %tr
                   %td.uk-width-1-4
                     %h4.uk-margin-bottom-remove Населенный пункт
-                  %td.uk-width-3-4
-                    #{fulllocation(order)}
+                  %td.uk-width-3-4{:itemscope=>"", :itemtype=>"http://schema.org/PostalAddress"}
+                    %span{:itemprop=>"addressRegion"} #{fulllocation(order)}
                 %tr
                   %td.uk-width-1-4
                     %h4.uk-margin-bottom-remove Автомобиль
@@ -65,7 +65,7 @@
                   %td.uk-width-1-4
                     %h4.uk-margin-bottom-remove Описание
                   %td.uk-width-3-4
-                    #{order.subject}
+                    %span{:itemprop=>"description"} #{order.subject}
           %br
         %ul.uk-pagination
           -if @start_page > 1
