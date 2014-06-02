@@ -37,7 +37,8 @@ class Remzona24App < Sinatra::Base
 #  end
 
   configure do
-    enable :sessions, :logging, :method_override
+    enable :logging, :method_override
+    use Rack::Session::Cookie, :key => "rack.session"
     I18n.enforce_available_locales = false
     #set :edminds_api => 'dqrths629w35vurjaz5yrn7c'
     #set :vehicles => YAML.load_file("public/makes.yml")
@@ -211,6 +212,17 @@ class Remzona24App < Sinatra::Base
         end
       else
         false
+      end
+    end
+
+    def showhorizontalad
+      if showhorizontalad?
+        haml_tag :br
+        haml_tag :div, :class=>"uk-width-1-1" do
+          haml_tag :div, :class=>"uk-panel uk-panel-box uk-margin-top" do
+            haml_concat "AD"
+          end
+        end
       end
     end
 
@@ -447,7 +459,7 @@ class Remzona24App < Sinatra::Base
   
   #before do
   #end
-  
+
   get '/' do
     # url = "http://geoip.elib.ru/cgi-bin/getdata.pl"
     # resp = Net::HTTP.get_response(URI.parse(url))
@@ -1752,6 +1764,7 @@ class Remzona24App < Sinatra::Base
   get '/support' do
     if !logged_in?
       session[:messagetodisplay] = @@text["notify"]["plsloginforsupport"]
+      puts "********* >>>>", session[:messagetodisplay]
       redirect back
     else
       haml :navbarafterlogin do
@@ -1915,27 +1928,6 @@ class Remzona24App < Sinatra::Base
     "true"
   end
 
-  get '/ajax/message/:id' do
-    if !logged_in?
-      redirect '/'
-    else
-      @msg = Message.get(params[:id].to_i)
-      if !@msg
-        session[:messagetodisplay] = "Сообщение не найдено"
-        redirect back
-      end
-      if @msg.receiver != current_user
-        session[:messagetodisplay] = "Вы не можете прочитать это сообщение"
-        redirect back
-      end
-      @msg.update(:unread => false)
-      @order = Order.get(@msg.order_id)
-      @offer = Offer.get(@msg.offer_id)
-      #haml :ajaxmsg
-    end
-    sdfsdfdsfdsf
-  end
-
   post '/auth/login' do
     env['warden'].authenticate!
     redirect back
@@ -1949,6 +1941,7 @@ class Remzona24App < Sinatra::Base
     get path do
       env['warden'].raw_session.inspect
       env['warden'].logout
+      puts "LOGOUT!!!"
       session[:user_id] = nil
       #session[:messagetodisplay] = "Вы вышли из системы"
       session[:messagetodisplay] = @@text["notify"]["logout"]
@@ -1957,7 +1950,7 @@ class Remzona24App < Sinatra::Base
   end
 
   not_found do
-    #session[:messagetodisplay] = @@text["notify"]["pagenotfound"]
+    session[:messagetodisplay] = @@text["notify"]["404"] if !session[:messagetodisplay]
     redirect '/'
   end
 
