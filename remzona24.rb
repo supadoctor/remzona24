@@ -442,6 +442,22 @@ class Remzona24App < Sinatra::Base
     end
   end
 
+  def descriptiontag(desc)
+    if desc
+      haml_tag :meta, {:content=>desc, :name=>"description"}
+    else
+      haml_tag :meta, {:content=>"РемЗона24.ру : круглосуточная ремзона для вашего автомобиля", :name=>"description"}
+    end
+  end
+
+  def descriptiontag(tags)
+    if tags && tags.size > 0
+      haml_tag :meta, {:content=>tags, :name=>"keywords"}
+    else
+      haml_tag :meta, {:content=>"авторемонт, автоэлектрик, диагностика авто, диагностика двигателя, диагностика подвески, отремонтировать автомобиль, покраска авто, развал схождение, ремонт авто, ремонт автомобиля, ремонт двигателя, ремонт иномарки, ремонт кузова, ремонт отечественных авто, подвески, ремонт ходовой", :name=>"keywords"}
+    end
+  end
+
   end
 
   #*************************************************************************************************************
@@ -491,7 +507,7 @@ class Remzona24App < Sinatra::Base
 
     #@orders_at_mainpage = (Order.all(:status => 0, :order => [ :fd.desc ]) & (Order.all(:conditions => ['fd = td'], :order => [ :fd.desc ]) | Order.all(:td.gte => DateTime.now, :order => [ :fd.desc ]))).paginate(:page => params[:page], :per_page => 10)
     #@new_orders_at_mainpage = @orders_at_mainpage
-
+    @description = "база данных заявок на ремонт автомобилей, автомастеров и СТО. бесплатно разместить объявление о ремоте авто, найти заказ подряд на ремонт авто"
     if !logged_in?
       #puts "БЕЗ АУТЕТНИФИКАЦИИ"
       if !session[:siteregionplaceholder]
@@ -1335,6 +1351,9 @@ class Remzona24App < Sinatra::Base
     @questionsnumber = Message.count(:order_id => params[:order].to_i)
     @alreadyreviewed = Review.first(:contract => @order.contract)
 
+    @description = @order.title + " " + @order.subject + " " + fulllocation(@order.user)
+    @tags = @order.tags.all.map(&:tag).join(', ')
+
     if !logged_in?
       haml :navbarbeforelogin do
         haml :orderdetails
@@ -1358,6 +1377,10 @@ class Remzona24App < Sinatra::Base
         redirect back
       end
     end
+
+    @description = @order.title + " " + @order.subject + " " + fulllocation(@order.user)
+    @tags = @order.tags.all.map(&:tag).join(', ')
+
     if !logged_in?
       haml :navbarbeforelogin do
         session[:messagetodisplay] = @@text["notify"]["plsloginforordercomments"]
@@ -1429,12 +1452,16 @@ class Remzona24App < Sinatra::Base
         redirect back
       end  
     end
+    @order = Order.get(@offer.order_id)
+
+    @description = @offer.subject + " " + fulllocation(@offer.user)
+    @tags = @order.tags.all.map(&:tag).join(', ')
+
     if !logged_in?
       session[:messagetodisplay] = @@text["notify"]["plsloginforoffer"]
       redirect back
     else
       haml :navbarafterlogin do
-        @order = Order.get(@offer.order_id)
         #@questionsnumber = Message.count(:offer_id => params[:id].to_i, :type => "Question")
         @questionsnumber = Message.count(:offer_id => params[:id].to_i)
         haml :offerdetails
@@ -1454,11 +1481,15 @@ class Remzona24App < Sinatra::Base
         redirect back
       end
     end
+    @order = Order.get(@offer.order_id)
+
+    @description = @offer.subject + " " + fulllocation(@offer.user)
+    @tags = @order.tags.all.map(&:tag).join(', ')
+
     if !logged_in?
       session[:messagetodisplay] = @@text["notify"]["plsloginforoffercomments"]
       redirect back
     else
-      @order = Order.get(@offer.order_id)
       #@questions = Message.all(:offer_id => params[:offer].to_i, :type => "Question")
       @rootquestions = Message.all(:offer_id => params[:offer].to_i, :parent => nil)
       haml :navbarafterlogin do
@@ -1479,11 +1510,15 @@ class Remzona24App < Sinatra::Base
         redirect back
       end
     end
+    @order = Order.get(@offer.order_id)
+
+    @description = @offer.subject + " " + fulllocation(@offer.user)
+    @tags = @order.tags.all.map(&:tag).join(', ')
+
     if !logged_in?
       session[:messagetodisplay] = @@text["notify"]["plsloginforoffercomments"]
       redirect back
     else
-      @order = Order.get(@offer.order_id)
       #@questions = Message.all(:offer_id => params[:offer].to_i, :type => "Question")
       @rootquestions = Message.all(:offer_id => params[:offer].to_i, :parent => nil)
       haml :navbarafterlogin do
