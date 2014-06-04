@@ -66,7 +66,7 @@ class Remzona24App < Sinatra::Base
     :charset => 'utf-8',
     :via => :sendmail
   }
-  #Pony.mail(:to => 'sergey.rodionov@gmail.com', :subject => 'Запуск РемЗона24.ру', :body => 'Сайт был запущен')
+  #Pony.mail(:to => 'sergey.rodionov@gmail.com', :subject => 'Запуск РемЗона24.ру', :body => 'Thin был запущен')
 
   use Warden::Manager do |config|
     # config.default_strategies :password, action: 'auth/unauthenticated'
@@ -446,11 +446,11 @@ class Remzona24App < Sinatra::Base
     if desc
       haml_tag :meta, {:content=>desc, :name=>"description"}
     else
-      haml_tag :meta, {:content=>"РемЗона24.ру : круглосуточная ремзона для вашего автомобиля", :name=>"description"}
+      haml_tag :meta, {:content=>"база данных заявок на ремонт автомобилей, автомастеров и СТО. бесплатно разместить объявление о ремоте авто, найти заказ подряд на ремонт авто", :name=>"description"}
     end
   end
 
-  def descriptiontag(tags)
+  def keywordstag(tags)
     if tags && tags.size > 0
       haml_tag :meta, {:content=>tags, :name=>"keywords"}
     else

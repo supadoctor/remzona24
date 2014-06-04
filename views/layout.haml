@@ -1,11 +1,9 @@
 !!!5
 %html
   %head
-    %title РемЗона24.ру : круглосуточная ремзона для вашего автомобиля
-    /%meta{:name=>"keywords", :content=>"авторемонт, автоэлектрик, диагностика авто, диагностика двигателя, диагностика подвески, отремонтировать автомобиль, покраска авто, развал схождение, ремонт авто, ремонт автомобиля, ремонт двигателя, ремонт иномарки, ремонт кузова, ремонт отечественных авто, подвески, ремонт ходовой"}
-    /%meta{:name=>"description", :content=>"база данных заявок на ремонт автомобилей, автомастеров и СТО. бесплатно разместить объявление о ремоте авто, найти заказ подряд на ремонт авто"}
+    %title РемЗона24.ру : круглосуточная ремзона для вашего автомобиля, крулосуточный автос сервис, ремонт авто, двигателя, ходовой, бампера, вмятин, кузовной, цены
     - descriptiontag(@description)
-    - descriptiontag(@tags)
+    - keywordstag(@tags)
     %link{:href=>'http://fonts.googleapis.com/css?family=Open+Sans+Condensed:300|PT+Serif&subset=latin,cyrillic', :rel=>'stylesheet', :type=>'text/css'}
     %link{:rel => "stylesheet", :href => "/css/uikit.almost-flat.min.css"}
     %link{:rel => "stylesheet", :href => "/css/notify.almost-flat.min.css"}
@@ -83,7 +81,7 @@
         .uk-container.uk-container-center.uk-text-center
           %hr{:style=>"border-color:grey;"}
           .uk-panel
-            %h1.uk-margin{:style=>"color:grey;"} RemZona24.ru - груглосуточная ремзона для Вашего автомобиля
+            %h1.uk-margin{:style=>"color:grey;"} RemZona24.ru - круглосуточная ремзона для Вашего автомобиля
           %hr{:style=>"border-color:grey;"}
         .uk-container.uk-container-center
           .uk-grid

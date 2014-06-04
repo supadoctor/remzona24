@@ -144,6 +144,11 @@
           %input.uk-width-1-1{:type=>"password", :required=>"", :placeholder=>"Пароль", :name=>"password"}
         %br
         %button#submit.uk-button.uk-button-large.uk-button-primary.uk-align-center{:type=>"submit"}Вход
+    .uk-text-center.uk-margin
+      Нет пароля?
+      %a{:href=>"#register", "data-uk-modal"=>"{bgclose:false}"}
+        Зарегистрируйтесь на Портале.
+      Это не займет много времени!
     .uk-text-center
       %a#forgetpass.onscreenlink Забыли пароль?
     .uk-width-1-1#resetpass.uk-margin-top{:style => "display: none;"}

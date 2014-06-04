@@ -244,10 +244,10 @@
       - elsif !@order.contract
         .uk-alert.uk-alert-danger{"data-uk-alert"=>""}
           %a.uk-alert-close.uk-close{:href=>""}
-          - if  logged_in? && current_user.type == "Master"
+          - if logged_in? && current_user.type == "Master"
             %strong Предложений пока не представлено. Сделайте это первым!
           - else
-            %strong Предложений пока не представлено
+            %strong Предложений пока не представлено. Если вы хотите предложить свои услуги по этой заявке, то войдите в систему
       - if @order.contract && logged_in? && !@order.contract.review && !@alreadyreviewed
         -if @current_user.type == "User"
           %h1#review.uk-text-right Оцените работу исполнителя
