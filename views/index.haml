@@ -91,31 +91,31 @@
             -else
               %li
                 -if @activelink == '/'
-                  %a{:href=>"/?page="+p.to_s+"#orders"} #{p}
+                  %a{:href=>"/?page=#{p}#orders"} #{p}
                 -if session[:siteregion] && session[:siteregion].size > 0
                   -if @activelink == '/region'
-                    %a{:href=>"/region/"+session[:siteregion]+"?page="+p.to_s+"#orders"} #{p}
+                    %a{:href=>"/region/"+session[:siteregion]+"?page=#{p}#orders"} #{p}
                 -if session[:sitearea] && session[:sitearea].size > 0
                   -if @activelink == '/area'
-                    %a{:href=>"/area/"+session[:sitearea]+"?page="+p.to_s+"#orders"} #{p}
+                    %a{:href=>"/area/"+session[:sitearea]+"?page=#{p}#orders"} #{p}
                 -if session[:sitelocation] && session[:sitelocation].size > 0
                   -if @activelink == '/location'
-                    %a{:href=>"/location/"+session[:sitelocation]+"?page="+p.to_s+"#orders"} #{p}
+                    %a{:href=>"/location/"+session[:sitelocation]+"?page=#{p}#orders"} #{p}
           -if @end_page < @total_pages
             %li
               %span ...
             %li
               -if @activelink == '/'
-                %a{:href=>"/?page="+total_pages.to_s+"#orders"} #{$total_pages}
+                %a{:href=>"/?page=#{@total_pages}#orders"} #{@total_pages}
               -if session[:siteregion] && session[:siteregion].size > 0
                 -if @activelink == '/region'
-                  %a{:href=>"/region/"+session[:siteregion]+"?page="+total_pages.to_s+"#orders"} #{$total_pages}
+                  %a{:href=>"/region/"+session[:siteregion]+"?page=#{@total_pages}#orders"} #{@total_pages}
               -if session[:sitearea] && session[:sitearea].size > 0
                 -if @activelink == '/area'
-                  %a{:href=>"/area/"+session[:sitearea]+"?page="+total_pages.to_s+"#orders"} #{$total_pages}
+                  %a{:href=>"/area/"+session[:sitearea]+"?page=#{@total_pages}#orders"} #{@total_pages}
               -if session[:sitelocation] && session[:sitelocation].size > 0
                 -if @activelink == '/location'
-                  %a{:href=>"/location/"+session[:sitelocation]+"?page="+total_pages.to_s+"#orders"} 1
+                  %a{:href=>"/location/"+session[:sitelocation]+"?page=#{@total_pages}#orders"} #{@total_pages}
       -else
         .uk-panel.uk-panel-box
           %h3

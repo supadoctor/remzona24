@@ -540,6 +540,53 @@ class Remzona24App < Sinatra::Base
     end
   end
 
+['/masters','/masters/*'].each do |path|
+  get path do
+    if params[:splat]
+      if params[:splat][0].size > 0
+        @location = params[:splat][0]
+      end
+    end
+    if !@location
+      @masters_at_mainpage = User.all(:status => 0, :type => "Master", :order => [ :lastlogon.desc ]).paginate(:page => params[:page], :per_page => 10)
+    elsif
+      @masters_at_mainpage = User.all(:status => 0, :type => "Master", :placement => {:location => @location}, :order => [:lastlogon.desc]).paginate(:page => params[:page], :per_page => 10)
+    end
+    if @users_at_mainpage
+      @masters_at_mainpage_total = @users_at_mainpage.count
+    else
+      @masters_at_mainpage_total = 0
+    end
+    if params[:page].nil?
+      @current_page = 1
+    else
+      @current_page = params[:page].to_i
+    end
+    @total_pages = (@masters_at_mainpage_total/10.0).ceil
+    @start_page  = (@current_page - 5) > 0 ? (@current_page - 5) : 1
+    @end_page = @start_page + 10
+    if @end_page > @total_pages
+      @end_page = @total_pages
+      @start_page = (@end_page - 10) > 0 ? (@end_page - 10) : 1
+    end
+    @pagination = @start_page..@end_page
+
+    @description = "база мастеров по ремонту автомобилей, найти мастера"
+    @tags = "автомастер, СТО, найти матера по ремонту авто, отзыв о мастере"
+    if !logged_in?
+      #puts "БЕЗ АУТЕТНИФИКАЦИИ"
+      haml :navbarbeforelogin do
+        haml :masters
+      end
+    else
+      #puts "ПОСЛЕ АУТЕНТИФИКАЦИИ"
+      haml :navbarafterlogin do
+        haml :masters
+      end
+    end
+  end
+end
+
   get '/region/:region' do
     @activelink = '/region'
     if params[:page].nil?
