@@ -67,56 +67,64 @@
                   %td.uk-width-3-4
                     %span{:itemprop=>"description"} #{order.subject}
           %br
+        -if !logged_in?
+          %h2.uk-text-center
+            Хотите получить заказ наряд?
+            %a{:href=>"#register", "data-uk-modal"=>"{bgclose:false}"} Зарегистрируйтесь
+            или
+            %a{:href=>"#login", "data-uk-modal"=>"{bgclose:false}"} войдтите
+            в систему, что-бы подать предложение
         %ul.uk-pagination
-          -if @start_page > 1
-            %li
-              -if @activelink == '/'
-                %a{:href=>"/?page=1#orders"} 1
-              -if session[:siteregion] && session[:siteregion].size > 0
-                -if @activelink == '/region'
-                  %a{:href=>"/region/"+session[:siteregion]+"?page=1#orders"} 1
-              -if session[:sitearea] && session[:sitearea].size > 0
-                -if @activelink == '/area'
-                  %a{:href=>"/area/"+session[:sitearea]+"?page=1#orders"} 1
-              -if session[:sitelocation] && session[:sitelocation].size > 0
-                -if @activelink == '/location'
-                  %a{:href=>"/location/"+session[:sitelocation]+"?page=1#orders"} 1
-            %li
-              %span ...
-          -@pagination.each do |p|
-            -if p == @current_page
-              %li.uk-active
-                %span
-                  #{p}
-            -else
+          -if @pagination.max > 1
+            -if @start_page > 1
               %li
                 -if @activelink == '/'
-                  %a{:href=>"/?page=#{p}#orders"} #{p}
+                  %a{:href=>"/?page=1#orders"} 1
                 -if session[:siteregion] && session[:siteregion].size > 0
                   -if @activelink == '/region'
-                    %a{:href=>"/region/"+session[:siteregion]+"?page=#{p}#orders"} #{p}
+                    %a{:href=>"/region/"+session[:siteregion]+"?page=1#orders"} 1
                 -if session[:sitearea] && session[:sitearea].size > 0
                   -if @activelink == '/area'
-                    %a{:href=>"/area/"+session[:sitearea]+"?page=#{p}#orders"} #{p}
+                    %a{:href=>"/area/"+session[:sitearea]+"?page=1#orders"} 1
                 -if session[:sitelocation] && session[:sitelocation].size > 0
                   -if @activelink == '/location'
-                    %a{:href=>"/location/"+session[:sitelocation]+"?page=#{p}#orders"} #{p}
-          -if @end_page < @total_pages
-            %li
-              %span ...
-            %li
-              -if @activelink == '/'
-                %a{:href=>"/?page=#{@total_pages}#orders"} #{@total_pages}
-              -if session[:siteregion] && session[:siteregion].size > 0
-                -if @activelink == '/region'
-                  %a{:href=>"/region/"+session[:siteregion]+"?page=#{@total_pages}#orders"} #{@total_pages}
-              -if session[:sitearea] && session[:sitearea].size > 0
-                -if @activelink == '/area'
-                  %a{:href=>"/area/"+session[:sitearea]+"?page=#{@total_pages}#orders"} #{@total_pages}
-              -if session[:sitelocation] && session[:sitelocation].size > 0
-                -if @activelink == '/location'
-                  %a{:href=>"/location/"+session[:sitelocation]+"?page=#{@total_pages}#orders"} #{@total_pages}
+                    %a{:href=>"/location/"+session[:sitelocation]+"?page=1#orders"} 1
+              %li
+                %span ...
+            -@pagination.each do |p|
+              -if p == @current_page
+                %li.uk-active
+                  %span
+                    #{p}
+              -else
+                %li
+                  -if @activelink == '/'
+                    %a{:href=>"/?page=#{p}#orders"} #{p}
+                  -if session[:siteregion] && session[:siteregion].size > 0
+                    -if @activelink == '/region'
+                      %a{:href=>"/region/"+session[:siteregion]+"?page=#{p}#orders"} #{p}
+                  -if session[:sitearea] && session[:sitearea].size > 0
+                    -if @activelink == '/area'
+                      %a{:href=>"/area/"+session[:sitearea]+"?page=#{p}#orders"} #{p}
+                  -if session[:sitelocation] && session[:sitelocation].size > 0
+                    -if @activelink == '/location'
+                      %a{:href=>"/location/"+session[:sitelocation]+"?page=#{p}#orders"} #{p}
+            -if @end_page < @total_pages
+              %li
+                %span ...
+              %li
+                -if @activelink == '/'
+                  %a{:href=>"/?page=#{@total_pages}#orders"} #{@total_pages}
+                -if session[:siteregion] && session[:siteregion].size > 0
+                  -if @activelink == '/region'
+                    %a{:href=>"/region/"+session[:siteregion]+"?page=#{@total_pages}#orders"} #{@total_pages}
+                -if session[:sitearea] && session[:sitearea].size > 0
+                  -if @activelink == '/area'
+                    %a{:href=>"/area/"+session[:sitearea]+"?page=#{@total_pages}#orders"} #{@total_pages}
+                -if session[:sitelocation] && session[:sitelocation].size > 0
+                  -if @activelink == '/location'
+                    %a{:href=>"/location/"+session[:sitelocation]+"?page=#{@total_pages}#orders"} #{@total_pages}
       -else
         .uk-panel.uk-panel-box
           %h3
-            Нет активных заявок в выбранной территории
+            Нет активных заказов наряов в выбранной территории

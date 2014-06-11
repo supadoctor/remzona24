@@ -1,41 +1,55 @@
 .uk-container.uk-container-center
-  .ul-grid
-    -if @masters_at_mainpage && @masters_at_mainpage.size > 0
-      -@masters_at_mainpage.each do |master|
-        %article.uk-comment.uk-margin-top
-          %header.uk-comment-header
-            -if master.avatar.present?
-              %img.uk-comment-avatar{:src=>master.avatar.avatar64.url}
-            %a{:href=>"/user/#{master.id}"}
-              %h2.uk-comment-title #{master.displayedname}
-            .uk-comment-meta
-              %dl.uk-descriptionlist
-                %dd
-                  -master.tags.each do |t|
-                    %span.uk-badge #{t.tag}
-                %dd
-                  #{master.description}
-        %br
-      %ul.uk-pagination
-        -if @start_page > 1
-          %li
-            %a{:href=>"/masters?page=1"} 1
-          %li
-            %span ...
-        -@pagination.each do |p|
-          -if p == @current_page
-            %li.uk-active
-              %span
-                #{p}
-          -else
+  .uk-grid
+    .uk-width-1-1
+      -if @masters_at_mainpage && @masters_at_mainpage.size > 0
+        -@masters_at_mainpage.each do |master|
+          %article.uk-comment.uk-margin-top
+            %header.uk-comment-header
+              -if master.avatar.present?
+                %img.uk-comment-avatar{:src=>master.avatar.avatar64.url}
+              %a{:href=>"/user/#{master.id}"}
+                %h2.uk-comment-title #{master.displayedname}
+              .uk-comment-meta
+                %dl.uk-descriptionlist
+                  %dd
+                    -master.tags.each do |t|
+                      %span.uk-badge #{t.tag}
+                  %dd
+                    #{master.description}
+          %br
+        %ul.uk-pagination
+          -if @start_page > 1
             %li
-              %a{:href=>"/masters?page=#{p}"} #{p}
-        -if @end_page < @total_pages
-          %li
-            %span ...
-          %li
-            %a{:href=>"/masters?page=#{@total_pages}"} #{@total_pages}
-    -else
-      .uk-alert.uk-alert-danger.uk-margin-top{"data-uk-alert"=>""}
-        %a.uk-alert-close.uk-close{:href=>""}
-        Нет информации о автомастерах или СТО в выбранной территории
+              -if !@showmastersinlocation
+                %a{:href=>"/masters?page=1"} 1
+              -else
+                %a{:href=>"/masters/#{@showmastersinlocation}/?page=1"} 1
+            %li
+              %span ...
+          -@pagination.each do |p|
+            -if p == @current_page
+              %li.uk-active
+                %span
+                  #{p}
+            -else
+              -if !@showmastersinlocation
+                %a{:href=>"/masters?page=#{p}"} #{p}
+              -else
+                %a{:href=>"/masters/#{@showmastersinlocation}/?page=#{p}"} #{p}
+          -if @end_page < @total_pages
+            %li
+              %span ...
+            %li
+              -if !@showmastersinlocation
+                %a{:href=>"/masters?page=#{@total_pages}"} #{@total_pages}
+              -else
+                %a{:href=>"/masters/#{@showmastersinlocation}/?page=#{@total_pages}"} #{@total_pages}
+      -else
+        .uk-alert.uk-alert-danger.uk-margin-top{"data-uk-alert"=>""}
+          %a.uk-alert-close.uk-close{:href=>""}
+          Нет информации о автомастерах или СТО в выбранной территории
+    .uk-width-1-3
+      %br
+      -@mastersbylocation.each do |k,v|
+        %a{:href=>"/masters/#{k}"}
+          %h4 #{k} (#{v})

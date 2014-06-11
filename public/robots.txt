@@ -1,0 +1,8 @@
+User-agent: *
+Disallow: /message
+Disallow: /offer
+Disallow: /ajax
+Disallow: /neworder
+Disallow: /resetpass
+Disallow: /profile
+Allow: /

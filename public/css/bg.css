@@ -8,7 +8,7 @@
 
 .bg-img-fixed {
     background-attachment: fixed;
-    min-height: 400px;
+    min-height: 350px;
 }
 .bg-img, .bg-img-fixed {
     background-position: center center;
@@ -87,7 +87,9 @@ h6 {
 
 .uk-button {
   font-family: 'Open Sans Condensed', sans-serif;
-  border-radius: 0px;
+  border-radius: 2px;
+  -webkit-transition: .2s background ease-in-out, .1s top ease-in-out, .2s box-shadow ease-in-out;
+  transition: .2s background ease-in-out, .1s top ease-in-out, .2s box-shadow ease-in-out;
 }
 
 .uk-form select,

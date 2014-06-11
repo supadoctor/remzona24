@@ -38,7 +38,7 @@ class Remzona24App < Sinatra::Base
 
   configure do
     enable :logging, :method_override
-    use Rack::Session::Cookie, :key => "rack.session"
+    use Rack::Session::Cookie, :key => "rack.session", :expire_after => 31557600
     I18n.enforce_available_locales = false
     #set :edminds_api => 'dqrths629w35vurjaz5yrn7c'
     #set :vehicles => YAML.load_file("public/makes.yml")
@@ -292,7 +292,7 @@ class Remzona24App < Sinatra::Base
                 end
               end
               haml_tag :td do
-                haml_tag :a, :href=>"/order/#{o.id}" do 
+                haml_tag :a, :href=>"/order/#{o.order_id}" do 
                   haml_concat Order.get(o.order_id).title
                 end
               end
@@ -301,7 +301,7 @@ class Remzona24App < Sinatra::Base
               end
               haml_tag :td, :class=>"uk-text-center" do
                 if o.fd != o.td
-                  haml_concat o.fd.strftime("%d.%m.%Y")
+                  haml_concat o.td.strftime("%d.%m.%Y")
                 else
                   haml_tag :span, :class=>"uk-text-center" do
                     haml_concat "-"
@@ -355,7 +355,7 @@ class Remzona24App < Sinatra::Base
               end
               haml_tag :td, :class=>"uk-text-center" do
                 if o.fd != o.td
-                  haml_concat o.fd.strftime("%d.%m.%Y")
+                  haml_concat o.td.strftime("%d.%m.%Y")
                 else
                   haml_tag :span, :class=>"uk-text-center" do
                     haml_concat "-"
@@ -446,7 +446,7 @@ class Remzona24App < Sinatra::Base
     if desc
       haml_tag :meta, {:content=>desc, :name=>"description"}
     else
-      haml_tag :meta, {:content=>"база данных заявок на ремонт автомобилей, автомастеров и СТО. бесплатно разместить объявление о ремоте авто, найти заказ подряд на ремонт авто", :name=>"description"}
+      haml_tag :meta, {:content=>"база данных заявок на ремонт автомобилей, автомастеров, автосервисов и СТО, бесплатно разместить объявление о ремоте авто, найти заказ подряд на ремонт авто, найти автосервисы, автомастерские, цены, ремзона24", :name=>"description"}
     end
   end
 
@@ -454,7 +454,13 @@ class Remzona24App < Sinatra::Base
     if tags && tags.size > 0
       haml_tag :meta, {:content=>tags, :name=>"keywords"}
     else
-      haml_tag :meta, {:content=>"авторемонт, автоэлектрик, диагностика авто, диагностика двигателя, диагностика подвески, отремонтировать автомобиль, покраска авто, развал схождение, ремонт авто, ремонт автомобиля, ремонт двигателя, ремонт иномарки, ремонт кузова, ремонт отечественных авто, подвески, ремонт ходовой", :name=>"keywords"}
+      haml_tag :meta, {:content=>"автосервис, авторемонт, автоэлектрик, диагностика, диагностика двигателя, диагностика подвески, отремонтировать автомобиль, покраска авто, развал схождение, ремонт авто, ремонт автомобиля, ремонт двигателя, ремонт иномарки, ремонт кузова, ремонт отечественных авто, подвески, ремонт ходовой, цены, ремзона, ремзона24", :name=>"keywords"}
+    end
+  end
+
+  set :spider do |enabled|
+    condition do
+      params.has_key?('_escaped_fragment_')
     end
   end
 
@@ -476,6 +482,7 @@ class Remzona24App < Sinatra::Base
   #before do
   #end
 
+  #get '/', :spider => true  do
   get '/' do
     # url = "http://geoip.elib.ru/cgi-bin/getdata.pl"
     # resp = Net::HTTP.get_response(URI.parse(url))
@@ -507,14 +514,19 @@ class Remzona24App < Sinatra::Base
 
     #@orders_at_mainpage = (Order.all(:status => 0, :order => [ :fd.desc ]) & (Order.all(:conditions => ['fd = td'], :order => [ :fd.desc ]) | Order.all(:td.gte => DateTime.now, :order => [ :fd.desc ]))).paginate(:page => params[:page], :per_page => 10)
     #@new_orders_at_mainpage = @orders_at_mainpage
-    @description = "база данных заявок на ремонт автомобилей, автомастеров и СТО. бесплатно разместить объявление о ремоте авто, найти заказ подряд на ремонт авто"
+    #@description = "база данных заявок на ремонт автомобилей, автомастеров и СТО. бесплатно разместить объявление о ремоте авто, найти заказ подряд на ремонт авто"
     if !logged_in?
       #puts "БЕЗ АУТЕТНИФИКАЦИИ"
       if !session[:siteregionplaceholder]
         session[:siteregionplaceholder] = "Россия"
-      end 
+      end
       haml :navbarbeforelogin do
-        haml :index, :layout => :promo
+        if session[:showmainpage]
+          haml :index, :layout => :promo
+        else
+          session[:showmainpage] = true
+          haml :promo4users
+        end
       end
     else
       #puts "ПОСЛЕ АУТЕНТИФИКАЦИИ"
@@ -544,13 +556,13 @@ class Remzona24App < Sinatra::Base
   get path do
     if params[:splat]
       if params[:splat][0].size > 0
-        @location = params[:splat][0]
+        @showmastersinlocation = params[:splat][0]
       end
     end
-    if !@location
+    if !@showmastersinlocation
       @masters_at_mainpage = User.all(:status => 0, :type => "Master", :order => [ :lastlogon.desc ]).paginate(:page => params[:page], :per_page => 10)
     elsif
-      @masters_at_mainpage = User.all(:status => 0, :type => "Master", :placement => {:location => @location}, :order => [:lastlogon.desc]).paginate(:page => params[:page], :per_page => 10)
+      @masters_at_mainpage = User.all(:status => 0, :type => "Master", :placement => {:location => @showmastersinlocation}, :order => [:lastlogon.desc]).paginate(:page => params[:page], :per_page => 10)
     end
     if @users_at_mainpage
       @masters_at_mainpage_total = @users_at_mainpage.count
@@ -570,6 +582,15 @@ class Remzona24App < Sinatra::Base
       @start_page = (@end_page - 10) > 0 ? (@end_page - 10) : 1
     end
     @pagination = @start_page..@end_page
+
+    @uniqlocations = Placement.all(:fields => [:id, :location], :unique => true, :order => [:location.asc])
+    @mastersbylocation = {}
+    @uniqlocations.each do |l|
+      count = User.all(:status => 0, :type => "Master", :placement_id => l.id).count
+      if count > 0 
+        @mastersbylocation.merge!(l.location => count)
+      end
+    end
 
     @description = "база мастеров по ремонту автомобилей, найти мастера"
     @tags = "автомастер, СТО, найти матера по ремонту авто, отзыв о мастере"
@@ -1308,9 +1329,13 @@ end
         session[:messagetodisplay] = @@text["notify"]["messagesent"]
       rescue
         session[:messagetodisplay] = @message.errors.values.join("; ")
-      ensure
         redirect back
       end
+      email_msg = @@text["email"]["unreadnotification"] + @@text["email"]["regards"]
+      if get_settings(@order.user, "sendmessagestoemail")
+        Pony.mail(:to => @order.user.email, :subject => 'Непрочитанное уведомление на РемЗона24.ру', :body => email_msg)
+      end
+      redirect back
     end
     if params.has_key?("user")
       @message = Message.new(
@@ -1327,9 +1352,13 @@ end
         session[:messagetodisplay] = @@text["notify"]["messagesent"]
       rescue
         session[:messagetodisplay] = @message.errors.values.join("; ")
-      ensure
         redirect back
       end
+      email_msg = @@text["email"]["unreadnotification"] + @@text["email"]["regards"]
+      if get_settings(User.get(params[:user]), "sendmessagestoemail")
+        Pony.mail(:to => User.get(params[:user]).email, :subject => 'Непрочитанное уведомление на РемЗона24.ру', :body => email_msg)
+      end
+      redirect back
     end
   end
 
@@ -1356,6 +1385,10 @@ end
         redirect back
       end
       @msg.update(:child => @message)
+      email_msg = @@text["email"]["unreadnotification"] + @@text["email"]["regards"]
+      if get_settings(@msg.sender, "sendmessagestoemail")
+        Pony.mail(:to => @msg.sender.email, :subject => 'Непрочитанное уведомление на РемЗона24.ру', :body => email_msg)
+      end
       redirect back
     end
   end
@@ -1846,7 +1879,7 @@ end
   get '/support' do
     if !logged_in?
       session[:messagetodisplay] = @@text["notify"]["plsloginforsupport"]
-      puts "********* >>>>", session[:messagetodisplay]
+      #puts "********* >>>>", session[:messagetodisplay]
       redirect back
     else
       haml :navbarafterlogin do
@@ -2034,6 +2067,16 @@ end
   not_found do
     session[:messagetodisplay] = @@text["notify"]["404"] if !session[:messagetodisplay]
     redirect '/'
+  end
+
+  get '/promo4users' do
+    if !logged_in?
+      haml :navbarbeforelogin do
+        haml :promo4users
+      end
+    else
+      redirect '/'
+    end
   end
 
 end

@@ -1,24 +1,29 @@
-.bg-img.bg-img-fixed{:style=>"background-image: url('/img/homepage/road.jpg'); height: 60vh;"}
+.bg-img.bg-img-fixed{:style=>"background-image: url('/img/homepage/road.jpg'); height: 50vh;"}
 .uk-width-1-1
-  .uk-container-center.uk-vertical-align{:style=>"height: 40vh;"}
+  .uk-container-center.uk-vertical-align{:style=>"height: 50vh;"}
     .uk-vertical-align-middle.uk-width-1-1
       %h1.uk-text-center Добро пожаловать на РемЗона24.ру - круглосуточную ремонтную зону!
-      %br
       .uk-width-1-1
         .uk-text-center.uk-margin-bottom
-          %a.uk-button.uk-button-success.uk-button-large{:href=>"#express", "data-uk-smooth-scroll"=>""}
-            %i.uk-icon-long-arrow-down
-            Вы автовладелец и у вас проблема с автомобилем?
+          %a.uk-button.uk-button-success.uk-button-large{:href=>"#express", "data-uk-smooth-scroll"=>"", :style=>"border-radius: 10px;"}
+            /%i.uk-icon-long-arrow-down
+            %h2.uk-margin-top.uk-margin-bottom-remove Вы автовладелец и хотите отремонтировать автомобиль?
+            %uk-text-small и получить самое выгодное предложение от автомастеров, автомастерских, автосервисов и СТО
         .uk-text-center
-          %a.uk-button.uk-button-large{:href=>"#orders", "data-uk-smooth-scroll"=>""}
-            %i.uk-icon-long-arrow-down
-            Вы автомастер и хотите найти новый подряд?
+          %a.uk-button{:href=>"#orders", "data-uk-smooth-scroll"=>"", :style=>"border-radius: 10px;"}
+            /%i.uk-icon-long-arrow-down
+            %h2.uk-margin-top.uk-margin-bottom-remove Вы автомастер и хотите найти новый заказ наряд?
+            %uk-text-small и получить новых клиентов, которым нужен ремонт авто
 .bg-img.bg-img-fixed{:style=>"background-image: url('/img/homepage/underhood.jpg'); height: 70vh;"}
 .uk-container.uk-container-center
   .ul-grid
     #express.uk-width-2-3.uk-container-center
       %br
-      %h2 Если нужно отремонтировать автомобиль, заказать ремонт двигателя, бампера, ходовой, узнать цену покраски или у вас другая проблема с машиной, то просто заполните форму ниже и выберите наиболее выгодное предложение от автмастеров, СТО и сервисных центров
+      %h2
+        %mark Если нужно отремонтировать автомобиль,
+        заказать ремонт двигателя, бампера, ходовой, узнать цену покраски или у решить любую другую проблему с машиной, то просто
+        %mark заполните форму
+        ниже и выберите наиболее выгодное предложение от автомастеров, автомастерских, СТО и сервисцентров
       %br
       %form#expressorder.uk-form.uk-form-horizontal{:action => "/expressorder", :method => "post", :enctype=>"multipart/form-data"}
         .uk-form-row{:style=>"margin-top: 20px;"}
@@ -133,6 +138,7 @@
                     %option ИЖ
                     %option Москвич
                     %option УАЗ
+                    %option нет в списке
                   %br
                   %label.error.uk-text-small.uk-text-danger{:for=>"vehiclemake"}
                 %td{:style=>"padding-bottom: 20px; padding-right: 20px; padding-left: 20px;"}
@@ -144,7 +150,7 @@
         .uk-form-row{:style=>"margin-top: 0px;"}
           %label.uk-form-label{:for=>"subject"}
             %i.uk-icon-wrench
-            Максимально подробное описание
+            Описание проблемы
           .uk-form-controls
             %textarea#expresssubject.uk-width-1-1{:name=>"subject", :cols=>"100%", :rows=>"4", "data-uk-tooltip" => "", :title => "Опиште суть вашей заявки. Например, укажите состав и объем требуемых работ, пожелания к срокам, стоимости и т.п. Внесите сюда максимум информации, которая бы помогла потенциальным исполнителям подготовить наиболее оптимальное предложение"}
             %br
@@ -199,7 +205,7 @@
     #orders.uk-width-2-3.uk-container-center
       %br
       .uk-text-center
-        %h2 Последние заявки на Портале
+        %h2 Заказы наряды на ремонт автомобилей
       %br
 =yield
 :javascript
