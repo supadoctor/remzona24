@@ -26,7 +26,19 @@
         ниже и выберите наиболее выгодное предложение от автомастеров, автомастерских, СТО и сервисцентров
       %br
       %form#expressorder.uk-form.uk-form-horizontal{:action => "/expressorder", :method => "post", :enctype=>"multipart/form-data"}
-        .uk-form-row{:style=>"margin-top: 20px;"}
+        .uk-form-row
+          %label.uk-form-label{:for=>"location"}
+            %i.uk-icon-home
+            Населенный пункт
+          .uk-form-controls
+            %input#expressuserlocation.uk-width-1-1{:type=>"text", :required=>"", :name=>"fulllocation", "data-uk-tooltip" => "", :title => "Введите первые буквы неселенного пункта где вы находитесь. Выберите из списка нужный вариант. При выборе небольших населенных пунктов обратите внимание на корректность района и области!"}
+            %br
+            %label.error.uk-text-small.uk-text-danger{:for=>"expressuserlocation"}
+            %input#expressuserlocationtitle{:type=>"text", :name=>"locationtitle", :hidden=>"true"}
+            %input#expressuserarea{:type=>"text", :name=>"area", :hidden=>"true"}
+            %input#expressuserregion{:type=>"text", :name=>"region", :hidden=>"true"}
+        -#
+          .uk-form-row{:style=>"margin-top: 20px;"}
           %label.uk-form-label{:for=>"title"}
             %i.uk-icon-edit
             Заголовок заявки
@@ -155,7 +167,8 @@
             %textarea#expresssubject.uk-width-1-1{:name=>"subject", :cols=>"100%", :rows=>"4", "data-uk-tooltip" => "", :title => "Опиште суть вашей заявки. Например, укажите состав и объем требуемых работ, пожелания к срокам, стоимости и т.п. Внесите сюда максимум информации, которая бы помогла потенциальным исполнителям подготовить наиболее оптимальное предложение"}
             %br
             %label.error.uk-text-small.uk-text-danger{:for=>"expresssubject"}
-        .uk-form-row{:style=>"margin-top: 20px;"}
+        -#
+          .uk-form-row{:style=>"margin-top: 20px;"}
           %label.uk-form-label{:for=>"photo"}
             %i.uk-icon-camera
             Прикрепить фотографии
@@ -177,17 +190,6 @@
             %input#expressemail.uk-width-1-1{:type=>"text", :required=>"", :name=>"email", "data-uk-tooltip" => "", :title => "Укажите корректный адрес электронной почты. Он будет использоваться для входа на Портал и получения уведомлений"}
             %br
             %label.error.uk-text-small.uk-text-danger{:for=>"expressemail"}
-        .uk-form-row{:style=>"margin-top: 20px;"}
-          %label.uk-form-label{:for=>"location"}
-            %i.uk-icon-home
-            Населенный пункт
-          .uk-form-controls
-            %input#expressuserlocation.uk-width-1-1{:type=>"text", :required=>"", :name=>"fulllocation", "data-uk-tooltip" => "", :title => "Введите первые буквы неселенного пункта где вы находитесь. Выберите из списка нужный вариант. При выборе небольших населенных пунктов обратите внимание на корректность района и области!"}
-            %br
-            %label.error.uk-text-small.uk-text-danger{:for=>"expressuserlocation"}
-            %input#expressuserlocationtitle{:type=>"text", :name=>"locationtitle", :hidden=>"true"}
-            %input#expressuserarea{:type=>"text", :name=>"area", :hidden=>"true"}
-            %input#expressuserregion{:type=>"text", :name=>"region", :hidden=>"true"}
         .uk-form-row{:style=>"margin-top: 20px;"}
           %label
             %input.masterrules{:type=>"checkbox", :name=>"terms"}

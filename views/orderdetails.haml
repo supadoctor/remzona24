@@ -5,6 +5,10 @@
       %h1.uk-text-right Заявка № #{@order.id}
       -if @order.user == current_user
         %ul.uk-subnav.uk-subnav-line.uk-text-right
+          -if Offer.all(:order_id => @order.id, :status => 0).count == 0
+            %li
+              %a{:href=>"/order/#{@order.id}/edit", :style=>"margin-top: 2px;"}
+                Изменить
           -if @order.status != 1
             %li
               %a{:href=>"#"}

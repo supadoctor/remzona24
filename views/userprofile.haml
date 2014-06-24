@@ -8,7 +8,7 @@
         %ul.uk-tab.uk-margin-bottom{"data-uk-tab"=>"{connect:'#operation'}"}
           %li#ordertab
             %a{:href=>"#"}
-              Мои заявки
+              Моя ремзона
               /- if @newoffers.first > 0
               /  .uk-badge.uk-badge-notification.uk-badge-danger
               /    #{@newoffers.first}
@@ -20,22 +20,22 @@
               /    #{@newmessages}
           %li#profiletab
             %a{:href=>"#"}
-              Профиль     
+              Профиль
           %li#settingtab
             %a{:href=>""} Настройки
         %ul#operation.uk-switcher
           %li#orders
-            %ul.uk-tab.uk-margin-bottom.uk-tab-flip{"data-uk-tab"=>"{connect:'#allorders'}"}         
+            %ul.uk-tab.uk-margin-bottom.uk-tab-flip{"data-uk-tab"=>"{connect:'#allorders'}"}
               %li
                 %a{:href=>"#"}
-                  Архив
+                  Архив заявок
               %li
                 %a{:href=>"#"}
-                  Действующие
+                  Мои заявки
               %li.uk-active
                 %a{:href=>"#"}
-                  Новая     
-            %ul#allorders.uk-switcher   
+                  Новая заявка на ремонт
+            %ul#allorders.uk-switcher
               %li
                 - if @myclosedorders.size < 1
                   %h3 Нет архивных заявок

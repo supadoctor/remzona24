@@ -99,9 +99,9 @@ class User
       :length    => "Имя должно быть от 2 и до 50 символов",
       :format    => "Имя может содержать только буквы"
     }
-  property :fathersname, String, :length => 2..50, :format => /^[а-яА-ЯёЁa-zA-Z]+$/,
+  property :fathersname, String, :length => 50, :format => /^[а-яА-ЯёЁa-zA-Z]+$/,
     :messages => {
-      :length    => "Отчество должно быть от 2 и до 50 символов",
+      :length    => "Отчество должно быть не более 50 символов",
       :format    => "Отчество может содержать только буквы"
     }
   property :mapx, Float
@@ -122,7 +122,7 @@ class User
 
   validates_presence_of :fullname, :if => lambda { |t| t.type == "User" },
     :message => "Введите полное имя контактного лица"
-  validates_presence_of :familyname, :name, :fathersname, :if => lambda { |t| t.type == "Master" },
+  validates_presence_of :familyname, :name, :if => lambda { |t| t.type == "Master" },
     :message => "Введите ФИО"
 
   has n, :orders
@@ -154,7 +154,11 @@ class User
     if self.type == "User" || self.type == "Admin"
       self.fullname
     elsif self.type == "Master"
-      self.name + " " + self.fathersname + " " + self.familyname
+      if !self.fathersname.nil?
+        self.name + " " + self.fathersname + " " + self.familyname
+      else
+        self.name + " " + self.familyname
+      end
     end
   end
 end

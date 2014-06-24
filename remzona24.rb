@@ -66,7 +66,7 @@ class Remzona24App < Sinatra::Base
     :charset => 'utf-8',
     :via => :sendmail
   }
-  #Pony.mail(:to => 'sergey.rodionov@gmail.com', :subject => 'Запуск РемЗона24.ру', :body => 'Thin был запущен')
+  Pony.mail(:to => 'sergey.rodionov@gmail.com', :subject => 'Запуск РемЗона24.ру', :body => 'Thin был запущен')
 
   use Warden::Manager do |config|
     # config.default_strategies :password, action: 'auth/unauthenticated'
@@ -446,7 +446,7 @@ class Remzona24App < Sinatra::Base
     if desc
       haml_tag :meta, {:content=>desc, :name=>"description"}
     else
-      haml_tag :meta, {:content=>"база данных заявок на ремонт автомобилей, автомастеров, автосервисов и СТО, бесплатно разместить объявление о ремоте авто, найти заказ подряд на ремонт авто, найти автосервисы, автомастерские, цены, ремзона24", :name=>"description"}
+      haml_tag :meta, {:content=>"Круглосуточный сервис Ремозона24 осуществляет помощь тем, кому нужен ремонт автомобиля, здесь можно оставить свою заявку от имени автосервиса, доступные цены, удобный поиск автомастерских по ремонту иномарок и отечественных авто", :name=>"description"}
     end
   end
 
@@ -454,7 +454,7 @@ class Remzona24App < Sinatra::Base
     if tags && tags.size > 0
       haml_tag :meta, {:content=>tags, :name=>"keywords"}
     else
-      haml_tag :meta, {:content=>"автосервис, авторемонт, автоэлектрик, диагностика, диагностика двигателя, диагностика подвески, отремонтировать автомобиль, покраска авто, развал схождение, ремонт авто, ремонт автомобиля, ремонт двигателя, ремонт иномарки, ремонт кузова, ремонт отечественных авто, подвески, ремонт ходовой, цены, ремзона, ремзона24", :name=>"keywords"}
+      haml_tag :meta, {:content=>"круглосуточный сервис, сервис круглосуточно, ремонт автомобиля, автомастерская, ремзона, авто ремонт, ремозона24, автосервис, ремонт иномарки, цены на авторемонт, ремзона24.ру, remzona, remzona24, remzona24.ru", :name=>"keywords"}
     end
   end
 
@@ -525,7 +525,11 @@ class Remzona24App < Sinatra::Base
           haml :index, :layout => :promo
         else
           session[:showmainpage] = true
-          haml :promo4users
+          if params[:key]
+            redirect '/promo4users?key='+params[:key]
+          else
+            redirect '/promo4users'
+          end
         end
       end
     else
@@ -758,7 +762,7 @@ end
       :type => "Master",
       :familyname => Unicode::capitalize(params[:familyname]),
       :name => Unicode::capitalize(params[:name]),
-      :fathersname => Unicode::capitalize(params[:fathersname]),
+      #:fathersname => Unicode::capitalize(params[:fathersname]),
       :created_at => DateTime.now,
       :password => params[:password],
       :placement => placement,
@@ -772,7 +776,7 @@ end
       redirect back
     end
     session[:user_id] = user.id
-    @msg = "Здравствуйте, " + user.displayedname + "!\n" + @@text["email"]["registration"] + @@text["email"]["regards"]
+    @msg = "Здравствуйте, " + user.displayedname + "!\n" + @@text["email"]["masterregistration"] + @@text["email"]["regards"]
     Pony.mail(:to => user.email, :subject => 'Регистрация на РемЗона24.ру', :body => @msg)
     env['warden'].authenticate!
     redirect '/profile'
@@ -1049,6 +1053,99 @@ end
     end
   end
 
+  get '/order/:id/edit' do
+    if !logged_in?
+      redirect '/'
+    else
+      begin
+        @order = Order.get(params[:id].to_i)
+      rescue
+        session[:messagetodisplay] = @@text["notify"]["noorder"]
+        redirect back
+      ensure
+        if @order.nil? || @order.status == 2
+          session[:messagetodisplay] = @@text["notify"]["noorder"]
+          redirect back
+        end
+      end
+      if @order.user == current_user
+        if Offer.all(:order_id => params[:id].to_i, :status => 0).count == 0
+          @tags = []
+          @order.tags.all.each do |t|
+            @tags << t.tag
+          end
+          @tags = @tags.join(', ')
+          @lifetime = (@order.td - @order.fd).ceil
+          haml :navbarafterlogin do
+            haml :editorder
+          end
+        else
+          session[:messagetodisplay] = @@text["notify"]["canteditorder"]
+          redirect '/'
+        end
+      else
+        session[:messagetodisplay] = @@text["notify"]["canteditorder"]
+        redirect '/'
+      end
+    end
+  end
+
+  post '/order/:id/edit' do
+    if !logged_in?
+      redirect '/'
+    else
+      begin
+        @order = Order.get(params[:id].to_i)
+      rescue
+        session[:messagetodisplay] = @@text["notify"]["noorder"]
+        redirect back
+      ensure
+        if @order.nil? || @order.status == 2
+          session[:messagetodisplay] = @@text["notify"]["noorder"]
+          redirect back
+        end
+      end
+      if @order.user == current_user
+        fd = DateTime.now
+        td = fd+params[:lifetime].to_i
+        if params[:budgettype] == "1"
+          budget = -1
+        else
+          budget = params[:budget].to_i
+        end
+        begin
+          @order.update(
+            :title => h(params[:title]),
+            :subject => h(params[:subject]),
+            :budget => budget,
+            :status => 0,
+            :fd => fd,
+            :td => td)
+          @order.vehicle.update(:make => params[:vehiclemake], :mdl => h(params[:vehiclemodel]), :year => params[:vehicleyear].to_i, :VIN => h(params[:vehicleVIN]))
+        rescue
+          session[:messagetodisplay] = @order.errors.values.join("; ") + @order.vehicle.errors.values.join("; ")
+          redirect back
+        end
+        tagsstring = params[:tags]
+        tagsstring.split(",").each do |t|
+          tag = @order.tags.first_or_create(:tag => t)
+        end
+        if params[:photos] && !params[:photos].empty?
+          params[:photos].each do |image|
+            begin
+              oi = Orderimage.create(:order => @order, :image => image)
+            rescue
+              session[:messagetodisplay] = oi.errors.values.join("; ")
+              redirect back
+            end
+          end
+        end
+        session[:messagetodisplay] = @@text["notify"]["orderwasedited"]
+        redirect '/order/'+@order.id.to_s
+      end
+    end
+  end
+
   post '/order' do
     fd = DateTime.now
     td = fd+params[:lifetime].to_i
@@ -1087,7 +1184,7 @@ end
           oi = Orderimage.create(:order => order, :image => image)
         rescue
           session[:messagetodisplay] = oi.errors.values.join("; ")
-          redirect backsession[:messagetodisplay] = oi.errors.values.join("; ")
+          redirect back
         end
         #puts oi.class
       end
@@ -1132,9 +1229,11 @@ end
 
     fd = DateTime.now
     #puts "*************", params[:vehiclemake], h(params[:vehiclemodel])
+    h(params[:subject]).size > 50 ? t = h(params[:subject])[0..46]+'...' : t = h(params[:subject])[0..49]
     order = Order.new(
       :user => user,
-      :title => h(params[:title]),
+      #:title => h(params[:title]),
+      :title => t,
       :subject => h(params[:subject]),
       :budget => -1,
       :fd => fd,
@@ -2071,6 +2170,7 @@ end
 
   get '/promo4users' do
     if !logged_in?
+      params[:key] ? @adkeyword = "Требуется " + params[:key] + "?" : @adkeyword = ""
       haml :navbarbeforelogin do
         haml :promo4users
       end
@@ -2079,6 +2179,16 @@ end
     end
   end
 
+  get '/promo4masters' do
+    if !logged_in?
+      session[:showmainpage] = true
+      haml :navbarbeforelogin do
+        haml :promo4masters
+      end
+    else
+      redirect '/'
+    end
+  end
 end
 
 #Remzona24App.run!

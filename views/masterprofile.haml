@@ -6,7 +6,7 @@
         %h1.uk-text-right Личный кабинет
         %ul.uk-tab.uk-margin-bottom{"data-uk-tab"=>"{connect:'#operation'}"}
           %li#offertab
-            %a{:href=>""} Мои предложения
+            %a{:href=>""} Моя ремзона
           %li#notificationtab
             %a{:href=>""}
               Уведомления
@@ -24,10 +24,10 @@
             %ul.uk-tab.uk-margin-bottom.uk-tab-flip{"data-uk-tab"=>"{connect:'#alloffers'}"}
               %li
                 %a{:href=>"#"}
-                  Архив
+                  Архив предложений
               %li.uk-active
                 %a{:href=>"#"}
-                  Действующие
+                  Мои предложения
             %ul#alloffers.uk-switcher
               %li
                 - if @myclosedoffers.size < 1
@@ -141,7 +141,7 @@
               .uk-form-row{:style=>"margin-top: 20px;"}
                 %h3.uk-form-label{:for=>"fathersname"} Отчество
                 .uk-form-controls
-                  %input#fathersname.uk-width-1-1.editable{:type=>"text", :required=>"", :value=>@current_user.fathersname, :name=>"fathersname", :readonly=>""}
+                  %input#fathersname.uk-width-1-1.editable{:type=>"text", :value=>@current_user.fathersname, :name=>"fathersname", :readonly=>""}
                   %br
                   %label.error.uk-text-small.uk-text-danger{:for=>"fathersname"}
               %hr
@@ -466,7 +466,7 @@
           }
         },
         fathersname: {
-          required: true,
+          required: false,
           remote: {
             url: "/ajax/checkfathersname",
             type: "post"
