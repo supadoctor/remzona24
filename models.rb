@@ -110,10 +110,20 @@ class User
   property :created_at, DateTime
   property :lastlogon, DateTime
   property :status, Integer     #0 - active;
+
   property :description, Text,
     :messages => {
       :length => "Описание должно быть менее 65535 символов"
     }
+  property :servicename, String, :length => 50,
+    :messages => {
+      :length    => "Название сервиса должно быть не более 200 символов",
+  }
+  property :www, String, :length => 50, :format => :url,
+    :messages => {
+      :length    => "Адрес сайта должен быть не более 200 символов",
+      :format    => "Некорректный адрес сайта"
+  }
   property :legalstatus, Integer
   property :adstatus, Integer #0 - no ads, 1 - only vertical ad blosk, 2 - only horizontal ad block, 3 - all ad
 
@@ -161,6 +171,20 @@ class User
       end
     end
   end
+
+  def servicenameandwww
+    if self.type == "User" || self.type == "Admin"
+      false
+    elsif self.type == "Master"
+      r = self.servicename.to_s + " " if self.servicename && self.servicename.size > 0
+      r = r.to_s + self.www.to_s if self.www && self.www.size > 0
+      if r && r.size > 0
+        return r
+      else
+        false
+      end
+    end
+  end
 end
 
 class Contract
@@ -176,12 +200,11 @@ end
 
 class Profile
   include DataMapper::Resource
-  
   property :id, Serial
   property :showemail, Boolean
   property :showphone, Boolean
   property :sendmessagestoemail, Boolean
-  
+  property :subscribed, Boolean, :default  => true
   belongs_to :user
 end
 

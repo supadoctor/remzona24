@@ -176,6 +176,16 @@
                     %input{:type=>"checkbox", :name=>"sendmessagestoemail", :checked=>""}
                   - else
                     %input{:type=>"checkbox", :name=>"sendmessagestoemail"}
+              .uk-form-row
+                %h3.uk-form-label{:style=>"width: 400px;"}
+                  Получать важные новости сайта
+                  %span.uk-display-inline
+                    %i.uk-icon-question-circle{"data-uk-tooltip" => "", :title => "Отметьте флажок, если вы хотите получать от нас редкие, но важные новости о работе сайта"}
+                .uk-form-controls{:style=>"margin-top: 10px; margin-left: 415px;"}
+                  - if get_settings(current_user, "subscribed")
+                    %input{:type=>"checkbox", :name=>"subscribed", :checked=>""}
+                  - else
+                    %input{:type=>"checkbox", :name=>"subscribed"}
               %button.uk-button.uk-button-success{:type=>"submit"}
                 %i.uk-icon-edit
                 Сохранить

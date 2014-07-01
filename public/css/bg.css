@@ -149,7 +149,12 @@ h6 {
 .uk-badge {
     font-weight: inherit;
 }
-
+.ui-autocomplete {
+    height: 200px;
+    overflow-y: scroll;
+    overflow-x: hidden;
+    border-radius: 0px;
+}
 /*
 .uk-table-striped tbody tr:nth-of-type(odd) {
   background: #fdf5e6;

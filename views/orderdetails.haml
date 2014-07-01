@@ -133,6 +133,7 @@
               %td
                 %a{:href=>"/order/#{@order.id}/comments"}
                   Обсудить (#{@questionsnumber})
+        %div{:class=>"yashare-auto-init", "data-yashareType"=>"link", "data-yashareQuickServices"=>"vkontakte,|,facebook,|,gplus,|,twitter,|,lj"}
       -if @order.status == 0 && @order.user != @current_user
         -if logged_in? && @current_user.type == "Master"
           %button#makeoffer.uk-button.uk-button-success

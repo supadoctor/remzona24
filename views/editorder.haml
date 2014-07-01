@@ -30,7 +30,6 @@
                     %label{:for=>"vehiclemake"} Марка
                   %td{:style=>"padding-bottom: 20px;"}
                     %select#vehiclemake.uk-form-success{:type=>"text", :name=>"vehiclemake"}
-                      %option{:selected=>"", :value=>@order.vehicle.make}
                       %option Acura
                       %option Alfa Romeo
                       %option Alpina
@@ -211,7 +210,6 @@
                   %i.uk-icon-question-circle{"data-uk-tooltip" => "", :title => "Укажите интервал, через который заявка будет автоматически закрыта и перенесена в архив"}
             .uk-form-controls
               %select#lifetime{:name=>"lifetime"}
-                %option{"selected value"=>@lifetime}
                 %option{:value=>"3"}
                   Закрыть автоматически через 3 дня
                 %option{:value=>"5"}
@@ -346,6 +344,6 @@
       }
     });
 
-    $('#vehiclemake option').filter(function () { return $(this).html() == #{@order.vehicle.make}; }).prop('selected', true)
-    $("#lifetime option[value='#{@lifetime}']").prop('selected', true);
   });
+  $("#vehiclemake").val('#{@order.vehicle.make}');
+  $("#lifetime").val('#{@lifetime}');

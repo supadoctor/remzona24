@@ -23,10 +23,10 @@ require 'will_paginate/data_mapper'
 
 require './models.rb'
 
-class Remzona24App < Sinatra::Base
+class Remzona24App < Sinatra::Application
   #register Sinatra::Subdomain
   set :environment, :production
-
+  use Rack::Session::Cookie, :key => "rack.session", :expire_after => 31557600, :secret => "nothingintheinternetissecret"
 #  configure :production do
 #    set :port => 8888, :bind => '46.254.20.57'
 #  end
@@ -38,7 +38,6 @@ class Remzona24App < Sinatra::Base
 
   configure do
     enable :logging, :method_override
-    use Rack::Session::Cookie, :key => "rack.session", :expire_after => 31557600
     I18n.enforce_available_locales = false
     #set :edminds_api => 'dqrths629w35vurjaz5yrn7c'
     #set :vehicles => YAML.load_file("public/makes.yml")
@@ -66,7 +65,7 @@ class Remzona24App < Sinatra::Base
     :charset => 'utf-8',
     :via => :sendmail
   }
-  Pony.mail(:to => 'sergey.rodionov@gmail.com', :subject => 'Запуск РемЗона24.ру', :body => 'Thin был запущен')
+#  Pony.mail(:to => 'sergey.rodionov@gmail.com', :subject => 'Запуск РемЗона24.ру', :body => 'Thin был запущен')
 
   use Warden::Manager do |config|
     # config.default_strategies :password, action: 'auth/unauthenticated'
@@ -97,7 +96,11 @@ class Remzona24App < Sinatra::Base
       if user.nil?
         session[:messagetodisplay]= @@text["notify"]["wronguserorpassword"]
       elsif user.authenticate(params["password"])
-        user.update(:lastlogon => DateTime.now)
+        begin
+          user.update(:lastlogon => DateTime.now)
+        rescue
+          puts "Error on logon time updating:", user.errors.values
+        end
         success!(user)
         puts "Авторизация по паролю!"
       else
@@ -112,7 +115,11 @@ class Remzona24App < Sinatra::Base
       if user.nil?
         session[:messagetodisplay]= @@text["notify"]["wronguser"]
       else
-        user.update(:lastlogon => DateTime.now)
+        begin
+          user.update(:lastlogon => DateTime.now)
+        rescue
+          puts "Error on logon time updating:", user.errors.values
+        end
         success!(user)
       end
     end
@@ -458,6 +465,18 @@ class Remzona24App < Sinatra::Base
     end
   end
 
+  def titletag(title)
+    if title && title.size > 0
+      haml_tag :title do
+        haml_concat title
+      end
+    else
+      haml_tag :title do
+        haml_concat "Ремзона24.ру | Remzona24.ru : круглосуточный сервис, где можно найти автосервис и автомастерскую по ремонту авто и указать свои цены на авторемонт иномарки и отечественного автомобиля"
+      end
+    end
+  end
+
   set :spider do |enabled|
     condition do
       params.has_key?('_escaped_fragment_')
@@ -596,8 +615,9 @@ class Remzona24App < Sinatra::Base
       end
     end
 
-    @description = "база мастеров по ремонту автомобилей, найти мастера"
-    @tags = "автомастер, СТО, найти матера по ремонту авто, отзыв о мастере"
+    @description = "База мастеров по ремонту автомобилей, СТО, автосервисов"
+    @description += "в " + @showmastersinlocation if @showmastersinlocation
+    @tags = "автомастер, СТО, найти матера по ремонту авто, отзыв о автомастере"
     if !logged_in?
       #puts "БЕЗ АУТЕТНИФИКАЦИИ"
       haml :navbarbeforelogin do
@@ -611,6 +631,27 @@ class Remzona24App < Sinatra::Base
     end
   end
 end
+
+  get '/mastersmap' do
+    if params[:splat]
+      if params[:splat][0].size > 0
+        @territory = params[:splat][0]
+      end
+    end
+    #myterritory = Placement.all(:region => @territory
+    @uniqlocations = User.all(:status => 0, :fields => [:id, :placement_id], :type=>"Master", :unique => true)
+    @mastersbylocation = {}
+    @uniqlocations.each do |l|
+      count = User.all(:status => 0, :type => "Master", :placement_id => l.placement_id).count
+      if count > 0
+        place = Placement.get(l.placement_id)
+        fullplace = place.location.to_s + place.area.to_s + place.region.to_s
+        @mastersbylocation.merge!(fullplace => count)
+      end
+    end
+    puts @mastersbylocation.size
+    haml :mastersmap
+  end
 
   get '/region/:region' do
     @activelink = '/region'
@@ -890,7 +931,7 @@ end
       case @current_user.type
       when "Master"
         begin
-          @current_user.update(:name => params[:name], :fathersname => params[:fathersname], :familyname => params[:familyname], :description => h(params[:description]), :phone => params[:phone], :email => params[:email], :placement => placement)
+          @current_user.update(:name => params[:name], :fathersname => params[:fathersname], :familyname => params[:familyname], :description => h(params[:description]), :servicename => h(params[:servicename]), :www => params[:www], :phone => params[:phone], :email => params[:email], :placement => placement)
           if params[:avatar] && !params[:delete_avatar]
             @current_user.update(:avatar => params[:avatar])
           end
@@ -1030,7 +1071,7 @@ end
   post '/updatesettings' do
     current_user
     session[:activetab] = "settings"
-    settings_list = ["showemail", "showphone", "sendmessagestoemail"]
+    settings_list = ["showemail", "showphone", "sendmessagestoemail", "subscribed"]
     settings_list.each do |s|
       if params.has_key?(s) && params[s.to_sym] == "on"
         @current_user.profile.update(s.to_sym => true)
@@ -1532,6 +1573,7 @@ end
 
     @description = @order.title + " " + @order.subject + " " + fulllocation(@order.user)
     @tags = @order.tags.all.map(&:tag).join(', ')
+    @title = "www.remzona24.ru " + @order.title
 
     if !logged_in?
       haml :navbarbeforelogin do
@@ -2050,7 +2092,44 @@ end
     #puts settings.vehicles.values
     #vehicles
   #end
-  
+
+  get '/ajax/mastersdata.json' do
+    content_type :json
+    uniqlocations = User.all(:status => 0, :fields => [:id, :placement_id], :type=>"Master", :unique => true)
+    masters = User.all(:status => 0, :type=>"Master")
+    data = {:type => "FeatureCollection", :features => []}
+    id = 0
+    masters.each do |m|
+      #count = User.all(:status => 0, :type => "Master", :placement_id => l.placement_id).count
+      #if count > 0
+        place = Placement.get(m.placement_id)
+        if m.mapx.nil? || m.mapy.nil?
+          fullplace = place.location.to_s + ", " + place.area.to_s + ", " + place.region.to_s
+          #geocoderesp = Net::HTTP.get_response(URI.parse(URI.encode("http://geocode-maps.yandex.ru/1.x/?geocode=" + fullplace)))
+          xml = Nokogiri::XML(open(URI.parse(URI.encode("http://geocode-maps.yandex.ru/1.x/?geocode=" + fullplace))))
+          coords = xml.css("GeoObject").first.last_element_child.last_element_child.inner_text
+          c = []
+          c << coords.split(" ")[1].to_f
+          c << coords.split(" ")[0].to_f
+        else
+          c = [m.mapx, m.mapy]
+        end
+        #xml.root.elements.each do |node|
+        # puts ">>>>>>>>>>>>", node.class, node
+        #end
+        data[:features][id] = {
+          :type => "Feature",
+          :id => id,
+          :geometry  => {:type => "Point", :coordinates => c},
+          :properties => {:clusterCaption => "Мастер", :balloonContent => m.description, :hintContent => m.displayedname}
+          #:properties => {:clusterCaption => "Мастер", :balloonContentBody => m.description, :balloonContentHeader => m.displayedname, :balloonContentFooter => '<a href="/user/"'+m.id_to_s+'">Подробнее></a>', :hintContent => m.displayedname}
+        }
+      id += 1
+      #end
+    end
+    data.to_json
+  end
+
   post '/ajax/checkemail' do
     if !logged_in?
       if params[:email].nil?

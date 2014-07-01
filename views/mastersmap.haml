@@ -1,0 +1,26 @@
+.uk-width-1-1#map{:style=>"height: 100vh;"}
+
+:javascript
+  ymaps.ready(init);
+
+  function init () {
+      ymaps.geocode('Россия', {result: 1}).then(function (res) {
+          myMap = new ymaps.Map('map', {
+            center: res.geoObjects.get(0).geometry.getCoordinates(),
+            zoom: 4,
+            controls: ['zoomControl','searchControl','geolocationControl']
+          }),
+          objectManager = new ymaps.ObjectManager({
+              clusterize: true,
+              gridSize: 128
+          });
+      objectManager.objects.options.set('preset', 'islands#greenDotIcon');
+      objectManager.clusters.options.set('preset', 'islands#greenClusterIcons');
+      myMap.geoObjects.add(objectManager);
+      $.ajax({
+          url: "/ajax/mastersdata.json"
+      }).done(function(data) {
+          objectManager.add(data);
+      });
+   });
+  }

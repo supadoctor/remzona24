@@ -146,6 +146,19 @@
                   %label.error.uk-text-small.uk-text-danger{:for=>"fathersname"}
               %hr
               .uk-form-row{:style=>"margin-top: 20px;"}
+                %h3.uk-form-label{:for=>"sericename"} Название автосервиса
+                .uk-form-controls
+                  %input#servicename.uk-width-1-1.editable{:type=>"text", :value=>@current_user.servicename, :name=>"servicename", :readonly=>""}
+                  %br
+                  %label.error.uk-text-small.uk-text-danger{:for=>"servicesname"}
+              .uk-form-row{:style=>"margin-top: 20px;"}
+                %h3.uk-form-label{:for=>"www"} Сайт автосервиса
+                .uk-form-controls
+                  %input#www.uk-width-1-1.editable{:type=>"text", :value=>@current_user.www, :name=>"www", :readonly=>""}
+                  %br
+                  %label.error.uk-text-small.uk-text-danger{:for=>"www"}
+              %hr
+              .uk-form-row{:style=>"margin-top: 20px;"}
                 %h3.uk-form-label{:for=>"description"}
                   Описание деятельности
                   %span.uk-display-inline
@@ -277,6 +290,16 @@
                     %input{:type=>"checkbox", :name=>"sendmessagestoemail", :checked=>""}
                   - else
                     %input{:type=>"checkbox", :name=>"sendmessagestoemail"}
+              .uk-form-row
+                %h3.uk-form-label{:style=>"width: 400px;"}
+                  Получать важные новости сайта
+                  %span.uk-display-inline
+                    %i.uk-icon-question-circle{"data-uk-tooltip" => "", :title => "Отметьте флажок, если вы хотите получать от нас редкие, но важные новости о работе сайта"}
+                .uk-form-controls{:style=>"margin-top: 10px; margin-left: 415px;"}
+                  - if get_settings(current_user, "subscribed")
+                    %input{:type=>"checkbox", :name=>"subscribed", :checked=>""}
+                  - else
+                    %input{:type=>"checkbox", :name=>"subscribed"}
               %button.uk-button.uk-button-success{:type=>"submit"}
                 %i.uk-icon-edit
                 Сохранить
@@ -472,6 +495,15 @@
             type: "post"
           }
         },
+        servicename: {
+          required: false,
+          maxlength: 50
+        },
+        www: {
+          required: false,
+          maxlength: 50,
+          url: true
+        },
         phone: {
           remote: {
             url: "/ajax/checkphone",
@@ -508,7 +540,9 @@
         farthersname: "Введите отчество контактного лица",
         fulllocation: "Выберите населенный пункт из списка",
         phone: "Введите мобильный телефонный номер",
-        description: "Описание должно быть менее 65535 символов"
+        description: "Описание должно быть менее 65535 символов",
+        www: "Введите адрес сайта начиная с http://",
+        servicename: "Название автосервиса должно быть менее 200 символов"
       },
       submitHandler: function(form) {
         form.submit();

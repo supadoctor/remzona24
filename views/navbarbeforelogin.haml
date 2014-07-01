@@ -67,7 +67,7 @@
               %input.userrules{:type=>"checkbox", :name=>"terms"}
               Я принимаю
               %a{:href=>"/terms"}
-                cоглашение об использовании интернет-сервиса РемЗона24.ру
+                cоглашение об использовании интернет-сервиса Ремзона24.ру
           %br
           %button#usersubmit.uk-button.uk-button-primary.uk-align-center{:type=>"submit"}Регистрация
       %li#regmastertab
@@ -113,7 +113,7 @@
               %input.masterrules{:type=>"checkbox", :name=>"terms"}
               Я принимаю
               %a{:href=>"/terms"}
-                cоглашение об использовании интернет-сервиса РемЗона24.ру
+                cоглашение об использовании интернет-сервиса Ремзона24.ру
           %br
           %button#mastersubmit.uk-button.uk-button-primary.uk-align-center{:type=>"submit"}Регистрация
       /%li
@@ -167,7 +167,7 @@
     $('#userlocation').autocomplete({
       source: function( request, response ) {
         $.ajax({
-          url: "http://api.vk.com/method/database.getCities?v=5&country_id=1&count=10",
+          url: "http://api.vk.com/method/database.getCities?v=5&country_id=1",
           dataType: "jsonp",
           data: {
             q: request.term
@@ -197,7 +197,7 @@
     $('#masterlocation').autocomplete({
       source: function( request, response ) {
         $.ajax({
-          url: "http://api.vk.com/method/database.getCities?v=5&country_id=1&count=10",
+          url: "http://api.vk.com/method/database.getCities?v=5&country_id=1",
           dataType: "jsonp",
           data: {
             q: request.term

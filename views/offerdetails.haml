@@ -48,14 +48,15 @@
               %td
                 %a{:href=>"/user/#{@offer.user_id}"}
                   =@offer.user.displayedname
-          - if User.get(@offer.user_id).type == "Service"
-            %tr
+            - if @offer.user.servicename && @offer.user.servicename.size > 0
               %td.uk-text-center
-                %i.uk-icon-users
+                %i.uk-icon-wrench
               %td
-                %h3.uk-margin-bottom-remove Сервис
+                %h3.uk-margin-bottom-remove Автосервис
               %td
-                service
+                #{@offer.user.servicename}
+                - if @offer.user.www && @offer.user.www.size > 0
+                  (#{@offer.user.www})
           %tr
             %td.uk-text-center
               %i.uk-icon-info
