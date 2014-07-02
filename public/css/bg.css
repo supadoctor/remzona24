@@ -155,6 +155,16 @@ h6 {
     overflow-x: hidden;
     border-radius: 0px;
 }
+
+.brand {
+    width: 29px;
+    height: 29px;
+    float: left;
+    display: inline-block;
+    vertical-align: middle;
+    background: url('/img/brands.png') no-repeat;
+}
+
 /*
 .uk-table-striped tbody tr:nth-of-type(odd) {
   background: #fdf5e6;

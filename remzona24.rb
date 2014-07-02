@@ -449,11 +449,120 @@ class Remzona24App < Sinatra::Application
     end
   end
 
+  def brand(arg)
+    showbrand = true
+    case arg
+    when "Acura"
+      d = 0
+    when "Alfa Romeo"
+      d = -29*1
+    when "Aston Martin"
+      d = -29*2
+    when "Audi"
+      d = -29*3
+    when "BMW"
+      d = -29*5
+    when "Bentley"
+      d = -29*4
+    when "Cadillac"
+      d = -29*6
+    when "Chevrolet"
+      d = -29*7
+    when "Chrysler"
+      d = -29*8
+    when "Citroen"
+      d = -29*9
+    when "Daewoo"
+      d = -29*10
+    when "Dodge"
+      d = -29*11
+    when "Ferrari"
+      d = -29*12
+    when "Fiat"
+      d = -29*13
+    when "Ford"
+      d = -29*14
+    when "Honda"
+      d = -29*15
+    when "Hummer"
+      d = -29*16
+    when "Hyundai"
+      d = -29*17
+    when "Infiniti"
+      d = -29*18
+    when "Jaguar"
+      d = -29*19
+    when "Jeep"
+      d = -29*20
+    when "Kia"
+      d = -29*21
+    when "Lada (ВАЗ)"
+      d = -29*46
+    when "Lamborghini"
+      d = -29*22
+    when "Land Rover"
+      d = -29*23
+    when "Lexus"
+      d = -29*24
+    when "MINI"
+      d = -29*28
+    when "Maserati"
+      d = -29*25
+    when "Mazda"
+      d = -29*26
+    when "Mercedes-Benz"
+      d = -29*27
+    when "Mitsubishi"
+      d = -29*29
+    when "Nissan"
+      d = -29*30
+    when "Opel"
+      d = -29*31
+    when "Peugeot"
+      d = -29*32
+    when "Porsche"
+      d = -29*33
+    when "Renault"
+      d = -29*34
+    when "Rolls-Royce"
+      d = -29*35
+    when "Saab"
+      d = -29*36
+    when "Scion"
+      d = -29*43
+    when "Seat"
+      d = -29*37
+    when "Skoda"
+      d = -29*38
+    when "Smart"
+      d = -29*39
+    when "SsangYong"
+      d = -29*40
+    when "Subaru"
+      d = -29*41
+    when "Suzuki"
+      d = -29*42
+    when "Toyota"
+      d = -29*43
+    when "Volkswagen"
+      d = -29*44
+    when "Volvo"
+      d = -29*45
+    when "УАЗ"
+      d = -29*47
+    else
+      showbrand = false
+    end
+    if showbrand
+      haml_tag :div, :class => "brand", :style => "background-position: -6px #{d}px;"
+    end
+  end
+
   def descriptiontag(desc)
     if desc
       haml_tag :meta, {:content=>desc, :name=>"description"}
     else
-      haml_tag :meta, {:content=>"Круглосуточный сервис Ремозона24 осуществляет помощь тем, кому нужен ремонт автомобиля, здесь можно оставить свою заявку от имени автосервиса, доступные цены, удобный поиск автомастерских по ремонту иномарок и отечественных авто", :name=>"description"}
+      haml_tag :meta, {:content=>"Круглосуточный сервис Ремозона24 осуществляет помощь тем, кому нужен ремонт автомобиля, здесь можно бесплатно оставить свою заявку или заказ наряд на ремонт для автосервиса, доступные цены, удобный поиск автомастерских по ремонту иномарок и отечественных авто", :name=>"description"}
     end
   end
 
@@ -650,7 +759,15 @@ end
       end
     end
     puts @mastersbylocation.size
-    haml :mastersmap
+    if !logged_in?
+      haml :navbarbeforelogin do
+        haml :mastersmap
+      end
+    else
+      haml :navbarafterlogin do
+        haml :mastersmap
+      end
+    end
   end
 
   get '/region/:region' do
@@ -2121,12 +2238,13 @@ end
           :type => "Feature",
           :id => id,
           :geometry  => {:type => "Point", :coordinates => c},
-          :properties => {:clusterCaption => "Мастер", :balloonContent => m.description, :hintContent => m.displayedname}
+          :properties => {:clusterCaption => "Мастер", :balloonContent => m.displayedname + '</br><a href="/user/'+m.id.to_s+'">Подробнее</a>', :hintContent => m.description}
           #:properties => {:clusterCaption => "Мастер", :balloonContentBody => m.description, :balloonContentHeader => m.displayedname, :balloonContentFooter => '<a href="/user/"'+m.id_to_s+'">Подробнее></a>', :hintContent => m.displayedname}
         }
       id += 1
       #end
     end
+    puts JSON.generate(data)
     data.to_json
   end
 

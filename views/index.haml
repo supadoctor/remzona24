@@ -31,9 +31,9 @@
               %a{:href=>"/location/"+session[:sitelocation]+"#orders"} #{session[:sitelocation]}
       -if @orders_at_mainpage && @orders_at_mainpage.size > 0
         -@orders_at_mainpage.each do |order|
-          .uk-panel.uk-panel-box{:itemscope=>"", :itemtype=>"http://schema.org/Thing"}
+          .uk-panel.uk-panel-box{:itemscope=>"", :itemtype=>"http://schema.org/Thing", :style=>"box-shadow: 10px 10px 10px -10px; margin-bottom: 30px;"}
             %h3.uk-display-inline
-              %a{:href=>"/order/"+order.id.to_s}
+              %a{:href=>"/order/"+order.id.to_s, "data-uk-tooltip"=>"", :title=>"Просмотреть детали заявки или предложить свои услуги по этой заявке"}
                 Заявка № #{order.id}
                 %span{:itemprop=>"name"} "#{order.title}"
             %h5.uk-display-inline
@@ -53,7 +53,9 @@
                   %td.uk-width-1-4
                     %h4.uk-margin-bottom-remove Автомобиль
                   %td.uk-width-3-4
-                    #{vehicleinfo(order)}
+                    - brand(order.vehicle.make)
+                    %div{:style=>"display: inline-block; vertical-align: middle;"}
+                      #{vehicleinfo(order)}
                 -if order.tags.size > 0
                   %tr
                     %td.uk-width-1-4
@@ -66,6 +68,10 @@
                     %h4.uk-margin-bottom-remove Описание
                   %td.uk-width-3-4
                     %span{:itemprop=>"description"} #{order.subject}
+            %a{:href=>"/order/#{order.id}"}
+              .uk-align-right.uk-text-small.uk-margin-bottom-remove
+                Подробнее
+                %i.uk-icon-angle-double-right
           %br
         -if !logged_in?
           %h2.uk-text-center
