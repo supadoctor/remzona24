@@ -691,15 +691,12 @@ class Remzona24App < Sinatra::Application
         @showmastersinlocation = params[:splat][0]
       end
     end
-    if !@showmastersinlocation
+    if @showmastersinlocation.to_s.size == 0
+      @masters_at_mainpage_total = User.all(:status => 0, :type => "Master", :order => [ :lastlogon.desc ]).count
       @masters_at_mainpage = User.all(:status => 0, :type => "Master", :order => [ :lastlogon.desc ]).paginate(:page => params[:page], :per_page => 10)
     elsif
+      @masters_at_mainpage_total = User.all(:status => 0, :type => "Master", :placement => {:location => @showmastersinlocation}, :order => [:lastlogon.desc]).count
       @masters_at_mainpage = User.all(:status => 0, :type => "Master", :placement => {:location => @showmastersinlocation}, :order => [:lastlogon.desc]).paginate(:page => params[:page], :per_page => 10)
-    end
-    if @users_at_mainpage
-      @masters_at_mainpage_total = @users_at_mainpage.count
-    else
-      @masters_at_mainpage_total = 0
     end
     if params[:page].nil?
       @current_page = 1
@@ -707,8 +704,10 @@ class Remzona24App < Sinatra::Application
       @current_page = params[:page].to_i
     end
     @total_pages = (@masters_at_mainpage_total/10.0).ceil
+    @total_pages = @total_pages > 0 ? @total_pages : 1
     @start_page  = (@current_page - 5) > 0 ? (@current_page - 5) : 1
     @end_page = @start_page + 10
+
     if @end_page > @total_pages
       @end_page = @total_pages
       @start_page = (@end_page - 10) > 0 ? (@end_page - 10) : 1

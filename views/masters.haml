@@ -18,32 +18,34 @@
                     #{master.description}
           %br
         %ul.uk-pagination
-          -if @start_page > 1
-            %li
-              -if !@showmastersinlocation
-                %a{:href=>"/masters?page=1"} 1
+          -if @pagination.max > 1
+            -if @start_page > 1
+              %li
+                -if @showmastersinlocation.to_s.size == 0
+                  %a{:href=>"/masters?page=1"} 1
+                -else
+                  %a{:href=>"/masters/#{@showmastersinlocation}/?page=1"} 1
+              %li
+                %span ...
+            -@pagination.each do |p|
+              -if p == @current_page
+                %li.uk-active
+                  %span
+                    #{p}
               -else
-                %a{:href=>"/masters/#{@showmastersinlocation}/?page=1"} 1
-            %li
-              %span ...
-          -@pagination.each do |p|
-            -if p == @current_page
-              %li.uk-active
-                %span
-                  #{p}
-            -else
-              -if !@showmastersinlocation
-                %a{:href=>"/masters?page=#{p}"} #{p}
-              -else
-                %a{:href=>"/masters/#{@showmastersinlocation}/?page=#{p}"} #{p}
-          -if @end_page < @total_pages
-            %li
-              %span ...
-            %li
-              -if !@showmastersinlocation
-                %a{:href=>"/masters?page=#{@total_pages}"} #{@total_pages}
-              -else
-                %a{:href=>"/masters/#{@showmastersinlocation}/?page=#{@total_pages}"} #{@total_pages}
+                %li
+                  -if @showmastersinlocation.to_s.size == 0
+                    %a{:href=>"/masters?page=#{p}"} #{p}
+                  -else
+                    %a{:href=>"/masters/#{@showmastersinlocation}/?page=#{p}"} #{p}
+            -if @end_page < @total_pages
+              %li
+                %span ...
+              %li
+                -if @showmastersinlocation.to_s.size == 0
+                  %a{:href=>"/masters?page=#{@total_pages}"} #{@total_pages}
+                -else
+                  %a{:href=>"/masters/#{@showmastersinlocation}/?page=#{@total_pages}"} #{@total_pages}
       -else
         .uk-alert.uk-alert-danger.uk-margin-top{"data-uk-alert"=>""}
           %a.uk-alert-close.uk-close{:href=>""}
