@@ -5,4 +5,5 @@ Disallow: /ajax
 Disallow: /neworder
 Disallow: /resetpass
 Disallow: /profile
+Disallow: /system
 Allow: /

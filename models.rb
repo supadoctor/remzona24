@@ -334,7 +334,7 @@ class Offer
   include DataMapper::Resource
 
   property :id, Serial
-  property :unread, Boolean
+  property :unread, Boolean, :default  => true
   property :subject, Text, :required => true,
     :messages => {
       :presence => "Введите описание предложения",
@@ -348,7 +348,7 @@ class Offer
   property :nodetails, Integer
   property :fd, DateTime
   property :td, DateTime
-  property :status, Integer   #0 - active; 1-overdue; 2-wait for contractor's accept; 3- acceptwork; 4-refused by contractor
+  property :status, Integer   #0 - active; 1-overdue; 2-wait for contractor's accept; 3- acceptwork; 4-refused by contractor; 5-refused by customer
   
   has n, :messages
   belongs_to :order

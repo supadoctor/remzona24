@@ -216,6 +216,8 @@
               %header.uk-comment-header
                 %img.uk-comment-avatar{:src => User.get(o.user_id).avatar.avatar64.url}
                 %h5.uk-comment-title
+                  - if @order.user == current_user && o.unread
+                    .uk-badge.uk-badge-warning Новое
                   %a{:href=>"/offer/"+o.id.to_s}
                     Предложение №
                     #{o.id}
@@ -230,6 +232,8 @@
                   Статус:
                   - if o.status == 1 || o.status == 4
                     .uk-text-bold.uk-text-danger.uk-display-inline-block отозвано
+                  - elsif o.status == 5
+                    .uk-text-bold.uk-text-danger.uk-display-inline-block отклонено
                   - else
                     .uk-text-bold.uk-text-success.uk-display-inline-block действительно
                     - if o.fd != o.td
@@ -248,6 +252,10 @@
                           %h3.uk-margin-bottom-remove Бюджет:
                         %td
                           #{rur o.budget}
+                .uk-align-right.uk-text-small.uk-margin-bottom-remove
+                  %a{:href=>"/offer/#{o.id}"}
+                    Подробнее
+                    %i.uk-icon-angle-double-right
       - elsif !@order.contract
         .uk-alert.uk-alert-danger{"data-uk-alert"=>""}
           %a.uk-alert-close.uk-close{:href=>""}

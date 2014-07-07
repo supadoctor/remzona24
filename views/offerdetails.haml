@@ -37,6 +37,8 @@
                   .uk-text-bold.uk-text-warning Необходимо подтверждение исполнителя
                 - elsif @offer.status == 4
                   .uk-text-bold.uk-text-danger Отозвано исполнителем
+                - elsif @offer.status == 5
+                  .uk-text-bold.uk-text-danger Отклонено заказчиком
                 - elsif @offer.status == 3
                   .uk-text-bold.uk-text-success Подтверждено исполнителем
           - if User.get(@offer.user_id).type == "Master"
@@ -114,23 +116,39 @@
                 Обсудить (#{@questionsnumber})
         -if Order.get(@offer.order_id).user == @current_user
           -if @offer.status == 0
-            %form.uk-form{:action=>"/offer/#{@offer.id}/startwork", :method=>"post"}
-              %button.uk-button.uk-button-large.uk-button-success.uk-align-center.uk-margin-top{:type=>"submit"} Принимаю предложение
-              .uk-text-center
-                %a#infolink{:href=>"#", :style => "text-decoration: none !important; border-bottom: 1px dashed !important;"}
-                  %i#arrowdown.uk-icon-long-arrow-down
-                  %i#arrowup.uk-icon-long-arrow-up{:style => "display: none;"}
-                  Информация для исполнителя
-              #info.uk-margin-top{:style => "display: none;"}
-                .uk-form-row
-                  %label.uk-form-label{:for=>"message"}
-                    %h3 Дополнительная информация для исполнителя
-                  .uk-form-controls
-                    %textarea#message.uk-width-1-1{:type=>"text", :name=>"message", :rows=>"6"}
-              %p.uk-text-small
-                Принимая предложение, вы соглашаетесь с условиями, приведенными в нем, и подтверждаете свое намерение заказать работы, указанные в 
-                %a{:href=>"/order/#{@offer.order_id}"}
-                  исходной заявке
+            .uk-text-center
+              %a#acceptcustomerlink{:href=>"#", :style => "text-decoration: none !important; border-bottom: 1px dashed !important;"}
+                %i#acceptarrowdown.uk-icon-long-arrow-down
+                %i#acceptarrowup.uk-icon-long-arrow-up{:style => "display: none;"}
+                Принять предложение
+              #acceptcustomer.uk-margin-top{:style => "display: none;"}
+                %form.uk-form{:action=>"/offer/#{@offer.id}/startwork", :method=>"post"}
+                  Дополнительная информация для исполнителя
+                  #info.uk-margin-top
+                    .uk-form-row
+                      .uk-form-controls
+                        %textarea#message.uk-width-1-1{:type=>"text", :name=>"message", :rows=>"3"}
+                  %button.uk-button.uk-button-large.uk-button-success.uk-align-center.uk-margin-top{:type=>"submit"}
+                    Принимаю предложение
+                %p.uk-text-small
+                  Принимая предложение, вы соглашаетесь с условиями, приведенными в нем, и подтверждаете свое намерение заказать работы, указанные в 
+                  %a{:href=>"/order/#{@offer.order_id}"}
+                    исходной заявке
+            .uk-text-center
+              %a#refusecustomerlink{:href=>"#", :style => "text-decoration: none !important; border-bottom: 1px dashed !important;"}
+                %i#refusearrowdown.uk-icon-long-arrow-down
+                %i#refusearrowup.uk-icon-long-arrow-up{:style => "display: none;"}
+                Отклонить предложение
+              #refusecustomer.uk-margin-top{:style => "display: none;"}
+                %form#refuseformcustomer.uk-form{:action=>"/offer/#{@offer.id}/refuseoffer", :method=>"post"}
+                  Дополнительная информация для мастера
+                  #info.uk-margin-top
+                    .uk-form-row
+                      .uk-form-controls{:style=>"margin-bottom:20px;"}
+                        %textarea#refusereason.uk-width-1-1{:type=>"text", :name=>"message", :rows=>"3"}
+                        %label.error.uk-text-small.uk-text-danger{:for=>"refusereason"}
+                  %button.uk-button.uk-button-large.uk-button-danger.uk-align-center.uk-margin-top{:type=>"submit"}
+                    Отклоняю предложение
         -if @offer.user == @current_user
           -if @offer.status == 2
             #accept
@@ -164,13 +182,21 @@
         $("#arrowdown").toggle();
         $("#arrowup").toggle();
       });
-      
-      $('#infolink').click(function() {
-        $("#info").toggle();
-        $("#arrowdown").toggle();
-        $("#arrowup").toggle();
+
+      $('#acceptcustomerlink').click(function() {
+        $("#refusecustomer").css("display","none");
+        $("#acceptcustomer").toggle();
+        $("#acceptarrowdown").toggle();
+        $("#acceptarrowup").toggle();
       });
-      
+
+      $('#refusecustomerlink').click(function() {
+        $("#refusecustomer").toggle();
+        $("#acceptcustomer").css("display","none");
+        $("#refusearrowdown").toggle();
+        $("#refusearrowup").toggle();
+      });
+
       var refusevalidator = $("#refuseform").validate({
         debug: true,
         rules: {

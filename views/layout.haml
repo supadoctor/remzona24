@@ -26,6 +26,8 @@
     %script{:src=>"/js/jquery.cookie.js", :type=>"text/javascript"}
     %script{:src=>"//vk.com/js/api/openapi.js?112", :type=>"text/javascript" }
     %script{:src=>"//yandex.st/share/share.js", :type=>"text/javascript", :charset=>"utf-8"}
+    %script{:src=>"/js/jquery.viewport.mini.js", :type=>"text/javascript"}
+
     :javascript
       //  VK.init({apiId: 4370920, onlyWidgets: true});
       function displaynotify(txt) {
@@ -68,7 +70,7 @@
       })(document, window, "yandex_metrika_callbacks");
 
   %body
-    .uk-width-large-1-1{:style=>"min-height:100%; position:relative;"}
+    .uk-width-1-1{:style=>"min-height:100%; position:relative;"}
       .content{:style=>"padding: 0px 0px 450px;"}
         -if session[:messagetodisplay] && session[:messagetodisplay].size>0
           -session[:messagetodisplay].split("; ").each do |m|

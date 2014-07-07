@@ -61,7 +61,7 @@ class Remzona24App < Sinatra::Application
 #  }
 
   Pony.options = {
-    :from => 'РемЗона24.ру <noreply@remzona24.ru>',
+    :from => 'РемЗона24.ру <robot@remzona24.ru>',
     :charset => 'utf-8',
     :via => :sendmail
   }
@@ -340,7 +340,7 @@ class Remzona24App < Sinatra::Application
               haml_tag :i, :class=>"uk-icon-eye", :title=>"Просмотры"#, data: {"uk-tooltip": ""}
             end
             haml_tag :th, :class=>"uk-width-1-10 uk-text-center" do
-              haml_tag :i, :class=>"uk-icon-comments-o", :title=>"Предложения"#, data: {"uk-tooltip": ""}
+              haml_tag :i, :class=>"uk-icon-comment", :title=>"Предложения"#, data: {"uk-tooltip": ""}
             end
             haml_tag :th, :class=>"uk-width-1-10 uk-text-center" do
               haml_tag :i, :class=>"uk-icon-question-circle", :title=>"Обсуждения"#, data: {"uk-tooltip": ""}
@@ -373,7 +373,14 @@ class Remzona24App < Sinatra::Application
                 haml_concat o.views
               end
               haml_tag :td, :class=>"uk-text-center" do
-                haml_concat Offer.count(:order_id => o.id)
+                c = Offer.count(:order_id => o.id)
+                if c > 0
+                  haml_tag :div, :class=>"uk-badge uk-badge-warning" do
+                    haml_concat c
+                  end
+                else
+                  haml_concat c
+                end
               end
               haml_tag :td, :class=>"uk-text-center" do
                 haml_concat Message.count(:order_id => o.id) #, :sender.not => current_user)
@@ -382,6 +389,17 @@ class Remzona24App < Sinatra::Application
           end
         end
       end
+    end
+  end
+
+  def showoffercount(o)
+    c = Offer.count(:order_id => o.id)
+    if c > 0
+      haml_tag :div, :class=>"uk-badge uk-badge-warning" do
+        haml_concat c
+      end
+    else
+      haml_concat c
     end
   end
 
@@ -414,7 +432,7 @@ class Remzona24App < Sinatra::Application
               end
               haml_tag :td do
                 haml_tag :a, :href=>"/message/#{m.id}" do
-                  if !m.subject
+                  if m.subject.to_s.size == 0
                     case m.type
                     when "Offer"
                       haml_concat "Новое предложение"
@@ -554,7 +572,7 @@ class Remzona24App < Sinatra::Application
       showbrand = false
     end
     if showbrand
-      haml_tag :div, :class => "brand", :style => "background-position: -6px #{d}px;"
+      haml_tag :div, :class => "brand", :style => "background-position: -6px #{d-2}px;"
     end
   end
 
@@ -581,15 +599,13 @@ class Remzona24App < Sinatra::Application
       end
     else
       haml_tag :title do
-        haml_concat "Ремзона24.ру | Remzona24.ru : круглосуточный сервис, где можно найти автосервис и автомастерскую по ремонту авто и указать свои цены на авторемонт иномарки и отечественного автомобиля"
+        haml_concat "Ремзона24.ру | Remzona24.ru : ремонтная площадка №1 для вашего автомобиля! Бесплатно. Разместите заявку и выберите лучшее предложение от автомастеров, автосервисов или СТО. Найдите новые заказ наряды и новых клиентов и увеличьте свой доход!"
       end
     end
   end
 
-  set :spider do |enabled|
-    condition do
-      params.has_key?('_escaped_fragment_')
-    end
+  def current_timestamp
+    DateTime.now.to_time.to_i
   end
 
   end
@@ -958,7 +974,7 @@ end
             end
             @tags = @tags.join(", ")
             @myactiveoffers = Offer.all(:user => current_user, :order => [ :fd.desc ]) & (Offer.all(:status => 0, :order => [ :fd.desc ]) | Offer.all(:status => 2, :order => [ :fd.desc ]) | Offer.all(:status => 3, :order => [ :fd.desc ])) & (Offer.all(:conditions => ['fd = td'], :order => [ :fd.desc ]) | Offer.all(:td.gte => DateTime.now, :order => [ :fd.desc ]))
-            @myclosedoffers = Offer.all(:user => current_user, :order => [ :fd.desc ]) & (Offer.all(:status => 1, :order => [ :fd.desc ]) | Offer.all(:status => 4, :order => [ :fd.desc ]) | Offer.all(:conditions => ['fd <> td'], :td.lt => DateTime.now, :order => [ :fd.desc ]))
+            @myclosedoffers = Offer.all(:user => current_user, :order => [ :fd.desc ]) & (Offer.all(:status => 1, :order => [ :fd.desc ]) | Offer.all(:status => 4, :order => [ :fd.desc ]) | Offer.all(:status => 5, :order => [ :fd.desc ]) | Offer.all(:conditions => ['fd <> td'], :td.lt => DateTime.now, :order => [ :fd.desc ]))
             #@mypossibilities = Order.all(:status => 0, :placement => current_user.placement, :order => [ :fd.desc ], :limit => 10)
             @mypossibilities = repository(:default).adapter.select('select * from orders where id in (select order_id from ordertaggings where tag_id in (select id from tags where tag in (select tag from tags where id in (select tag_id from usertaggings where user_id = ?)))) and status = 0 and placement_id = ? order by fd desc limit 10;', current_user.id, current_user.placement_id)
             haml :masterprofile
@@ -1180,7 +1196,11 @@ end
   
   post '/setmap' do
     current_user
-    @current_user.update(:mapx => params[:mapx].to_f, :mapy => params[:mapy].to_f)
+    if params[:mapx].to_f > 0 && :params[:mapy].to_f > 0
+      @current_user.update(:mapx => params[:mapx].to_f, :mapy => params[:mapy].to_f)
+    else
+      session[:messagetodisplay] = @@text["notify"]["checkmap"]
+    end
     redirect back
   end
 
@@ -1467,7 +1487,7 @@ end
       redirect back
     end
     #email_msg = "Здравствуйте!\nПо вашей заявке (http://" + request.host + ":" + request.port.to_s + "/order/" + order.id.to_s + ") было размещено новое предложение. Ознакомиться с ним вы можете по этой ссылке: http://" + request.host + ":" + request.port.to_s + "/offer/" + offer.id.to_s + "\n--\nС уважением, РемЗона24.ру"
-    email_msg = @@text["email"]["newoffer"] + request.host + ":" + request.port.to_s + "/offer/" + offer.id.to_s + "\n\nССылка на исходную заявку: http://" + request.host + ":" + request.port.to_s + "/order/" + order.id.to_s + @@text["email"]["regards"]
+    email_msg = @@text["email"]["newoffer"] + request.host + ":" + request.port.to_s + "/offer/" + offer.id.to_s + "\n\nСсылка на исходную заявку: http://" + request.host + ":" + request.port.to_s + "/order/" + order.id.to_s + @@text["email"]["regards"]
     if get_settings(order.user, "sendmessagestoemail")
       Pony.mail(:to => order.user.email, :subject => 'Вы получили новое предложение на РемЗона24.ру', :body => email_msg)
     end
@@ -1779,7 +1799,6 @@ end
       if @offer.fd != @offer.td && @offer.td < DateTime.now && @offer.status == 0
         @offer.update(:status => 1)
       end
-      @offer.update(:unread => false)
     rescue
       session[:messagetodisplay] = @@text["notify"]["nooffer"]
       redirect back
@@ -1789,15 +1808,16 @@ end
         redirect back
       end  
     end
-    @order = Order.get(@offer.order_id)
-
-    @description = @offer.subject + " " + fulllocation(@offer.user)
-    @tags = @order.tags.all.map(&:tag).join(', ')
-
     if !logged_in?
       session[:messagetodisplay] = @@text["notify"]["plsloginforoffer"]
       redirect back
     else
+      @order = Order.get(@offer.order_id)
+      if @order.user == current_user
+        @offer.update(:unread => false)
+      end
+      @description = @offer.subject + " " + fulllocation(@offer.user)
+      @tags = @order.tags.all.map(&:tag).join(', ')
       haml :navbarafterlogin do
         #@questionsnumber = Message.count(:offer_id => params[:id].to_i, :type => "Question")
         @questionsnumber = Message.count(:offer_id => params[:id].to_i)
@@ -1915,7 +1935,7 @@ end
       if params[:message] && params[:message].size>0
         int_msg += "<br/><br/><mark>Дополнительная информация от заказчика:</mark><br/><blockquote>" + h(params[:message]) + "</blockquote>"
       end
-      @message = Message.new(:unread => true, :date => DateTime.now, :text => int_msg, :sender => User.get(1), :receiver => @offer.user, :type => "Request", :offer => @offer, :order => @order)
+      @message = Message.new(:unread => true, :date => DateTime.now, :text => int_msg, :sender => User.get(1), :receiver => @offer.user, :type => "Accept", :subject => nil)
       begin
         @message.save
       rescue
@@ -1931,6 +1951,61 @@ end
         Pony.mail(:to => @offer.user.email, :subject => 'Ваше предложение было принято на РемЗона24.ру', :body => email_msg)
       end
       session[:messagetodisplay] = @@text["notify"]["acceptoffer"]
+      redirect 'profile'
+      #rescue
+      #  session[:messagetodisplay] = @contract.errors.values.join("; ")
+      #  redirect back
+      #end
+    end
+  end
+
+  post '/offer/:offer/refuseoffer' do
+    begin
+      @offer = Offer.get(params[:offer].to_i)
+      if @offer.status != 0
+        session[:messagetodisplay] = @@text["notify"]["nooffer"]
+        redirect '/'
+      end
+    rescue
+      session[:messagetodisplay] = @@text["notify"]["nooffer"]
+      redirect '/'
+    ensure
+      if @offer.nil?
+        session[:messagetodisplay] = @@text["notify"]["nooffer"]
+        redirect '/'
+      end
+    end
+    if !logged_in? || User.get(Order.get(@offer.order_id).user_id) != current_user
+      redirect '/'
+    else
+      if @offer.status != 0
+        session[:messagetodisplay] = @@text["notify"]["invalidoffer"]
+        redirect back
+      end
+      @offer.update(:status => 5)
+      @order = Order.get(@offer.order_id)
+      #@order.update(:status => 3)
+      int_msg = "Здравствуйте!<br/>Ваше предложение было отклонено."
+      int_msg += "<br/>--<br/>С уважением, РемЗона24.ру"
+      if params[:message] && params[:message].size>0
+        int_msg += "<br/><br/><mark>Дополнительная информация от заказчика:</mark><br/><blockquote>" + h(params[:message]) + "</blockquote>"
+      end
+      @message = Message.new(:unread => true, :date => DateTime.now, :text => int_msg, :sender => User.get(1), :receiver => @offer.user, :type => "Refuse", :subject => nil)
+      begin
+        @message.save
+      rescue
+        session[:messagetodisplay] = @message.errors.values.join("; ")
+        redirect back
+      end
+      email_msg = @@text["email"]["customerrefuseoffer"]
+      if params[:message] && params[:message].size>0
+        email_msg += "\nДополнительная информация от заказчика:\n" + params[:message]
+      end
+      email_msg += @@text["email"]["regards"]
+      if get_settings(@offer.user, "sendmessagestoemail")
+        Pony.mail(:to => @offer.user.email, :subject => 'Ваше предложение было отклонено на РемЗона24.ру', :body => email_msg)
+      end
+      session[:messagetodisplay] = @@text["notify"]["customerrefuseoffer"]
       redirect 'profile'
       #rescue
       #  session[:messagetodisplay] = @contract.errors.values.join("; ")
@@ -1975,14 +2050,14 @@ end
       @order.update(:status => 1)
       int_msg = "Здравствуйте!<br/>Предложение было подтверждено исполнителем."
       int_msg += "<br/>--<br/>С уважением, РемЗона24.ру"
-      @message = Message.new(:unread => true, :date => DateTime.now, :text => int_msg, :sender => User.get(1), :receiver => @order.user, :type => "Accept", :offer => @offer, :order => @order)
+      @message = Message.new(:unread => true, :date => DateTime.now, :text => int_msg, :sender => User.get(1), :receiver => @order.user, :type => "Accept", :subject => nil)
       begin
         @message.save
       rescue
         session[:messagetodisplay] = @message.errors.values.join("; ")
         redirect back
       end
-      email_msg = @@text["email"]["confirmoffer"] + request.host + ":" + request.port.to_s + "/user/" + @offer.user_id
+      email_msg = @@text["email"]["confirmoffer"] + request.host + ":" + request.port.to_s + "/user/" + @offer.user_id.to_s
       email_msg += @@text["email"]["regards"]
       if get_settings(@order.user, "sendmessagestoemail")
         Pony.mail(:to => @order.user.email, :subject => 'Потверждение начала работ на РемЗона24.ру', :body => email_msg)
@@ -2022,7 +2097,7 @@ end
       int_msg += "<br/><mark>Причина отзыва, указанная исполнителем:</mark><br/>"
       int_msg += "<blockquote>" + h(params[:refusereason]) + "</blockquote>"
       int_msg += "<br/>--<br/>С уважением, РемЗона24.ру"
-      @message = Message.new(:unread => true, :date => DateTime.now, :text => int_msg, :sender => User.get(1), :receiver => @order.user, :type => "Refuse", :offer => @offer, :order => @order)
+      @message = Message.new(:unread => true, :date => DateTime.now, :text => int_msg, :sender => User.get(1), :receiver => @order.user, :type => "Refuse", :subject => nil)
       begin
         @message.save
       rescue
@@ -2385,6 +2460,26 @@ end
       redirect '/'
     end
   end
-end
 
+
+  get '/system/cron' do
+    #Send notifications about unread offers
+    unreadoffers = Offer.all(:fields => [:id, :order_id], :unread =>true, :unique => true, :order => [:order_id.asc])
+    unreadoffers.each do |o|
+      order = Order.get(o.order_id)
+      @email = User.get(order.user_id).email
+      email_msg = @@text["email"]["youhaveunreadoffers"] + "http://" + request.host + ":" + request.port.to_s + "/offer/" + o.id.to_s
+      email_msg += "\n\nСсылка на исходную заявку: http://" + request.host + ":" + request.port.to_s + "/order/" + order.id.to_s + @@text["email"]["regards"]
+      if get_settings(order.user, "sendmessagestoemail")
+        Pony.mail(:to => @email, :subject => 'По вашей заявке есть предложение, с которым вы еще не ознакомились', :body => email_msg)
+        puts "Отправлено сообщение о непрочитанном предложении на адрес: ", @email
+      end
+    end
+  end
+
+  get '/system/checkemail' do
+    Pony.mail(:to => 'sergey.rodionov@gmail.com', :subject => 'Тестовое письмо от Ремзона.24', :body => "Ремзона24.ру работает по адресу: "+request.host + ":" + request.port.to_s)
+  end
+
+end
 #Remzona24App.run!
