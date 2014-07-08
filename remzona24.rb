@@ -2050,6 +2050,9 @@ end
       @order.update(:status => 1)
       int_msg = "Здравствуйте!<br/>Предложение было подтверждено исполнителем."
       int_msg += "<br/>--<br/>С уважением, РемЗона24.ру"
+      if params[:message] && params[:message].size>0
+        int_msg += "<br/><br/><mark>Дополнительная информация от исполнителя:</mark><br/><blockquote>" + h(params[:message]) + "</blockquote>"
+      end
       @message = Message.new(:unread => true, :date => DateTime.now, :text => int_msg, :sender => User.get(1), :receiver => @order.user, :type => "Accept", :subject => nil)
       begin
         @message.save
@@ -2058,6 +2061,9 @@ end
         redirect back
       end
       email_msg = @@text["email"]["confirmoffer"] + request.host + ":" + request.port.to_s + "/user/" + @offer.user_id.to_s
+      if params[:message] && params[:message].size>0
+        email_msg += "\nДополнительная информация от исполнителя:\n" + params[:message]
+      end
       email_msg += @@text["email"]["regards"]
       if get_settings(@order.user, "sendmessagestoemail")
         Pony.mail(:to => @order.user.email, :subject => 'Потверждение начала работ на РемЗона24.ру', :body => email_msg)

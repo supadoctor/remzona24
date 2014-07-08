@@ -124,6 +124,7 @@
               #acceptcustomer.uk-margin-top{:style => "display: none;"}
                 %form.uk-form{:action=>"/offer/#{@offer.id}/startwork", :method=>"post"}
                   Дополнительная информация для исполнителя
+                  %i.uk-icon-question-circle{"data-uk-tooltip" => "", :title => "Здесь вы можете сообщить исполнителю дополнительную информацию. Например, ваш контактный телефон или информацию о времени приезда и т.п."}
                   #info.uk-margin-top
                     .uk-form-row
                       .uk-form-controls
@@ -141,7 +142,8 @@
                 Отклонить предложение
               #refusecustomer.uk-margin-top{:style => "display: none;"}
                 %form#refuseformcustomer.uk-form{:action=>"/offer/#{@offer.id}/refuseoffer", :method=>"post"}
-                  Дополнительная информация для мастера
+                  Дополнительная информация для исполнителя
+                  %i.uk-icon-question-circle{"data-uk-tooltip" => "", :title => "Необязательное для заполнение поле. Сюда вы можете указать причины отклонения предложения"}
                   #info.uk-margin-top
                     .uk-form-row
                       .uk-form-controls{:style=>"margin-bottom:20px;"}
@@ -151,10 +153,16 @@
                     Отклоняю предложение
         -if @offer.user == @current_user
           -if @offer.status == 2
-            #accept
-              %form.uk-form.uk-form-horizontal{:action=>"/offer/#{@offer.id}/acceptwork", :method=>"post"}
+            #accept.uk-text-center
+              %form.uk-form{:action=>"/offer/#{@offer.id}/acceptwork", :method=>"post"}
+                Дополнительная информация для заказчика
+                %i.uk-icon-question-circle{"data-uk-tooltip" => "", :title => "Здесь вы можете сообщить заказчику дополнительную информацию. Например, ваш контактный телефон или информацию о времени приезда и т.п."}
+                #info.uk-margin-top
+                  .uk-form-row
+                    .uk-form-controls
+                      %textarea#message.uk-width-1-1{:type=>"text", :name=>"message", :rows=>"3"}
                 %button.uk-button.uk-button-large.uk-button-success.uk-align-center.uk-margin-top{:type=>"submit"} Подтверждаю предложение
-              %p.uk-text-small.uk-text-center
+              %p.uk-text-small
                 Подтвердждая предложение, вы соглашаетесь выполнить работы, указанные в нем
             .uk-text-center
               %a#refuselink{:href=>"#", :style => "text-decoration: none !important; border-bottom: 1px dashed !important;"}
@@ -167,7 +175,7 @@
                   %label.uk-form-label{:for=>"message"}
                     %h3 Причина отказа
                   .uk-form-controls{:style=>"margin-bottom:20px;"}
-                    %textarea#refusereason.uk-width-1-1{:type=>"text", :name=>"refusereason", :rows=>"6"}
+                    %textarea#refusereason.uk-width-1-1{:type=>"text", :name=>"refusereason", :rows=>"3"}
                     %br
                     %label.error.uk-text-small.uk-text-danger{:for=>"refusereason"}
                   %button.uk-button.uk-button-large.uk-button-danger.uk-align-center.uk-margin-top{:type=>"submit"}

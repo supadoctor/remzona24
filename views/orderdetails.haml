@@ -269,7 +269,7 @@
             %a{:href=>"#login", "data-uk-modal"=>"{bgclose:false}"}
               %strong войдите
             %strong в систему.
-      - if @order.contract && logged_in? && !@order.contract.review && !@alreadyreviewed
+      - if @order.contract && @order.user == current_user && !@order.contract.review && !@alreadyreviewed
         -if @current_user.type == "User"
           %h1#review.uk-text-right Оцените работу исполнителя
         -else
