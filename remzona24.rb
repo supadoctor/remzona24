@@ -665,16 +665,7 @@ class Remzona24App < Sinatra::Application
         session[:siteregionplaceholder] = "Россия"
       end
       haml :navbarbeforelogin do
-        if session[:showmainpage]
-          haml :index, :layout => :promo
-        else
-          session[:showmainpage] = true
-          if params[:key]
-            redirect '/promo4users?key='+params[:key]
-          else
-            redirect '/promo4users'
-          end
-        end
+        haml :index, :layout => :promo
       end
     else
       #puts "ПОСЛЕ АУТЕНТИФИКАЦИИ"
@@ -773,7 +764,7 @@ end
         @mastersbylocation.merge!(fullplace => count)
       end
     end
-    puts @mastersbylocation.size
+    #puts @mastersbylocation.size
     if !logged_in?
       haml :navbarbeforelogin do
         haml :mastersmap
@@ -2467,10 +2458,9 @@ end
     end
   end
 
-
   get '/system/cron' do
     #Send notifications about unread offers
-    unreadoffers = Offer.all(:fields => [:id, :order_id], :unread =>true, :unique => true, :order => [:order_id.asc])
+    unreadoffers = Offer.all(:fields => [:id, :order_id], :unread =>true, :unique => true, :order => [:order_id.asc], :fd.gte => DateTime.now-7)
     unreadoffers.each do |o|
       order = Order.get(o.order_id)
       @email = User.get(order.user_id).email
@@ -2479,6 +2469,28 @@ end
       if get_settings(order.user, "sendmessagestoemail")
         Pony.mail(:to => @email, :subject => 'По вашей заявке есть предложение, с которым вы еще не ознакомились', :body => email_msg)
         puts "Отправлено сообщение о непрочитанном предложении на адрес: ", @email
+      end
+    end
+
+    #Send notifications about new orders
+    @allmasters = User.all(:status => 0, :type => "Master")
+    @allmasters.each do |m|
+      if get_settings(m, "sendmessagestoemail")
+        allorders = Order.all(:status => 0, :placement_id => m.placement_id, :order => [ :fd.desc ]) & (Order.all(:fd.gte => DateTime.now-7, :order => [ :fd.desc ]))
+        if allorders.count > 0
+          email_msg = "Здравствуйте, " + m.displayedname + "!\nЗа прошедшую неделю в вашем регионе были добавлены следующие новые заказ наряды:\n"
+          allorders.each do |o|
+            email_msg += "\nАвтомобиль: " + vehicleinfo(o)
+            email_msg += "\nОписание: " + o.subject
+            email_msg += "\nПодробнее: http://" + request.host + ":" + request.port.to_s + "/order/" + o.id.to_s
+            email_msg += "\n"
+          end
+          email_msg += "\nПодайте свое предложение первым из автомастеров!"
+          email_msg += @@text["email"]["regards"]
+          #Pony.mail(:to => m.email, :subject => 'Новые заказ наряды в вашем регионе на Ремзона24.ру ', :body => email_msg)
+          puts email_msg
+          puts "Отправлено сообщение о новых заявках на адрес: ", m.email
+        end
       end
     end
   end
