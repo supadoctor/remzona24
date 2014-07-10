@@ -779,15 +779,13 @@ end
   get '/region/:region' do
     @activelink = '/region'
     if params[:page].nil?
-      @offset = 0
       @current_page = 1
     else
-      @offset = params[:page].to_i*10
       @current_page = params[:page].to_i
     end
-    #@orders_at_mainpage = Order.all(:placement => {:region => params[:region]}, :status => 0, :order => [ :fd.desc ]) & (Order.all(:conditions => ['fd = td'], :order => [ :fd.desc ]) | Order.all(:td.gte => DateTime.now, :order => [ :fd.desc ]))
-    @orders_at_mainpage = Order.all(:placement => {:region => params[:region]}, :status => 0, :order => [ :fd.desc ]) & (Order.all(:conditions => ['fd = td'], :order => [ :fd.desc ]) | Order.all(:td.gte => DateTime.now, :order => [ :fd.desc ])).paginate(:page => params[:page], :per_page => 10)
-    @orders_at_mainpage_total = @orders_at_mainpage.count
+    @orders_at_mainpage_total = (Order.all(:placement => {:region => params[:region]}, :status => 0, :order => [ :fd.desc ]) & (Order.all(:conditions => ['fd = td'], :order => [ :fd.desc ]) | Order.all(:td.gte => DateTime.now, :order => [ :fd.desc ]))).count
+    @orders_at_mainpage = (Order.all(:placement => {:region => params[:region]}, :status => 0, :order => [ :fd.desc ]) & (Order.all(:conditions => ['fd = td'], :order => [ :fd.desc ]) | Order.all(:td.gte => DateTime.now, :order => [ :fd.desc ]))).paginate(:page => params[:page], :per_page => 10)
+
     @total_pages = (@orders_at_mainpage_total/10.0).ceil
     @start_page  = (@current_page - 5) > 0 ? (@current_page - 5) : 1
     @end_page = @start_page + 10
@@ -810,15 +808,13 @@ end
   get '/area/:area' do
     @activelink = '/area'
     if params[:page].nil?
-      @offset = 0
       @current_page = 1
     else
-      @offset = params[:page].to_i*10
       @current_page = params[:page].to_i
     end
-    #@orders_at_mainpage = Order.all(:placement => {:area => params[:area]}, :status => 0, :order => [ :fd.desc ]) & (Order.all(:conditions => ['fd = td'], :order => [ :fd.desc ]) | Order.all(:td.gte => DateTime.now, :order => [ :fd.desc ]))
-    @orders_at_mainpage = Order.all(:placement => {:area => params[:area]}, :status => 0, :order => [ :fd.desc ]) & (Order.all(:conditions => ['fd = td'], :order => [ :fd.desc ]) | Order.all(:td.gte => DateTime.now, :order => [ :fd.desc ])).paginate(:page => params[:page], :per_page => 10)
-    @orders_at_mainpage_total = @orders_at_mainpage.count
+    @orders_at_mainpage_total = (Order.all(:placement => {:area => params[:area]}, :status => 0, :order => [ :fd.desc ]) & (Order.all(:conditions => ['fd = td'], :order => [ :fd.desc ]) | Order.all(:td.gte => DateTime.now, :order => [ :fd.desc ]))).count
+    @orders_at_mainpage = (Order.all(:placement => {:area => params[:area]}, :status => 0, :order => [ :fd.desc ]) & (Order.all(:conditions => ['fd = td'], :order => [ :fd.desc ]) | Order.all(:td.gte => DateTime.now, :order => [ :fd.desc ]))).paginate(:page => params[:page], :per_page => 10)
+
     @total_pages = (@orders_at_mainpage_total/10.0).ceil
     @start_page  = (@current_page - 5) > 0 ? (@current_page - 5) : 1
     @end_page = @start_page + 10
@@ -841,14 +837,13 @@ end
   get '/location/:location' do
     @activelink = '/location'
     if params[:page].nil?
-      @offset = 0
       @current_page = 1
     else
-      @offset = params[:page].to_i*10
       @current_page = params[:page].to_i
     end
-    @orders_at_mainpage = Order.all(:placement => {:location => params[:location]}, :status => 0, :order => [ :fd.desc ]) & (Order.all(:conditions => ['fd = td'], :order => [ :fd.desc ]) | Order.all(:td.gte => DateTime.now, :order => [ :fd.desc ]))
-    @orders_at_mainpage_total = @orders_at_mainpage.count
+    @orders_at_mainpage_total = (Order.all(:placement => {:location => params[:location]}, :status => 0, :order => [ :fd.desc ]) & (Order.all(:conditions => ['fd = td'], :order => [ :fd.desc ]) | Order.all(:td.gte => DateTime.now, :order => [ :fd.desc ]))).count
+    @orders_at_mainpage = (Order.all(:placement => {:location => params[:location]}, :status => 0, :order => [ :fd.desc ]) & (Order.all(:conditions => ['fd = td'], :order => [ :fd.desc ]) | Order.all(:td.gte => DateTime.now, :order => [ :fd.desc ]))).paginate(:page => params[:page], :per_page => 10)
+
     @total_pages = (@orders_at_mainpage_total/10.0).ceil
     @start_page  = (@current_page - 5) > 0 ? (@current_page - 5) : 1
     @end_page = @start_page + 10
@@ -2487,8 +2482,8 @@ end
           end
           email_msg += "\nПодайте свое предложение первым из автомастеров!"
           email_msg += @@text["email"]["regards"]
-          #Pony.mail(:to => m.email, :subject => 'Новые заказ наряды в вашем регионе на Ремзона24.ру ', :body => email_msg)
-          puts email_msg
+          Pony.mail(:to => m.email, :subject => 'Новые заказ наряды в вашем регионе на Ремзона24.ру ', :body => email_msg)
+          #puts email_msg
           puts "Отправлено сообщение о новых заявках на адрес: ", m.email
         end
       end
