@@ -38,7 +38,8 @@ html {
 
 body {
   /* background: #FFE4B5; */
-  background: #f8f8ff;
+  /* background: #f8f8ff; */
+  background: transparent url('/img/noise_pattern.png') repeat 0 0;
   font-family: 'PT Serif', serif;
 }
 
@@ -111,6 +112,7 @@ h6 {
 .uk-form input[type="tel"],
 .uk-form input[type="color"] {
   border-radius: 0px;
+  border-color: #CCCCCC;
 }
 
 .uk-form select:focus,
@@ -163,6 +165,24 @@ h6 {
     display: inline-block;
     vertical-align: middle;
     background: url('/img/brands.png') no-repeat;
+}
+
+.uk-panel {
+    border-color: #CCCCCC;
+}
+
+.orderatmainpage {
+    margin-bottom: 30px;
+    -webkit-transition: 0.5s background ease-in-out, 0.25s top ease-in-out, 0.5s box-shadow ease-in-out;
+    transition: 0.5s background ease-in-out, 0.25s top ease-in-out, 0.5s box-shadow ease-in-out;
+}
+
+.orderatmainpage:hover {
+    /*background: url('/img/spareparts.png');*/
+    background: #FFCC99;
+    box-shadow: 10px 10px 10px -10px;
+    border: 1px solid #AAAAAA;
+    /*left: -10px;*/
 }
 
 /*

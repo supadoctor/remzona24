@@ -2,7 +2,7 @@
 .uk-width-1-1
   .uk-container-center.uk-vertical-align{:style=>"height: 50vh;"}
     .uk-vertical-align-middle.uk-width-1-1
-      %h1.uk-text-center Добро пожаловать на Ремзона24.ру - круглосуточную ремонтную зону!
+      %h1.uk-text-center Добро пожаловать на Ремзона24.ру - ремзону №1 для вашего автомобиля!
       .uk-width-1-1
         .uk-text-center.uk-margin-bottom
           %a.uk-button.uk-button-success.uk-button-large{:href=>"#express", "data-uk-smooth-scroll"=>"", :style=>"border-radius: 10px;"}
@@ -213,12 +213,11 @@
       %br
 .bg-img.bg-img-fixed{:style=>"background-image: url('/img/homepage/autorepair.jpg'); height: 70vh;"}
 .uk-container.uk-container-center
-  .ul-grid
-    #orders.uk-width-2-3.uk-container-center
-      %br
-      .uk-text-center
-        %h2 Недавно добавленные заказы наряды на ремонт автомобилей
-      %br
+  #orders
+  -#
+    %br
+    .uk-text-center
+      %h2 Недавно добавленные заказы наряды на ремонт автомобилей
 =yield
 :javascript
   $(function() {

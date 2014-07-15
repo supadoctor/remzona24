@@ -61,7 +61,7 @@ class Remzona24App < Sinatra::Application
 #  }
 
   Pony.options = {
-    :from => 'РемЗона24.ру <robot@remzona24.ru>',
+    :from => 'Ремзона24.ру <robot@remzona24.ru>',
     :charset => 'utf-8',
     :via => :sendmail
   }
@@ -604,6 +604,46 @@ class Remzona24App < Sinatra::Application
     end
   end
 
+  def showlastmasters
+    o = User.all(:type => "Master").count - 3
+    lastmasters = User.all(:type => "Master", :offset => o, :limit => 3)
+    lastmasters.reverse_each do |m|
+      haml_tag :div, :class => "uk-panel-box uk-margin-bottom" do
+        haml_tag :div, :class => "uk-grid" do
+          haml_tag :div, :class => "uk-width-1-3" do
+            if m.avatar.present?
+              haml_tag :img, :src => m.avatar.avatar64.url
+            else
+              haml_tag :img, :src => "/no_avatar64.gif"
+            end
+          end
+          haml_tag :div, :class => "uk-width-2-3" do
+            haml_tag :h3, m.displayedname
+          end
+          haml_tag :div, :class => "uk-width-1-1 uk-text-left" do
+            haml_tag :dl, :class =>"uk-description-list uk-description-list-horizontal" do
+              haml_tag :dt, "Расположение:"
+              haml_tag :dd, fulllocation(m)
+              if m.description.to_s.size > 0
+                haml_tag :dt, "Описание:"
+                haml_tag :dd, m.description
+              end
+              haml_tag :dt, "На сайте с:"
+              haml_tag :dd,  m.created_at.strftime("%d.%m.%Y")
+            end
+          end
+          haml_tag :div, :class => "uk-align-right uk-text-small uk-margin-bottom-remove" do
+            haml_tag :a, :href => "/user/#{m.id}" do
+              haml_concat "Подробнее"
+              haml_tag :i, :class => "uk-icon-angle-double-right"
+            end
+          end
+        end
+      end
+    end
+  end
+
+
   def current_timestamp
     DateTime.now.to_time.to_i
   end
@@ -887,6 +927,7 @@ end
       :placement => placement,
       :status => 0,
       :adstatus => 0,
+      :avatar => File.open("public/no_avatar.gif"),
       :profile => Profile.new(:showemail => true, :showphone => true, :sendmessagestoemail => true))
     begin
       user.save
@@ -927,6 +968,7 @@ end
       :placement => placement,
       :status => 0,
       :adstatus => 0,
+      :avatar => File.open("public/no_avatar.gif"),
       :profile => Profile.new(:showemail => true, :showphone => true, :sendmessagestoemail => true))
     begin
       user.save
@@ -2224,6 +2266,7 @@ end
     )
     begin
       @message.save
+      Pony.mail(:to => 'sergey.rodionov@gmail.com', :subject => 'Запрос поддержки на РемЗона24.ру', :body => 'Вам был направлен новый запрос на поддержку')
       session[:messagetodisplay] = @@text["notify"]["messagesent"]
     rescue
       session[:messagetodisplay] = @message.errors.values.join("; ")

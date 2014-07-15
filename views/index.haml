@@ -1,149 +1,157 @@
 .uk-container.uk-container-center
-  .uk-panel
-    %ul.uk-breadcrumb.uk-margin-top
-      -if @activelink == '/'
-        %li.uk-active
-          %span Россия
-      -else
-        %li
-          %a{:href=>"/#orders"} Россия
-      -if session[:siteregion] && session[:siteregion].size > 0
-        -if @activelink == '/region'
+  .uk-grid.uk-margin-large-top
+    .uk-panel.uk-width-2-3#lastorders
+      .uk-text-center
+        %h2 Недавно добавленные заказы наряды на ремонт автомобилей
+      %ul.uk-breadcrumb.uk-margin-top
+        -if @activelink == '/'
           %li.uk-active
-            %span #{session[:siteregion]}
+            %span Россия
         -else
           %li
-            %a{:href=>"/region/"+session[:siteregion]+'#orders'} #{session[:siteregion]}
-      -if session[:sitearea] && session[:sitearea].size > 0
-        -if @activelink == '/area'
-          %li.uk-active
-            %span #{session[:sitearea]}
-        -else
-          %li
-            %a{:href=>"/area/"+session[:sitearea]+"#orders"} #{session[:sitearea]}
-      -if session[:sitelocation] && session[:sitelocation].size > 0
-        -if @activelink == '/location'
-          %li.uk-active
-            %span #{session[:sitelocation]}
-        -else
-          %li
-            %a{:href=>"/location/"+session[:sitelocation]+"#orders"} #{session[:sitelocation]}
-    -if @orders_at_mainpage && @orders_at_mainpage.size > 0
-      -@orders_at_mainpage.each do |order|
-        .uk-panel.uk-panel-box.order{:itemscope=>"", :itemtype=>"http://schema.org/Thing", :style=>"box-shadow: 10px 10px 10px -10px; margin-bottom: 30px;"}
-          %h3.uk-display-inline
-            %a{:href=>"/order/"+order.id.to_s, "data-uk-tooltip"=>"", :title=>"Просмотреть детали заявки или предложить свои услуги по этой заявке"}
-              Заявка № #{order.id}
-              %span{:itemprop=>"name"} "#{order.title}"
-          -#
-            %h5.uk-display-inline
-            %i.uk-icon-eye{"data-uk-tooltip"=>"", :title=>"Просмотры"}
-            #{order.views}
-            %i.uk-icon-comment{"data-uk-tooltip"=>"", :title=>"Предложения"}
-            - showoffercount(order)
-          /%h3.uk-margin-top-remove #{order.title}
-          %table.uk-table.uk-table-condensed
-            %tbody
-              %tr
-                %td.uk-width-1-4
-                  %h4.uk-margin-bottom-remove Населенный пункт
-                %td.uk-width-3-4{:itemscope=>"", :itemtype=>"http://schema.org/PostalAddress"}
-                  %span{:itemprop=>"addressRegion"} #{fulllocation(order)}
-              %tr
-                %td.uk-width-1-4
-                  %h4.uk-margin-bottom-remove Автомобиль
-                %td.uk-width-3-4
-                  - brand(order.vehicle.make)
-                  %div{:style=>"display: inline-block; vertical-align: middle;"}
-                    #{vehicleinfo(order)}
-              -if order.tags.size > 0
+            %a{:href=>"/#orders"} Россия
+        -if session[:siteregion] && session[:siteregion].size > 0
+          -if @activelink == '/region'
+            %li.uk-active
+              %span #{session[:siteregion]}
+          -else
+            %li
+              %a{:href=>"/region/"+session[:siteregion]+'#orders'} #{session[:siteregion]}
+        -if session[:sitearea] && session[:sitearea].size > 0
+          -if @activelink == '/area'
+            %li.uk-active
+              %span #{session[:sitearea]}
+          -else
+            %li
+              %a{:href=>"/area/"+session[:sitearea]+"#orders"} #{session[:sitearea]}
+        -if session[:sitelocation] && session[:sitelocation].size > 0
+          -if @activelink == '/location'
+            %li.uk-active
+              %span #{session[:sitelocation]}
+          -else
+            %li
+              %a{:href=>"/location/"+session[:sitelocation]+"#orders"} #{session[:sitelocation]}
+      -if @orders_at_mainpage && @orders_at_mainpage.size > 0
+        -@orders_at_mainpage.each do |order|
+          .uk-panel.uk-panel-box.orderatmainpage{:itemscope=>"", :itemtype=>"http://schema.org/Thing"}
+            %h3.uk-display-inline
+              %a{:href=>"/order/#{order.id}", "data-uk-tooltip"=>"{pos:'bottom-left'}", :title=>"Просмотреть детали заявки или предложить свои услуги по этой заявке"}
+                Заявка № #{order.id}
+                %span{:itemprop=>"name"} "#{order.title}"
+            -#
+              %h5.uk-display-inline
+              %i.uk-icon-eye{"data-uk-tooltip"=>"", :title=>"Просмотры"}
+              #{order.views}
+              %i.uk-icon-comment{"data-uk-tooltip"=>"", :title=>"Предложения"}
+              - showoffercount(order)
+            /%h3.uk-margin-top-remove #{order.title}
+            %table.uk-table.uk-table-condensed
+              %tbody
                 %tr
                   %td.uk-width-1-4
-                    %h4.uk-margin-bottom-remove Ключевые слова
+                    %h4.uk-margin-bottom-remove Населенный пункт
+                  %td.uk-width-3-4{:itemscope=>"", :itemtype=>"http://schema.org/PostalAddress"}
+                    %span{:itemprop=>"addressRegion"} #{fulllocation(order)}
+                %tr
+                  %td.uk-width-1-4
+                    %h4.uk-margin-bottom-remove Автомобиль
                   %td.uk-width-3-4
-                    - order.tags.each do |t|
-                      %span.uk-badge #{t.tag}
-              %tr
-                %td.uk-width-1-4
-                  %h4.uk-margin-bottom-remove Описание
-                %td.uk-width-3-4
-                  %span{:itemprop=>"description"} #{order.subject}
-          .uk-align-right.uk-text-small.uk-margin-bottom-remove
-            | Просмотров: #{order.views}
-            | Предложений:
-            - showoffercount(order)
-            |
-            %a{:href=>"/order/#{order.id}"}
-              Подробнее
-              %i.uk-icon-angle-double-right
-            |
-        %br
-      -if !logged_in?
-        %h2.uk-text-center
-          Хотите получить заказ наряд?
-          %a{:href=>"#register", "data-uk-modal"=>"{bgclose:false}"} Зарегистрируйтесь
-          или
-          %a{:href=>"#login", "data-uk-modal"=>"{bgclose:false}"} войдите
-          в систему, что-бы подать предложение
-      %ul.uk-pagination
-        -if @pagination.max > 1
-          -if @start_page > 1
-            %li
-              -if @activelink == '/'
-                %a{:href=>"/?page=1#orders"} 1
-              -if session[:siteregion] && session[:siteregion].size > 0
-                -if @activelink == '/region'
-                  %a{:href=>"/region/"+session[:siteregion]+"?page=1#orders"} 1
-              -if session[:sitearea] && session[:sitearea].size > 0
-                -if @activelink == '/area'
-                  %a{:href=>"/area/"+session[:sitearea]+"?page=1#orders"} 1
-              -if session[:sitelocation] && session[:sitelocation].size > 0
-                -if @activelink == '/location'
-                  %a{:href=>"/location/"+session[:sitelocation]+"?page=1#orders"} 1
-            %li
-              %span ...
-          -@pagination.each do |p|
-            -if p == @current_page
-              %li.uk-active
-                %span
-                  #{p}
-            -else
+                    - brand(order.vehicle.make)
+                    %div{:style=>"display: inline-block; vertical-align: middle;"}
+                      #{vehicleinfo(order)}
+                -if order.tags.size > 0
+                  %tr
+                    %td.uk-width-1-4
+                      %h4.uk-margin-bottom-remove Ключевые слова
+                    %td.uk-width-3-4
+                      - order.tags.each do |t|
+                        %span.uk-badge #{t.tag}
+                %tr
+                  %td.uk-width-1-4
+                    %h4.uk-margin-bottom-remove Описание
+                  %td.uk-width-3-4
+                    %span{:itemprop=>"description"} #{order.subject}
+            .uk-align-right.uk-text-small.uk-margin-bottom-remove
+              | Просмотров: #{order.views}
+              | Предложений:
+              - showoffercount(order)
+              |
+              %a{:href=>"/order/#{order.id}"}
+                Подробнее
+                %i.uk-icon-angle-double-right
+              |
+          %br
+        -if !logged_in?
+          %h2.uk-text-center
+            Хотите получить заказ наряд?
+            %a{:href=>"#register", "data-uk-modal"=>"{bgclose:false}"} Зарегистрируйтесь
+            или
+            %a{:href=>"#login", "data-uk-modal"=>"{bgclose:false}"} войдите
+            в систему, что-бы подать предложение
+        %ul.uk-pagination
+          -if @pagination.max > 1
+            -if @start_page > 1
               %li
                 -if @activelink == '/'
-                  %a{:href=>"/?page=#{p}#orders"} #{p}
+                  %a{:href=>"/?page=1#orders"} 1
                 -if session[:siteregion] && session[:siteregion].size > 0
                   -if @activelink == '/region'
-                    %a{:href=>"/region/"+session[:siteregion]+"?page=#{p}#orders"} #{p}
+                    %a{:href=>"/region/"+session[:siteregion]+"?page=1#orders"} 1
                 -if session[:sitearea] && session[:sitearea].size > 0
                   -if @activelink == '/area'
-                    %a{:href=>"/area/"+session[:sitearea]+"?page=#{p}#orders"} #{p}
+                    %a{:href=>"/area/"+session[:sitearea]+"?page=1#orders"} 1
                 -if session[:sitelocation] && session[:sitelocation].size > 0
                   -if @activelink == '/location'
-                    %a{:href=>"/location/"+session[:sitelocation]+"?page=#{p}#orders"} #{p}
-          -if @end_page < @total_pages
-            %li
-              %span ...
-            %li
-              -if @activelink == '/'
-                %a{:href=>"/?page=#{@total_pages}#orders"} #{@total_pages}
-              -if session[:siteregion] && session[:siteregion].size > 0
-                -if @activelink == '/region'
-                  %a{:href=>"/region/"+session[:siteregion]+"?page=#{@total_pages}#orders"} #{@total_pages}
-              -if session[:sitearea] && session[:sitearea].size > 0
-                -if @activelink == '/area'
-                  %a{:href=>"/area/"+session[:sitearea]+"?page=#{@total_pages}#orders"} #{@total_pages}
-              -if session[:sitelocation] && session[:sitelocation].size > 0
-                -if @activelink == '/location'
-                  %a{:href=>"/location/"+session[:sitelocation]+"?page=#{@total_pages}#orders"} #{@total_pages}
-    -else
-      .uk-panel.uk-panel-box
-        %h3
-          Нет активных заказов наряов в выбранной территории
+                    %a{:href=>"/location/"+session[:sitelocation]+"?page=1#orders"} 1
+              %li
+                %span ...
+            -@pagination.each do |p|
+              -if p == @current_page
+                %li.uk-active
+                  %span
+                    #{p}
+              -else
+                %li
+                  -if @activelink == '/'
+                    %a{:href=>"/?page=#{p}#orders"} #{p}
+                  -if session[:siteregion] && session[:siteregion].size > 0
+                    -if @activelink == '/region'
+                      %a{:href=>"/region/"+session[:siteregion]+"?page=#{p}#orders"} #{p}
+                  -if session[:sitearea] && session[:sitearea].size > 0
+                    -if @activelink == '/area'
+                      %a{:href=>"/area/"+session[:sitearea]+"?page=#{p}#orders"} #{p}
+                  -if session[:sitelocation] && session[:sitelocation].size > 0
+                    -if @activelink == '/location'
+                      %a{:href=>"/location/"+session[:sitelocation]+"?page=#{p}#orders"} #{p}
+            -if @end_page < @total_pages
+              %li
+                %span ...
+              %li
+                -if @activelink == '/'
+                  %a{:href=>"/?page=#{@total_pages}#orders"} #{@total_pages}
+                -if session[:siteregion] && session[:siteregion].size > 0
+                  -if @activelink == '/region'
+                    %a{:href=>"/region/"+session[:siteregion]+"?page=#{@total_pages}#orders"} #{@total_pages}
+                -if session[:sitearea] && session[:sitearea].size > 0
+                  -if @activelink == '/area'
+                    %a{:href=>"/area/"+session[:sitearea]+"?page=#{@total_pages}#orders"} #{@total_pages}
+                -if session[:sitelocation] && session[:sitelocation].size > 0
+                  -if @activelink == '/location'
+                    %a{:href=>"/location/"+session[:sitelocation]+"?page=#{@total_pages}#orders"} #{@total_pages}
+      -else
+        .uk-panel.uk-panel-box
+          %h3
+            Нет активных заказов нарядов в выбранной территории
+    .uk-width-1-3
+      .uk-text-center
+        %h2{:style=>"margin-bottom: 50px;"} К нам присоединились
+        %div#lastmasters{"data-uk-sticky" => "{top:50, bottom:590}", :style=>"z-index: 1;"}
+          - showlastmasters
 .uk-container.uk-container-center
   .ul-grid
     .uk-panel
       %br
-      %h1.uk-h6 Ремозона24.ру – сервис «скорой помощи» для любого автолюбителя. Мы те, кто осуществляет двустороннюю помощь – владельцам авто и мастерам по ремонту – абсолютно БЕСПЛАТНО! Что обычно происходит, когда поломка транспорта застала врасплох? Вы начинаете искать визитки мастеров по ремонту, обзванивать знакомых в целях получения от них рекомендаций лучших специалистов или едете к ближайшему СТО, не зная, помогут ли вам в вашей проблеме. А что обычно делают мастера в автосервисах? Ждут, когда появится заказ. Ремзона 24 решила задачи обеих сторон. На нашем сайте найдут полезные функции как те, кому нужен ремонт автомобиля, так и те, кто его выполняет. Если вам нужен ремонт иномарки или транспорта отечественного производства, вам необходимо заполнить заявку на ремонт в своем Личном кабинете. Для этого кликните на соответствующее поле и заполните форму. Помните, чем больше информации вы предоставите о сложившейся ситуации с вашим авто, тем боле квалифицированную помощь сможете получить. Благодаря тому, что вы указываете марку и модель, вы сможете найти именно тех мастеров, которые занимаются их ремонтом и диагностикой. А написав в примечании желаемую цену, вам не придется торговаться или искать деньги на ремонт авто. Если вы являетесь частным лицом, осуществляющим авторемонтную практику, или имеете автосервис, все что нужно от вас, это выбрать регион для поиска заказов нарядов на ремонт автомобилей. В появившемся списке вы сможете выбрать подходящий вариант и дать свою заявку. Если ваша автомастерская или ваши данные будут зарегистрированы на нашем сайте, вы сможете брать подработки, Расширить круг своих клиентов, иметь бесплатную рекламу, автоматически попадая в базу автомастеров.
+      %h1.uk-h6 Ремозона24.ру - ремонтная площадка №1 для вашего автомобиля! Ремозона24. ру – сервис «скорой помощи» для любого автомобилиста, а также для сервисцентров, автосервисов, автомастеров, автомастерских. Сайт выполняет двустороннюю помощь – владельцам авто и автосервисам абсолютно бесплатно! Что обычно случается, когда поломка машины застала врасплох? Вы начинаете искать визитки автосервисов, обзванивать друзей для получения от них рекомендаций лучших специалистов или вызываете эвакуатор и едете к ближайшему СТО, не зная, помогут ли вам в вашей проблеме. А что обычно делают мастера в автомастерских? Ждут, когда появится заказ. Ремзона24. ру решила задачи всех сторон! На сайте найдут полезные функции как те, кому требуется ремонт автомобиля, так и те, кто его выполняет. Наша задача помочь владельцам авто и мастерам по ремонту найти друг друга. Для автовладельцев Если вам нужен ремонт транспорта отечественного производства или иномарки, вам необходимо составить заявку или заказ наряд в своем личном кабинете. Если вы являетесь частным лицом, осуществляющим авторемонтную практику, или имеете автосервис, все что от вас потребуется после регистрации на сайте – это выбрать регион и в появившемся списке заказ нарядов выбрать тот, по которому вы хотите предложить свои услуги. Ремонт авто с Ремзона24 ру еще никогда не был таким легким!
 
 :javascript
   $('.order:below-the-fold').attr("data-uk-scrollspy", "{cls:'uk-animation-fade'}");
