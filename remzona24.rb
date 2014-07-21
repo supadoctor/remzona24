@@ -541,7 +541,7 @@ class Remzona24App < Sinatra::Application
     when "Porsche"
       d = -29*33
     when "Renault"
-      d = -29*34
+      d = -29*34+2
     when "Rolls-Royce"
       d = -29*35
     when "Saab"
@@ -608,7 +608,7 @@ class Remzona24App < Sinatra::Application
     o = User.all(:type => "Master").count - 3
     lastmasters = User.all(:type => "Master", :offset => o, :limit => 3)
     lastmasters.reverse_each do |m|
-      haml_tag :div, :class => "uk-panel-box uk-margin-bottom" do
+      haml_tag :div, :class => "uk-panel uk-panel-box uk-margin-bottom masteratmainpage" do
         haml_tag :div, :class => "uk-grid" do
           haml_tag :div, :class => "uk-width-1-3" do
             if m.avatar.present?
@@ -618,18 +618,24 @@ class Remzona24App < Sinatra::Application
             end
           end
           haml_tag :div, :class => "uk-width-2-3" do
-            haml_tag :h3, m.displayedname
+            haml_tag :h3, :class => "uk-text-left" do
+              haml_concat m.displayedname
+            end
           end
           haml_tag :div, :class => "uk-width-1-1 uk-text-left" do
-            haml_tag :dl, :class =>"uk-description-list uk-description-list-horizontal" do
+            haml_tag :dl, :class =>"uk-description-list uk-description-list-horizontal masters-description-list" do
               haml_tag :dt, "Расположение:"
-              haml_tag :dd, fulllocation(m)
+              haml_tag :dd, :class => "uk-text-small" do
+                haml_concat fulllocation(m)
+              end
               if m.description.to_s.size > 0
                 haml_tag :dt, "Описание:"
                 haml_tag :dd, m.description
               end
               haml_tag :dt, "На сайте с:"
-              haml_tag :dd,  m.created_at.strftime("%d.%m.%Y")
+              haml_tag :dd, :class => "uk-text-small" do
+                haml_concat m.created_at.strftime("%d.%m.%Y")
+              end
             end
           end
           haml_tag :div, :class => "uk-align-right uk-text-small uk-margin-bottom-remove" do
@@ -980,7 +986,19 @@ end
     @msg = "Здравствуйте, " + user.displayedname + "!\n" + @@text["email"]["masterregistration"] + @@text["email"]["regards"]
     Pony.mail(:to => user.email, :subject => 'Регистрация на РемЗона24.ру', :body => @msg)
     env['warden'].authenticate!
-    redirect '/profile'
+    redirect '/masterguide'
+  end
+
+  get '/masterguide' do
+    if !logged_in? || current_user.type != "Master"
+      haml :navbarbeforelogin do
+        redirect '/'
+      end
+    else
+      haml :navbarafterlogin do
+        haml :masterguide
+      end
+    end
   end
 
   get '/profile' do
@@ -1079,6 +1097,32 @@ end
     end
   end
 
+  post '/firstupdateprofile' do
+    user = current_user
+    begin
+      if params[:description].to_s.size > 0
+        user.update(:description => h(params[:description]))
+      end
+      if params[:tags].to_s.size > 0
+        tagsstring = params[:tags]
+        newtags = []
+        tagsstring.split(",").each do |t|
+          #tag = @current_user.tags.first_or_create(:tag => t.strip)
+          newtags << Tag.first_or_create(:tag => t.strip)
+        end
+        user.tags = newtags
+        user.save
+      end
+      if params[:avatar]
+        user.update(:avatar => params[:avatar])
+      end
+    rescue
+      session[:messagetodisplay] = user.errors.values.join("; ")
+      redirect '/profile'
+    end
+    redirect '/'
+  end
+
   post '/updateprofile' do
     current_user
     session[:activetab] = "profile"
@@ -1107,9 +1151,13 @@ end
           oldtags = @current_user.usertaggings
           oldtags.each {|ot| ot.destroy }
           tagsstring = params[:tags]
+          newtags = []
           tagsstring.split(",").each do |t|
-            tag = @current_user.tags.first_or_create(:tag => t)
+            #tag = @current_user.tags.first_or_create(:tag => t.strip)
+            newtags << Tag.first_or_create(:tag => t.strip)
           end
+          @current_user.tags = newtags
+          @current_user.save
         rescue
           session[:messagetodisplay] = @current_user.errors.values.join("; ")
           redirect back
@@ -1224,7 +1272,7 @@ end
   
   post '/setmap' do
     current_user
-    if params[:mapx].to_f > 0 && :params[:mapy].to_f > 0
+    if params[:mapx].to_f > 0 && params[:mapy].to_f > 0
       @current_user.update(:mapx => params[:mapx].to_f, :mapy => params[:mapy].to_f)
     else
       session[:messagetodisplay] = @@text["notify"]["checkmap"]
@@ -1332,9 +1380,13 @@ end
           redirect back
         end
         tagsstring = params[:tags]
+        newtags = []
         tagsstring.split(",").each do |t|
-          tag = @order.tags.first_or_create(:tag => t)
+          #tag = @order.tags.first_or_create(:tag => t.strip)
+          newtags << Tag.first_or_create(:tag => t.strip)
         end
+        @order.tags = newtags
+        @order.save
         if params[:photos] && !params[:photos].empty?
           params[:photos].each do |image|
             begin
@@ -1379,9 +1431,13 @@ end
       redirect back
     end
     tagsstring = params[:tags]
+    newtags = []
     tagsstring.split(",").each do |t|
-      tag = order.tags.first_or_create(:tag => t)
+      #tag = order.tags.first_or_create(:tag => t.strip)
+      newtags << Tag.first_or_create(:tag => t.strip)
     end
+    order.tags = newtags
+    order.save
     #puts "Кол-во фоток: ", params[:photos].size
     if  params[:photos] && !params[:photos].empty?
       params[:photos].each do |image|
@@ -2289,6 +2345,7 @@ end
   end
 
   get '/ajax/tags.json' do
+    content_type :json
     # tags = Tag.all
     # jsontags = []
     # tags.each do |t|

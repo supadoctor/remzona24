@@ -1,0 +1,169 @@
+.uk-container.uk-container-center
+  %br
+  .uk-grid
+    .uk-width-1-1
+      .uk-panel.uk-panel-box
+        %h1.uk-text-right Начало работы
+        %h2 Спасибо за регистрацию на сайте Ремзона24.ру!
+        Надеемся, что наш сайт станет вашим хорошим помощником, с которым вы найдете новые заказы и новых клиентов. Что-бы это произошло как можно быстрее, давайте вместе заполним ваш профиль автомастера. Вы можете в любой момент пропустить этот этап и сразу перейти к
+        %a{:href=>"/"}
+          просмотру заказов нарядов
+        , но мы рекоммендуем потратить несколько секунд и сделать ваш профиль более информативным и привлекательным для заказчиков. Итак начнем...
+        %form#updateprofile.uk-form{:style=>"margin-top: 20px;", :action=>"/firstupdateprofile", :method=>"post", :enctype=>"multipart/form-data"}
+          #step1
+            .uk-alert
+              Шаг 1/3
+            .uk-form-row{:style=>"margin-bottom: 15px;"}
+              %h3.uk-form-label{:for=>"description"}
+                Подробно укажите состав предоставляемых вами услуг, специализацию или любую другую информацию о вашей деятельности
+              .uk-form-controls
+                %textarea#description.uk-width-1-1{:type=>"text", :required=>"", :name=>"description", :rows=>"6"}
+                %br
+                %label.error.uk-text-small.uk-text-danger{:for=>"description"}
+            .uk-text-right.uk-text-small
+              %a.onscreenlink#tostep2{:href=>"#"}
+                Далее
+                %i.uk-icon-angle-double-right
+          #step2{:style=>"display: none;"}
+            .uk-alert
+              Шаг 2/3
+            .uk-form-row{:style=>"margin-bottom: 15px;"}
+              %h3.uk-form-label{:for=>"tags"}
+                Укажите или выберите из списка ключевые слова. Например:
+                .uk-badge электрика
+                .uk-badge ремонт ходовой
+                .uk-badge кузовные работы
+                и т.п. Ключевые слова используются для автоматического подборе подходящих для вас заказ нарядов
+              .uk-form-controls
+                %input#tags.uk-width-1-1{:type=>"text", :name=>"tags"}
+                %br
+                %label.error.uk-text-small.uk-text-danger{:for=>"tags"}
+            .uk-text-right.uk-text-small
+              %a.onscreenlink#backtostep1{:href=>"#", :style=>"margin-right: 20px;"}
+                %i.uk-icon-angle-double-left
+                Назад
+              %a.onscreenlink#tostep3{:href=>"#"}
+                Далее
+                %i.uk-icon-angle-double-right
+          #step3{:style=>"display: none;"}
+            .uk-alert
+              Шаг 3/3
+            .uk-form-row{:style=>"margin-bottom: 15px;"}
+              %h3.uk-form-label{:for=>"tags"}
+                Загрузите изображение для своего профиля. Если у вас его нет, то вы всегда можете найти и выбрать подходящее в сети Интернет, например,
+                %a{:href => "http://1avatara.ru/catalog-avatar/auto", :target => "_blank"}
+                  здесь
+                (ссылка откроется в новом окне)
+              .uk-form-controls
+                %input#avatar{:type=>"file", :required=>"", :name=>"avatar"}
+                %br
+                %label.error.uk-text-small.uk-text-danger{:for=>"avatar"}
+            .uk-text-right.uk-text-small
+              %a.onscreenlink#backtostep2{:href=>"#"}
+                %i.uk-icon-angle-double-left
+                Назад
+            .uk-container-center.uk-text-center
+              %button#apply.uk-button.uk-button-success{:type=>"submit"} Сохранить профиль и начать работу
+
+
+:javascript
+  $(function() {
+
+    $('#backtostep1').click(function() {
+      $('#step2').toggle();
+      $('#step1').toggle();
+    });
+
+    $('#tostep2').click(function() {
+      $('#updateprofile').validate({
+        rules: {
+          description: {
+            required: true,
+            maxlength: 65535
+          }
+        },
+        messages: {
+          description: "Введите описание"
+        }
+      });
+      if ($('#updateprofile').valid()) {
+        $('#step1').toggle();
+        $('#step2').toggle();
+      }
+    });
+
+    $('#backtostep2').click(function() {
+      $('#step3').toggle();
+      $('#step2').toggle();
+    });
+
+    $('#tostep3').click(function() {
+      $('#updateprofile').validate({
+        ignore: ".ignore",
+        rules: {
+          tags: {
+            required: true
+          }
+        },
+        messages: {
+          tags: "Введите ключевые слова"
+        }
+      });
+      if ($('#updateprofile').valid()) {
+        $('#step2').toggle();
+        $('#step3').toggle();
+      }
+    });
+
+    var profilevalidator = $("#updateprofile").validate({
+      rules: {
+        description: {
+          required: true,
+          maxlength: 65535
+        },
+        tags: {
+          required: true
+        },
+        avatar: {
+          required: true
+        }
+      },
+      messages: {
+        description: "Введите описание",
+        tags: "Введите ключевые слова",
+        avatar: "Выберите файл с изображением"
+      },
+      submitHandler: function(form) {
+        form.submit();
+      }
+    });
+
+    $('#tags').selectize({
+      valueField: 'tag',
+      labelField: 'tag',
+      searchField: 'tag',
+      plugins: ['remove_button'],
+      delimiter: ',',
+      persist: false,
+      create: function(input) {
+        return {
+          tag: input
+        }
+      },
+      render: {
+        option: function(data, escape) {
+          return '<div>"' + escape(data.tag) + '"</div>';
+        }
+      },
+      load: function(query, callback) {
+        if (!query.length) return callback();
+        $.ajax({
+          url : '/ajax/tags.json',
+          dataType : 'json',
+          success: function(res) {
+            callback(res.tags);
+          }
+        });
+      }
+    });
+  });
