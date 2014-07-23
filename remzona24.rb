@@ -2573,7 +2573,7 @@ end
       if get_settings(m, "sendmessagestoemail")
         allorders = Order.all(:status => 0, :placement_id => m.placement_id, :order => [ :fd.desc ]) & (Order.all(:fd.gte => DateTime.now-7, :order => [ :fd.desc ]))
         if allorders.count > 0
-          email_msg = "Здравствуйте, " + m.displayedname + "!\nЗа прошедшую неделю в вашем регионе были добавлены следующие новые заказ наряды:\n"
+          email_msg = "Здравствуйте, " + m.displayedname + "!\n\nЗа прошедшую неделю в вашем регионе были добавлены следующие новые заказ наряды:\n"
           allorders.each do |o|
             email_msg += "\nАвтомобиль: " + vehicleinfo(o)
             email_msg += "\nОписание: " + o.subject
@@ -2582,9 +2582,28 @@ end
           end
           email_msg += "\nПодайте свое предложение первым из автомастеров!"
           email_msg += @@text["email"]["regards"]
-          Pony.mail(:to => m.email, :subject => 'Новые заказ наряды в вашем регионе на Ремзона24.ру ', :body => email_msg)
+          Pony.mail(:to => m.email, :subject => 'Новые заказ наряды в вашем регионе на Ремзона24.ру', :body => email_msg)
           #puts email_msg
           puts "Отправлено сообщение о новых заявках на адрес: ", m.email
+        end
+      end
+    end
+
+    #Send notification to users how to promote their orders
+    @allorder = Order.all(:status => 0, :fd.gte => DateTime.now-7, :fd.lt => DateTime.now-1)
+    @allorder.each do |o|
+      if Offer.count(:order_id => o.id) == 0
+        u = User.get(o.user_id)
+        if get_settings(u, "subscribed")
+          email_msg = "Здравствуйте, " + u.displayedname + "!\n\nМы обратили внимание, что за прошедшую неделю по вашей заявке, размещенной на Ремзона24.ру, не было сделано ни одного предложения от автомастеров. Мы очень хотим помочь вам и поэтому подготовили несколько простых советов:\n"
+          email_msg += "1. Проверьте еще раз описание заявки. Достаточно ли в нем информации для автомастера? Очень часто высококлассные мастера не откликаются на малоинформативные заявки, т.к. не хотят терять свое время на уточнение деталей. Сделайте описание своей заявки максимально информативным!\n"
+          email_msg += "2. Укажите бюджет для заявки. Деньги - хороший стимул для привлечения внимания мастеров!\n"
+          email_msg += "3. Поделитесь своей заявкой в ваших любимых социальных сетях. Кто знает, может среди знакомых ваших знакомых как раз есть нужный вам специалист?\n"
+          email_msg += "\n Просмотреть и отредактировать заявку вы сможете по этой ссылке: http://" + request.host + ":" + request.port.to_s + "/order/" + o.id.to_s
+          email_msg += @@text["email"]["regards"]
+          Pony.mail(:to => u.email, :subject => 'Наши рекомендации по заявке на Ремзона24.ру', :body => email_msg)
+          #puts email_msg
+          puts "Отправлено сообщение с советами по заявке на адрес: ", u.email
         end
       end
     end
