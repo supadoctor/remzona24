@@ -146,6 +146,11 @@
                 %a.uk-alert-close.uk-close{:href=>""}
                 %strong Внимание!
                 Ваш населенный пункт не соответствует населенному пункту Заказчика. Вы дейсвительно хотите сделать предложение?
+            .uk-alert.uk-alert-success{"data-uk-alert"=>""}
+              %a.uk-alert-close.uk-close{:href=>""}
+              Если у вас есть вопрос по заявке, то вы можете задать его
+              %a{:href=>"/order/#{@order.id}/comments"}
+                здесь.
             %form#offer.uk-form.uk-form-horizontal{:action => "/order/#{@order.id}/addoffer", :method => "post"}
               .uk-form-row{:style=>"margin-bottom: 20px;"}
                 %label.uk-form-label{:for=>"subject"}

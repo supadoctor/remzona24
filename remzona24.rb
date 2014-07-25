@@ -234,7 +234,12 @@ class Remzona24App < Sinatra::Application
     end
 
     def showmessage(msg, l)
-      haml_tag :div,:class=>"uk-width-5-10 uk-push-#{l}-10" do
+      if l > 5
+	k = 5
+      else
+	k = l
+      end
+      haml_tag :div,:class=>"uk-width-5-10 uk-push-#{k}-10" do
         haml_tag :div, :class=>"uk-panel uk-panel-box uk-margin-bottom" do
           haml_tag :article, :class=>"uk-comment" do
             haml_tag :header, :class=>"uk-comment-header" do
@@ -257,6 +262,14 @@ class Remzona24App < Sinatra::Application
             haml_tag :div, :class=>"uk-comment-body" do
               haml_concat msg.text
             end
+	    if msg.receiver == current_user
+	      haml_tag :div, :class=>"uk-align-right uk-text-small uk-margin-bottom-remove" do
+	        haml_tag :a, :href=>"/message/"+msg.id.to_s do
+                  haml_concat "Ответить"
+		  haml_tag :i, :class=>"uk-icon-angle-double-right"
+                end
+	      end
+	    end
           end
         end
       end
@@ -1656,9 +1669,12 @@ end
         session[:messagetodisplay] = @@text["notify"]["messagesent"]
       rescue
         session[:messagetodisplay] = @message.errors.values.join("; ")
-      ensure
-        redirect back
       end
+      email_msg = @@text["email"]["unreadnotification"] + @@text["email"]["regards"]
+      if get_settings(@order.user, "sendmessagestoemail")
+        Pony.mail(:to => @offer.user.email, :subject => 'Непрочитанное уведомление на РемЗона24.ру', :body => email_msg)
+      end
+      redirect back
     end
     if params.has_key?("offer")
       @offer = Offer.get(params[:offer].to_i)
@@ -1672,17 +1688,17 @@ end
           :date => DateTime.now,
           :type => "Question"
         )
-      else
-        @order = Order.get(Offer.get(params[:offer].to_i).order_id)
-        @message = Message.new(
-          :sender => current_user,
-          :receiver => @order.user,
-          :offer => @offer,
-          :unread => true,
-          :text => h(params[:question]),
-          :date => DateTime.now,
-          :type => "Question"
-        )
+      #else
+      #  @order = Order.get(Offer.get(params[:offer].to_i).order_id)
+      #  @message = Message.new(
+      #   :sender => current_user,
+      #   :receiver => @order.user,
+      #      :offer => @offer,
+      #      :unread => true,
+      #      :text => h(params[:question]),
+      #      :date => DateTime.now,
+      #      :type => "Question"
+      #    )
       end
       begin
         @message.save
@@ -1692,8 +1708,8 @@ end
         redirect back
       end
       email_msg = @@text["email"]["unreadnotification"] + @@text["email"]["regards"]
-      if get_settings(@order.user, "sendmessagestoemail")
-        Pony.mail(:to => @order.user.email, :subject => 'Непрочитанное уведомление на РемЗона24.ру', :body => email_msg)
+      if get_settings(@offer.user, "sendmessagestoemail")
+        Pony.mail(:to => @offer.user.email, :subject => 'Непрочитанное уведомление на РемЗона24.ру', :body => email_msg)
       end
       redirect back
     end
