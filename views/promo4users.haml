@@ -2,47 +2,15 @@
   .uk-container.uk-container-center
     .uk-text-center{:style=>"background: url('./img/index_top_bg.png') center 40% no-repeat;"}
       %h1.uk-text-bold{:style=>"color: white;"} У вас проблема с автомобилем? #{@adkeyword} Нужен ремонт иномарки? Надоело искать грамотных автомастеров?
-      %h2{:style=>"color: white;"} С помощью РемЗона24.ру вы с легкостью решите эти и другие вопросы, связанные с ремонтом и обслуживанием автомобиля.
+      %h2{:style=>"color: white;"} С помощью Ремзона24.ру вы с легкостью решите эти и другие вопросы, связанные с ремонтом и обслуживанием автомобиля.
       %br
       %br
-      %a.uk-button.uk-button-large.uk-button-primary{:href=>"/#express", :onclick=>"yaCounterCOUNTER_ID.reachGoal('USER_EXPRESS'); return true;"}
-        %h2.uk-margin-top.uk-margin-bottom-remove Создайте свою заявку
-        .uk-text-small.uk-margin-bottom Это бесплатно и не займет много времени!
+      %a.uk-button.uk-button-large.uk-button-success{:href=>"/#express", :onclick=>"yaCounterCOUNTER_ID.reachGoal('USER_EXPRESS'); return true;"}
+        %h2.uk-margin-top.uk-margin-bottom-remove.uk-text-bold Создайте свою заявку
+        .uk-margin-bottom Это бесплатно и не займет много времени!
       %br
       %br
       %div{:style=>"position: relative; left: 0; top: 0;"}
         %img{:src=>"./img/promoscreens.png"}
         %img{:src=>"./img/index_shadow.png", :style=>"bottom: 0; height: 70px; left: 0; position: absolute; width: 100%;"}
-.uk-width-1-2.uk-container-center{:style=>"padding-top: 30px;"}
-  .uk-container.uk-container-center
-    .uk-text-center
-      %h1.uk-text-bold РемЗона24.ру - ремзона №1 для вашего автомобиля!
-    .uk-grid{:style=>"padding-top: 30px;", "data-uk-grid-match"=>""}
-      .uk-width-1-2
-        %h2.uk-text-bold Бесплатно
-        %p Да! Наш сервис бесплатен. Никаких пробных периодов или скрытых платежей. Нам просто нравится помогать решать ваши проблемы!
-      .uk-width-1-2
-        %img{:src=>"./img/free.png"}
-    .uk-grid{:style=>"padding-top: 30px;", "data-uk-grid-match"=>""}
-      .uk-width-1-2
-        %img{:src=>"./img/lk.png"}
-      .uk-width-1-2
-        %h2.uk-text-bold Удобный личный кабинет
-        %p В своем личном кабинете вы всегда найдете ваши активные заявки, архив заявок, уведомления о поступлении предложений или вопросов по вашим заявкам.
-    .uk-grid{:style=>"padding-top: 30px;", "data-uk-grid-match"=>""}
-      .uk-width-1-2
-        %h2.uk-text-bold Гарантия лучшей цены
-        %p Вы можете сразу указать тот бюджет, который готовы потратить, или выбрать лучшую цену среди поступивших предложений.
-      .uk-width-1-2
-        %img{:src=>"./img/bp.gif"}
-    .uk-grid{:style=>"padding-top: 30px;", "data-uk-grid-match"=>""}
-      .uk-width-1-2
-        %img{:src=>"./img/hs.png"}
-      .uk-width-1-2
-        %h2.uk-text-bold Заключение соглашения
-        %p Заключите при помощи нашего сервиса соглашение с автомастером. Это поможет проконтролировать выполнение сторонами своих обязательств и даст возможность оставить оценку и отзыв о работе.
-    .uk-text-center
-      %br
-      %br
-      %a.uk-button.uk-button-large.uk-button-primary{:href=>"/#express", :onclick=>"yaCounterCOUNTER_ID.reachGoal('USER_EXPRESS'); return true;"}
-        %h2.uk-margin-top  Создайте свою первую заявку прямо сейчас!
+=yield

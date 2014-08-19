@@ -6,4 +6,5 @@ Disallow: /neworder
 Disallow: /resetpass
 Disallow: /profile
 Disallow: /system
+Disallow: /masterguide
 Allow: /

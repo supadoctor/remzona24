@@ -17,7 +17,19 @@
   <changefreq>always</changefreq>
 </url>
 <url>
+  <loc>http://www.remzona24.ru/mastersmap</loc>
+  <changefreq>always</changefreq>
+</url>
+<url>
   <loc>http://www.remzona24.ru/about</loc>
+  <changefreq>yearly</changefreq>
+</url>
+<url>
+  <loc>http://www.remzona24.ru/forusers</loc>
+  <changefreq>yearly</changefreq>
+</url>
+<url>
+  <loc>http://www.remzona24.ru/formasters</loc>
   <changefreq>yearly</changefreq>
 </url>
 <url>

@@ -1,165 +1,171 @@
-.uk-container.uk-container-center
-  %br
-  .uk-grid
-    .uk-width-1-1
-      %h1.uk-text-right Информация о мастере
-      .uk-panel.uk-panel-box
-        %table.uk-table.uk-table-striped.uk-table-condensed
-          %tbody
-            - if @user.avatar.present?
+.uk-width-1-1  
+  .uk-container.uk-container-center
+    %br
+    .uk-grid
+      .uk-width-1-1
+        %h1.uk-text-right Информация о мастере
+        - if @user.banner.present?
+          .uk-container-center{:style=>"background-color: rgba(1,1,1,0.1);"}
+            %img.uk-align-center{:src => @user.banner.url}
+        .uk-panel.uk-panel-box
+          %table.uk-table.uk-table-striped.uk-table-condensed
+            %tbody
+              - if @user.avatar.present?
+                %tr
+                  %td.uk-width-1-10.uk-text-center
+                    %i.uk-icon-camera
+                  %td.uk-width-3-10
+                    %h3.uk-margin-bottom-remove Фотография
+                  %td.uk-width-6-10
+                    %img{:src => @user.avatar.avatar64.url}
               %tr
                 %td.uk-width-1-10.uk-text-center
-                  %i.uk-icon-camera
+                  %i.uk-icon-user
                 %td.uk-width-3-10
-                  %h3.uk-margin-bottom-remove Фотография
+                  %h3.uk-margin-bottom-remove ФИО
                 %td.uk-width-6-10
-                  %img{:src => @user.avatar.avatar64.url}
-            %tr
-              %td.uk-width-1-10.uk-text-center
-                %i.uk-icon-user
-              %td.uk-width-3-10
-                %h3.uk-margin-bottom-remove ФИО
-              %td.uk-width-6-10
-                %span{:style=>"margin-top: 5px;"} #{@user.displayedname}
-            -if @user.servicenameandwww
+                  %span{:style=>"margin-top: 5px;"} #{@user.displayedname}
+              -if @user.servicenameandwww
+                %tr
+                  %td.uk-width-1-10.uk-text-center
+                    %i.uk-icon-wrench
+                  %td.uk-width-3-10
+                    %h3.uk-margin-bottom-remove Автосервис
+                  %td.uk-width-6-10
+                    %span{:style=>"margin-top: 5px;"} #{@user.servicenameandwww}
+              -#
+                -if @user.servicename && @user.servicename.size > 0
+                %tr
+                  %td.uk-width-1-10.uk-text-center
+                    %i.uk-icon-wrench
+                  %td.uk-width-3-10
+                    %h3.uk-margin-bottom-remove Автосервис
+                  %td.uk-width-6-10
+                    %span{:style=>"margin-top: 5px;"} #{@user.servicename}
+                    - if @user.www && @user.www.size > 0
+                      (#{@user.www})
+              -if @user.description && @user.description.size > 0
+                %tr
+                  %td.uk-width-1-10.uk-text-center
+                    %i.uk-icon-info
+                  %td.uk-width-3-10
+                    %h3.uk-margin-bottom-remove Описание деятельности
+                  %td.uk-width-6-10
+                    %span{:style=>"margin-top: 5px;"} #{@user.description}
+              -if @tags && @tags.size > 0
+                %tr
+                  %td.uk-width-1-10.uk-text-center
+                    %i.uk-icon-tags
+                  %td.uk-width-3-10
+                    %h3.uk-margin-bottom-remove Ключевые слова
+                  %td.uk-width-6-10
+                    -@tags.split(",").each do |t|
+                      %span.uk-text-smaill.uk-badge #{t}
+              -if get_settings(@user, "showemail")
+                %tr
+                  %td.uk-width-1-10.uk-text-center
+                    %i.uk-icon-envelope
+                  %td.uk-width-3-10
+                    %h3.uk-margin-bottom-remove  Электронная почта
+                  %td.uk-width-6-10
+                    %a{:href=>"mailto:" + @user.email}
+                      #{@user.email}
+              -if @user != current_user
+                %tr
+                  %td.uk-width-1-10.uk-text-center
+                    %i.uk-icon-exchange
+                  %td.uk-width-3-10
+                    %h3.uk-margin-bottom-remove Связаться с пользователем 
+                  %td.uk-width-6-10
+                    %a.onscreenlink{:href=>"#message", "data-uk-modal" => "{bgclose:false}"}
+                      Отправить сообщение
+              -if get_settings(@user, "showphone") && @user.phone && @user.phone.size > 0
+                %tr
+                  %td.uk-width-1-10.uk-text-center
+                    %i.uk-icon-mobile
+                  %td.uk-width-3-10
+                    %h3.uk-margin-bottom-remove  Мобильный номер
+                  %td.uk-width-6-10
+                    %span{:style=>"margin-top: 5px;"} #{@user.phone}
               %tr
                 %td.uk-width-1-10.uk-text-center
-                  %i.uk-icon-wrench
+                  %i.uk-icon-globe
                 %td.uk-width-3-10
-                  %h3.uk-margin-bottom-remove Автосервис
+                  %h3.uk-margin-bottom-remove Населенный пункт
                 %td.uk-width-6-10
-                  %span{:style=>"margin-top: 5px;"} #{@user.servicenameandwww}
-            -#
-              -if @user.servicename && @user.servicename.size > 0
+                  %span{:style=>"margin-top: 5px;"} #{fulllocation(@user)}
+              -if @user.mapx && @user.mapy
+                %tr
+                  %td.uk-width-1-10.uk-text-center
+                    %i.uk-icon-map-marker
+                  %td.uk-width-3-10
+                    %h3.uk-margin-bottom-remove Расположение на карте
+                  %td.uk-width-6-10
+                    %a{:href=>"#openmap", "data-uk-modal" => "{bgclose:false}", :style=>"margin-top: 5px;"} Показать
               %tr
                 %td.uk-width-1-10.uk-text-center
-                  %i.uk-icon-wrench
+                  %i.uk-icon-calendar
                 %td.uk-width-3-10
-                  %h3.uk-margin-bottom-remove Автосервис
+                  %h3.uk-margin-bottom-remove На сайте с
                 %td.uk-width-6-10
-                  %span{:style=>"margin-top: 5px;"} #{@user.servicename}
-                  - if @user.www && @user.www.size > 0
-                    (#{@user.www})
-            -if @user.description && @user.description.size > 0
+                  %span{:style=>"margin-top: 5px;"}= @user.created_at.strftime("%d.%m.%Y")
               %tr
                 %td.uk-width-1-10.uk-text-center
-                  %i.uk-icon-info
+                  %i.uk-icon-sign-in
                 %td.uk-width-3-10
-                  %h3.uk-margin-bottom-remove Описание деятельности
+                  %h3.uk-margin-bottom-remove Последний раз был на сайте
                 %td.uk-width-6-10
-                  %span{:style=>"margin-top: 5px;"} #{@user.description}
-            -if @tags && @tags.size > 0
-              %tr
-                %td.uk-width-1-10.uk-text-center
-                  %i.uk-icon-tags
-                %td.uk-width-3-10
-                  %h3.uk-margin-bottom-remove Ключевые слова
-                %td.uk-width-6-10
-                  %span{:style=>"margin-top: 5px;"} #{@tags}
-            -if get_settings(@user, "showemail")
-              %tr
-                %td.uk-width-1-10.uk-text-center
-                  %i.uk-icon-envelope
-                %td.uk-width-3-10
-                  %h3.uk-margin-bottom-remove  Электронная почта
-                %td.uk-width-6-10
-                  %a{:href=>"mailto:" + @user.email}
-                    #{@user.email}
-            -if @user != current_user
-              %tr
-                %td.uk-width-1-10.uk-text-center
-                  %i.uk-icon-exchange
-                %td.uk-width-3-10
-                  %h3.uk-margin-bottom-remove Связаться с пользователем 
-                %td.uk-width-6-10
-                  %a.onscreenlink{:href=>"#message", "data-uk-modal" => "{bgclose:false}"}
-                    Отправить сообщение
-            -if get_settings(@user, "showphone") && @user.phone && @user.phone.size > 0
-              %tr
-                %td.uk-width-1-10.uk-text-center
-                  %i.uk-icon-mobile
-                %td.uk-width-3-10
-                  %h3.uk-margin-bottom-remove  Мобильный номер
-                %td.uk-width-6-10
-                  %span{:style=>"margin-top: 5px;"} #{@user.phone}
-            %tr
-              %td.uk-width-1-10.uk-text-center
-                %i.uk-icon-globe
-              %td.uk-width-3-10
-                %h3.uk-margin-bottom-remove Населенный пункт
-              %td.uk-width-6-10
-                %span{:style=>"margin-top: 5px;"} #{fulllocation(@user)}
-            -if @user.mapx && @user.mapy
-              %tr
-                %td.uk-width-1-10.uk-text-center
-                  %i.uk-icon-map-marker
-                %td.uk-width-3-10
-                  %h3.uk-margin-bottom-remove Расположение на карте
-                %td.uk-width-6-10
-                  %a{:href=>"#openmap", "data-uk-modal" => "{bgclose:false}", :style=>"margin-top: 5px;"} Показать
-            %tr
-              %td.uk-width-1-10.uk-text-center
-                %i.uk-icon-calendar
-              %td.uk-width-3-10
-                %h3.uk-margin-bottom-remove На сайте с
-              %td.uk-width-6-10
-                %span{:style=>"margin-top: 5px;"}= @user.created_at.strftime("%d.%m.%Y")
-            %tr
-              %td.uk-width-1-10.uk-text-center
-                %i.uk-icon-sign-in
-              %td.uk-width-3-10
-                %h3.uk-margin-bottom-remove Последний раз был на сайте
-              %td.uk-width-6-10
-                %span{:style=>"margin-top: 5px;"} #{@user.lastlogon.strftime("%d.%m.%Y %H:%M")} (МСК)
-      - if @reviews && @reviews.size > 0
-        %h1.uk-text-right Отзывы
-        - @reviews.each do |q|
-          .uk-panel.uk-panel-box.uk-margin-bottom
-            %article.uk-comment
-              %header.uk-comment-header
-                %img.uk-comment-avatar{:src => User.get(q.author_id).avatar.avatar64.url}
-                .uk-comment-meta
-                  Автор:
-                  %a{:href=>"/user/#{q.author_id}"}
-                    =User.get(q.author_id).displayedname
-                  %br
-                  Дата:
-                  #{q.date.strftime("%d.%m.%Y, %H:%M:%S")}
-              .uk-comment-body
-                #stars{"data-score" => q.rating}
-                #{q.text}
-      - else
-        .uk-alert.uk-alert-danger{"data-uk-alert"=>""}
-          %a.uk-alert-close.uk-close{:href=>""}
-          Нет отзывов о мастере.
-    -showverticalad
+                  %span{:style=>"margin-top: 5px;"} #{@user.lastlogon.strftime("%d.%m.%Y %H:%M")} (МСК)
+          %div{:class=>"yashare-auto-init", "data-yashareType"=>"link", "data-yashareQuickServices"=>"vkontakte,|,facebook,|,gplus,|,twitter,|,l j"}
+        - if @reviews && @reviews.size > 0
+          %h1.uk-text-right Отзывы
+          - @reviews.each do |q|
+            .uk-panel.uk-panel-box.uk-margin-bottom
+              %article.uk-comment
+                %header.uk-comment-header
+                  %img.uk-comment-avatar{:src => User.get(q.author_id).avatar.avatar64.url}
+                  .uk-comment-meta
+                    Автор:
+                    %a{:href=>"/user/#{q.author_id}"}
+                      =User.get(q.author_id).displayedname
+                    %br
+                    Дата:
+                    #{q.date.strftime("%d.%m.%Y, %H:%M:%S")}
+                .uk-comment-body
+                  #stars{"data-score" => q.rating}
+                  #{q.text}
+        - else
+          .uk-alert.uk-alert-danger{"data-uk-alert"=>""}
+            %a.uk-alert-close.uk-close{:href=>""}
+            Нет отзывов о мастере.
+      -showverticalad
 
-#openmap.uk-modal
-  .uk-modal-dialog.uk-modal-dialog-slide
-    %a.uk-modal-close.uk-close
-    #map{:style =>"width:50vh; height:50vh"}
+  #openmap.uk-modal
+    .uk-modal-dialog.uk-modal-dialog-slide
+      %a.uk-modal-close.uk-close
+      #map{:style =>"width:50vh; height:50vh"}
 
-#message.uk-modal
-  .uk-modal-dialog.uk-modal-dialog-slide
-    %a.uk-modal-close.uk-close
-    %h1 Отправить сообщение
-    %form#newmessage.uk-form.uk-form-horizontal{:action => "/addquestionto?user=#{@user.id}", :method => "post"}
-      .uk-form-row
-        %label.uk-form-label{:for=>"subject"}
-          %h3 Тема
-        .uk-form-controls
-          %input#subject.uk-width-1-1{:type=>"text", :name=>"subject"}
-          %br
-          %label.error.uk-text-small.uk-text-danger{:for=>"subject"}
-      .uk-form-row{:style=>"margin-top: 15px;"}
-        %label.uk-form-label{:for=>"question"}
-          %h3 Сообщение
-        .uk-form-controls
-          %textarea#question.uk-width-1-1{:type=>"text", :name=>"question", :rows=>"6"}
-          %br
-          %label.error.uk-text-small.uk-text-danger{:for=>"question"}
-      .uk-container-center.uk-text-center{:style=>"margin-top: 20px;"}
-        %button.uk-button.uk-button-success{:type=>"submit"}Отправить
+  #message.uk-modal
+    .uk-modal-dialog.uk-modal-dialog-slide
+      %a.uk-modal-close.uk-close
+      %h1 Отправить сообщение
+      %form#newmessage.uk-form.uk-form-horizontal{:action => "/addquestionto?user=#{@user.id}", :method => "post"}
+        .uk-form-row
+          %label.uk-form-label{:for=>"subject"}
+            %h3 Тема
+          .uk-form-controls
+            %input#subject.uk-width-1-1{:type=>"text", :name=>"subject"}
+            %br
+            %label.error.uk-text-small.uk-text-danger{:for=>"subject"}
+        .uk-form-row{:style=>"margin-top: 15px;"}
+          %label.uk-form-label{:for=>"question"}
+            %h3 Сообщение
+          .uk-form-controls
+            %textarea#question.uk-width-1-1{:type=>"text", :name=>"question", :rows=>"6"}
+            %br
+            %label.error.uk-text-small.uk-text-danger{:for=>"question"}
+        .uk-container-center.uk-text-center{:style=>"margin-top: 20px;"}
+          %button.uk-button.uk-button-success{:type=>"submit"}Отправить
 
 :javascript
   $(function() {

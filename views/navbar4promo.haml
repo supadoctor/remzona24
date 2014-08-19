@@ -1,0 +1,399 @@
+#register.uk-modal
+  .uk-modal-dialog.uk-modal-dialog-slide
+    %a.uk-modal-close.uk-close
+    %h1 Регистрация
+    %ul.uk-tab.uk-tab-grid.data-uk-tab{"data-uk-tab"=>"{connect:'#typesofuser'}"}
+      %li.uk-width-1-2#regusertab
+        %a{:href=>""}Заказчик
+      %li.uk-width-1-2.uk-active#regmastertab
+        %a{:href=>""}Мастер
+      /%li.uk-width-1-3
+      /  %a{:href=>""}Сервис
+    %ul#typesofuser.uk-switcher.uk-margin
+      %li#regusertab
+        %form#reguser.uk-form{:action => "/reguser", :method => "post"}
+          -#
+            %legend
+            Вы регистрируетесь с целью добавления заявок, ведения переписки с мастерами и сервисными центрами
+          .uk-form-row
+            %input.uk-width-1-1{:type=>"text", :required=>"", :placeholder=>"Адрес электронной почты", :name=>"email", "data-uk-tooltip" => "", :title => "Укажите корректный адрес электронной почты. Он будет использоваться для входа на Портал и получения уведомлений"}
+            %br
+            %label.error.uk-text-small.uk-text-danger{:for=>"email"}
+          .uk-form-row{:style=>"margin-top: 20px;"}
+            %input.uk-width-1-1{:type=>"text", :required=>"", :placeholder=>"Контактное лицо", :name=>"fullname", "data-uk-tooltip" => "", :title => "Пожалуйста, представьтесь. Это имя будет использоваться при публикации заявок и для идентификации других ваших действий на Портале"}
+            %br
+            %label.error.uk-text-small.uk-text-danger{:for=>"fullname"}
+          .uk-form-row{:style=>"margin-top: 20px;"}
+            %input#userlocation.uk-width-1-1{:type=>"text", :required=>"", :placeholder=>"Населенный пункт", :name=>"fulllocation", :style=>"z-index=9999;", "data-uk-tooltip" => "", :title => "Введите первые буквы неселенного пункта где вы находитесь. Выберите из списка нужный вариант. При выборе небольших населенных пунктов обратите внимание на корректность района и области!" }
+            %br
+            %label.error.uk-text-small.uk-text-danger{:for=>"userlocation"}
+            %input#userlocationtitle{:type=>"text", :name=>"locationtitle", :hidden=>"true"}
+            %input#userarea{:type=>"text", :name=>"area", :hidden=>"true"}
+            %input#userregion{:type=>"text", :name=>"region", :hidden=>"true"}
+          .uk-form-row{:style=>"margin-top: 20px;"}
+            %input#userpass1.uk-width-1-1{:type=>"password", :required=>"", :placeholder=>"Пароль", :name=>"password"}
+            %br
+            %label.error.uk-text-small.uk-text-danger{:for=>"userpass1"}
+          .uk-form-row{:style=>"margin-top: 20px;"}
+            %input#userpass2.uk-width-1-1{:type=>"password", :required=>"", :placeholder=>"Подтверждение пароля", :name=>"pass"}
+            %br
+            %label.error.uk-text-small.uk-text-danger{:for=>"userpass2"}
+          .uk-form-row
+            Все поля обязательны для заполнения
+          .uk-form-row
+            %label
+              %input.userrules{:type=>"checkbox", :name=>"terms"}
+              Я принимаю
+              %a{:href=>"/terms"}
+                cоглашение об использовании интернет-сервиса Ремзона24.ру
+          %br
+          %button#usersubmit.uk-button.uk-button-primary.uk-align-center{:type=>"submit"}Регистрация
+      %li#regmastertab
+        %form#regmaster.uk-form{:action => "/regmaster", :method => "post"}
+          -#
+            %legend
+            Вы являетесь индивидуальным предпринимателем, бригадой или небольшой фирмой и оказываете услуги по ремонту автомобилей, работая напрямую с заказчиком.
+          .uk-form-row
+            %input.uk-width-1-1{:type=>"text", :required=>"", :placeholder=>"Адрес электронной почты", :name=>"email", "data-uk-tooltip" => "", :title => "Укажите корректный адрес электронной почты. Он будет использоваться для входа на Портал и получения уведомлений"}
+            %br
+            %label.error.uk-text-small.uk-text-danger{:for=>"email"}
+          .uk-form-row{:style=>"margin-top: 20px;"}
+            %input.uk-width-1-1{:type=>"text", :required=>"", :placeholder=>"Фамилия", :name=>"familyname"}
+            %br
+            %label.error.uk-text-small.uk-text-danger{:for=>"familyname"}
+          .uk-form-row{:style=>"margin-top: 20px;"}
+            %input.uk-width-1-1{:type=>"text", :required=>"", :placeholder=>"Имя", :name=>"name"}
+            %br
+            %label.error.uk-text-small.uk-text-danger{:for=>"name"}
+          -#
+            .uk-form-row{:style=>"margin-top: 20px;"}
+            %input.uk-width-1-1{:type=>"text", :placeholder=>"Отчество", :name=>"fathersname"}
+            %br
+            %label.error.uk-text-small.uk-text-danger{:for=>"fathersname"}
+          .uk-form-row{:style=>"margin-top: 20px;"}
+            %input#masterlocation.uk-width-1-1{:type=>"text", :required=>"", :placeholder=>"Населенный пункт", :name=>"fulllocation", :style=>"z-index=9999;", "data-uk-tooltip" => "", :title => "Введите первые буквы неселенного пункта где вы находитесь. Выберите из списка нужный вариант. При выборе небольших населенных пунктов обратите внимание на корректность района и области!"}
+            %br
+            %label.error.uk-text-small.uk-text-danger{:for=>"masterlocation"}
+            %input#masterlocationtitle{:type=>"text", :name=>"locationtitle", :hidden=>"false"}
+            %input#masterarea{:type=>"text", :name=>"area", :hidden=>"false"}
+            %input#masterregion{:type=>"text", :name=>"region", :hidden=>"false"}
+          .uk-form-row{:style=>"margin-top: 20px;"}
+            %input#masterpass1.uk-width-1-1{:type=>"password", :required=>"", :placeholder=>"Пароль", :name=>"password"}
+            %br
+            %label.error.uk-text-small.uk-text-danger{:for=>"masterpass1"}
+          .uk-form-row{:style=>"margin-top: 20px;"}
+            %input#masterpass2.uk-width-1-1{:type=>"password", :required=>"", :placeholder=>"Подтверждение пароля", :name=>"pass"}
+            %br
+            %label.error.uk-text-small.uk-text-danger{:for=>"masterpass2"}
+          .uk-form-row{:style=>"margin-top: 20px;"}
+            Все поля обязательны для заполнения
+          .uk-form-row{:style=>"margin-top: 20px;"}
+            %label
+              %input.masterrules{:type=>"checkbox", :name=>"terms"}
+              Я принимаю
+              %a{:href=>"/terms"}
+                cоглашение об использовании интернет-сервиса Ремзона24.ру
+          %br
+          %button#mastersubmit.uk-button.uk-button-primary.uk-align-center{:type=>"submit"}Регистрация
+      /%li
+      /  %form.uk-form
+      /    %fieldset
+      /      %legend
+      /        Вы представляете компанию, которая предоставляет услуги в сфере ремонта и обслуживания автомобилей и хотели бы продавать свои услуги через портал РемЗона24.ру
+      /    .uk-form-row
+      /      .uk-text-small
+      /        Все поля обязательны для заполнения
+      /    .uk-form-row
+      /      %label
+      /        %input.servicerules{:type=>"checkbox"}
+      /        Я принимаю правила использования портала РемЗона24.ру
+      /    %br
+      /    %button#servicesubmit.uk-button.uk-button-primary.uk-align-center{:type=>"submit", :disabled => ""}Регистрация
+
+#login.uk-modal
+  .uk-modal-dialog.uk-modal-dialog-slide
+    %a.uk-modal-close.uk-close
+    %h1 Вход
+    %form.uk-form{:action => "/auth/login", :method=>"post"}
+      %fieldset
+        %legend
+          Для входа на Портал введите адрес электронной почты, указанный при регистрации, и пароль
+        .uk-form-row
+          %input.uk-width-1-1{:type=>"email", :required=>"", :placeholder=>"Адрес электронной почты", :name=>"email"}
+        .uk-form-row
+          %input.uk-width-1-1{:type=>"password", :required=>"", :placeholder=>"Пароль", :name=>"password"}
+        %br
+        %button#submit.uk-button.uk-button-large.uk-button-primary.uk-align-center{:type=>"submit"}Вход
+    .uk-text-center.uk-margin
+      Нет пароля?
+      %a{:href=>"#register", "data-uk-modal"=>"{bgclose:false}"}
+        Зарегистрируйтесь на Портале.
+      Это не займет много времени!
+    .uk-text-center
+      %a#forgetpass.onscreenlink Забыли пароль?
+    .uk-width-1-1#resetpass.uk-margin-top{:style => "display: none;"}
+      %form.uk-form{:action => "/resetpass", :method=>"post"}
+        .uk-form-row
+          %input.uk-width-1-1{:type=>"email", :required=>"", :placeholder=>"Адрес электронной почты", :name=>"email"}
+        .uk-form-row
+          %button#submit.uk-button.uk-align-center{:type=>"submit"}Сбросить пароль
+=yield
+
+:javascript
+
+  $(function() {
+
+    $('#userlocation').autocomplete({
+      source: function( request, response ) {
+        $.ajax({
+          url: "http://api.vk.com/method/database.getCities?v=5&country_id=1",
+          dataType: "jsonp",
+          data: {
+            q: request.term
+          },
+          success: function( data ) {
+            response( $.map( data.response.items, function( item ) {
+              return {
+                label: item.title + (item.area ? ", " + item.area : "") + (item.region ? ", " + item.region : ""),
+                value: item.title + (item.area ? ", " + item.area : "") + (item.region ? ", " + item.region : ""),
+                title: item.title,
+                area: item.area ? item.area : "",
+                region: item.region ? item.region : ""
+              }
+            }))
+          }
+        });
+      },
+      minLength: 2,
+      select: function (event, ui) {
+        $('#userlocationtitle').val(ui.item.title);
+        $('#userarea').val(ui.item.area);
+        $('#userregion').val(ui.item.region);
+        userregionselected = true;
+      }
+    });
+
+    $('#masterlocation').autocomplete({
+      source: function( request, response ) {
+        $.ajax({
+          url: "http://api.vk.com/method/database.getCities?v=5&country_id=1",
+          dataType: "jsonp",
+          data: {
+            q: request.term
+          },
+          success: function( data ) {
+            response( $.map( data.response.items, function( item ) {
+              return {
+                label: item.title + (item.area ? ", " + item.area : "") + (item.region ? ", " + item.region : ""),
+                value: item.title + (item.area ? ", " + item.area : "") + (item.region ? ", " + item.region : ""),
+                title: item.title,
+                area: item.area ? item.area : "",
+                region: item.region ? item.region : ""
+              }
+            }))
+          }
+        });
+      },
+      minLength: 2,
+      select: function (event, ui) {
+        $('#masterlocationtitle').val(ui.item.title);
+        $('#masterarea').val(ui.item.area);
+        $('#masterregion').val(ui.item.region);
+        masterregionselected = true;
+      }
+    });
+
+    $('#tags').selectize({
+      valueField: 'tag',
+      labelField: 'tag',
+      searchField: 'tag',
+      plugins: ['remove_button'],
+      delimiter: ',',
+      persist: false,
+      create: function(input) {
+        return {
+          tag: input
+        }
+      },
+      render: {
+        option: function(data, escape) {
+          return '<div>"' + escape(data.tag) + '"</div>';
+        }
+      },
+      load: function(query, callback) {
+        if (!query.length) return callback();
+        $.ajax({
+          url : '/ajax/vehicle',
+          dataType : 'json',
+          success: function(res) {
+            callback(res.makes);
+          }
+        });
+      }
+    });
+    
+    $('#forgetpass').click(function() {
+      $("#resetpass").toggle();
+    });
+    
+    var uservalidator = $("#reguser").validate({
+      debug: true,
+      rules: {
+        email: {
+          required: true,
+          email: true,
+          remote: {
+            url: "/ajax/checkemail",
+            type: "post"
+          }
+        },
+        fullname: {
+          required: true,
+          remote: {
+            url: "/ajax/checkfullname",
+            type: "post"
+          }
+        },
+        fulllocation: {
+          required: true,
+          remote: {
+            url: "/ajax/checklocation",
+            type: "post",
+            data: {
+              locationtitle: function() {
+                return $("#userlocationtitle").val()
+              },
+              area: function() {
+                return $("#userarea").val()
+              },
+              region: function() {
+                return $("#userregion").val()
+              }
+            }
+          }
+        },  
+        password: {
+          required: true,
+          minlength: 6
+        },
+        pass: {
+          /*
+          required: true,
+          remote: {
+            url: "/ajax/checkpass",
+            type: "post",
+            data: {
+              password: function() {
+                return $("#userpass1").val()
+              }
+            }
+          }
+          */
+          equalTo: "#userpass1"
+        },
+        terms: {
+          required: true
+        }
+      },
+      messages: {
+        email: "Введите корректный адрес электронной почты",
+        fullname: "Введите полное имя контактного лица",
+        fulllocation: "Выберите населенный пункт из списка",
+        password: "Введите пароль длиною не менее 6 символов",
+        pass: "Ошибка при повторном вводе пароля",
+        terms: " "
+      },
+      submitHandler: function(form) {
+        form.submit();
+      }
+    });
+    
+    var mastervalidator = $("#regmaster").validate({
+      debug: true,
+      rules: {
+        email: {
+          required: true,
+          email: true,
+          remote: {
+            url: "/ajax/checkemail",
+            type: "post"
+          }
+        },
+        familyname: {
+          required: true,
+          remote: {
+            url: "/ajax/checkfamilyname",
+            type: "post"
+          }
+        },
+        name: {
+          required: true,
+          remote: {
+            url: "/ajax/checkname",
+            type: "post"
+          }
+        },
+        //fathersname: {
+        //  required: true,
+        //  remote: {
+        //    url: "/ajax/checkfathersname",
+        //    type: "post"
+        //  }
+        //},
+        fulllocation: {
+          required: true,
+          remote: {
+            url: "/ajax/checklocation",
+            type: "post",
+            data: {
+              locationtitle: function() {
+                return $("#masterlocationtitle").val()
+              },
+              area: function() {
+                return $("#masterarea").val()
+              },
+              region: function() {
+                return $("#masterregion").val()
+              }
+            }
+          }
+        },  
+        password: {
+          required: true,
+          minlength: 6
+        },
+        pass: {
+          /*
+          required: true,
+          remote: {
+            url: "/ajax/checkpass",
+            type: "post",
+            data: {
+              password: function() {
+                return $("#masterpass1").val()
+              }
+            }
+          }
+          */
+          equalTo: "#masterpass1"
+        },
+        terms: {
+          required: true
+        }
+      },
+      messages: {
+        email: "Введите корректный адрес электронной почты",
+        familyname: "Введите фамилию контактного лица",
+        name: "Введите имя контактного лица",
+        //fathersname: "Введите отчество контактного лица",
+        fulllocation: "Выберите населенный пункт из списка",
+        password: "Введите пароль длиною не менее 6 символов",
+        pass: "Ошибка при повторном вводе пароля",
+        terms: " "
+      },
+      submitHandler: function(form) {
+        form.submit();
+      }
+    });
+
+  });

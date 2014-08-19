@@ -643,7 +643,9 @@ class Remzona24App < Sinatra::Application
               end
               if m.description.to_s.size > 0
                 haml_tag :dt, "Описание:"
-                haml_tag :dd, m.description
+                haml_tag :dd, :class =>"uk-text-justify" do
+                  haml_concat shortdescription(m.description)
+                end
               end
               haml_tag :dt, "На сайте с:"
               haml_tag :dd, :class => "uk-text-small" do
@@ -662,11 +664,17 @@ class Remzona24App < Sinatra::Application
     end
   end
 
+    def current_timestamp
+      DateTime.now.to_time.to_i
+    end
 
-  def current_timestamp
-    DateTime.now.to_time.to_i
-  end
-
+    def shortdescription(d)
+      if d.length > 155
+        d[0..155]+"..."
+      else
+        d
+      end
+    end
   end
 
   #*************************************************************************************************************
@@ -1152,11 +1160,18 @@ end
           if params[:avatar] && !params[:delete_avatar]
             @current_user.update(:avatar => params[:avatar])
           end
+          if params[:banner] && !params[:delete_banner]
+            @current_user.update(:banner => params[:banner])
+            puts ">>BANNER", @current_user.banner.present?
+          end
           if params[:pricelist] && !params[:delete_pricelist]
             @current_user.update(:pricelist => params[:pricelist])
           end
           if params[:delete_avatar]
             @current_user.update(:avatar => nil)
+          end
+          if params[:delete_banner]
+            @current_user.update(:banner => nil)
           end
           if params[:delete_pricelist]
             @current_user.update(:pricelist => nil)
@@ -1172,7 +1187,9 @@ end
           @current_user.tags = newtags
           @current_user.save
         rescue
+          puts "Error in updating user's profile"
           session[:messagetodisplay] = @current_user.errors.values.join("; ")
+          session[:messagetodisplay] = "Размер баннера должен быть 728х90 пикселей" if session[:messagetodisplay].length == 0
           redirect back
         end
       when "User"
@@ -1243,7 +1260,7 @@ end
 
   get '/resetpass' do
     resetrequest = ResetPasswords.first(:myhash => params[:reset])
-    if !resetrequest 
+    if !resetrequest
       session[:messagetodisplay] = @@text["notify"]["resetpasswordwrongemail"]
       redirect back
     elsif resetrequest.td < DateTime.now
@@ -1263,7 +1280,17 @@ end
       end
     end
   end
-  
+
+  get '/resetpassword' do
+    if !logged_in?
+      haml :navbarbeforelogin do
+        haml :resetpassword
+      end
+    else
+      redirect back
+    end
+  end
+
   post '/updatepassword' do
     resetrequest = ResetPasswords.first(:myhash => params[:reset])
     if !resetrequest
@@ -2325,7 +2352,7 @@ end
       end
     end
   end
-  
+
   post '/support' do
     @message = Message.new(
       :sender => current_user,
@@ -2346,7 +2373,7 @@ end
       redirect '/'
     end
   end
-  
+
   get '/about' do
     @about = @@text["about"]
     if !logged_in?
@@ -2356,6 +2383,19 @@ end
     else
       haml :navbarafterlogin do
         haml :about
+      end
+    end
+  end
+
+  get '/news' do
+    @news = @@text["news"]
+    if !logged_in?
+      haml :navbarbeforelogin do
+        haml :news
+      end
+    else
+      haml :navbarafterlogin do
+        haml :news
       end
     end
   end
@@ -2550,24 +2590,46 @@ end
   get '/promo4users' do
     if !logged_in?
       params[:key] ? @adkeyword = "Требуется " + params[:key] + "?" : @adkeyword = ""
-      haml :navbarbeforelogin do
-        haml :promo4users
+      haml :navbar4promo do
+        haml :promo4userscore, :layout => :promo4users
       end
     else
       redirect '/'
     end
   end
 
-  get '/promo4masters' do
+  get '/forusers' do
     if !logged_in?
-      session[:showmainpage] = true
       haml :navbarbeforelogin do
-        haml :promo4masters
+        haml :promo4userscore
       end
     else
       redirect '/'
     end
   end
+
+
+  get '/promo4masters' do
+    if !logged_in?
+      session[:showmainpage] = true
+      haml :navbar4promo do
+        haml :promo4masterscore, :layout => :promo4masters
+      end
+    else
+      redirect '/'
+    end
+  end
+
+  get '/formasters' do
+    if !logged_in?
+      haml :navbarbeforelogin do
+        haml :promo4masterscore
+      end
+    else
+      redirect '/'
+    end
+  end
+
 
   get '/system/cron' do
     #Send notifications about unread offers
@@ -2611,7 +2673,7 @@ end
       if Offer.count(:order_id => o.id) == 0
         u = User.get(o.user_id)
         if get_settings(u, "subscribed")
-          email_msg = "Здравствуйте, " + u.displayedname + "!\n\nМы обратили внимание, что за прошедшую неделю по вашей заявке, размещенной на Ремзона24.ру, не было сделано ни одного предложения от автомастеров. Мы очень хотим помочь вам и поэтому подготовили несколько простых советов:\n"
+          email_msg = "Здравствуйте, " + u.displayedname + "!\n\nЕще раз спасибо что вы воспользовались сервисом Ремзона24.ру и разместили на нем свою заявку! Однако мы обратили внимание, что за прошедшую неделю по вашей заявке не было сделано ни одного предложения от автомастеров. Мы очень хотим помочь вам и поэтому подготовили несколько простых советов:\n"
           email_msg += "1. Проверьте еще раз описание заявки. Достаточно ли в нем информации для автомастера? Очень часто высококлассные мастера не откликаются на малоинформативные заявки, т.к. не хотят терять свое время на уточнение деталей. Сделайте описание своей заявки максимально информативным!\n"
           email_msg += "2. Укажите бюджет для заявки. Деньги - хороший стимул для привлечения внимания мастеров!\n"
           email_msg += "3. Поделитесь своей заявкой в ваших любимых социальных сетях. Кто знает, может среди знакомых ваших знакомых как раз есть нужный вам специалист?\n"
@@ -2623,6 +2685,24 @@ end
         end
       end
     end
+  end
+
+  get '/system/monthlycron' do
+    #Send monthly notifications about comeback
+    @allmasters = User.all(:status => 0, :type => "Master")
+    @allmasters.each do |m|
+      if get_settings(m, "sendmessagestoemail") && (DateTime.now - m.lastlogon) > 30
+        allorders = Order.all(:status => 0, :placement_id => m.placement_id)
+        if allorders.count > 0
+          email_msg = "Здравствуйте, " + m.displayedname + "!\n\nВот уже более месяца вы не заходили на сайт http://www.remzona24.ru. Между тем на Ремзона24.ру много новых заказ-нарядов, которые ждут ваших предложений... Возвращайтесь!\n\nЕсли вы вдруг забыли свой пароль, то воспользуйтесь функцией сброса пароля - http://www.remzona24.ru/resetpassword. А если у вас есть вопрос или предложение по работе сайта - напишите нам здесь http://www.remzona24.ru/support"
+          email_msg += @@text["email"]["regards"]
+          Pony.mail(:to => m.email, :subject => 'Возвращайтесь на Ремзона24.ру', :body => email_msg)
+          #puts email_msg
+          puts "Отправлено сообщение про возврат на адрес: ", m.email
+        end
+      end
+    end
+
   end
 
   get '/system/checkemail' do

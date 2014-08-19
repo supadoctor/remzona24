@@ -38,6 +38,30 @@ class ImageUploader < CarrierWave::Uploader::Base
   end
 end
 
+class MasterBannerUploader < CarrierWave::Uploader::Base
+  include CarrierWave::MiniMagick
+  storage :file
+  permissions 0666
+  directory_permissions 0777
+  def store_dir
+    'uploads/images'
+  end
+  def cache_dir
+    'uploads/tmp'
+  end
+  def extension_white_list
+    %w(jpg jpeg gif png)
+  end
+  process :validate_image_size
+
+  def validate_image_size
+    img = ::MiniMagick::Image::read(File.binread(@file.file))
+    if img[:width] != 728 && image[:height] != 90
+      errors.add(:banner, "Размер изображения должен быть 720x90 пикселей!")
+    end
+  end
+end
+
 class PricelistUploader < CarrierWave::Uploader::Base
   storage :file
   permissions 0666
@@ -125,9 +149,10 @@ class User
       :format    => "Некорректный адрес сайта"
   }
   property :legalstatus, Integer
-  property :adstatus, Integer #0 - no ads, 1 - only vertical ad blosk, 2 - only horizontal ad block, 3 - all ad
+  property :adstatus, Integer #0 - no ads, 1 - only vertical ad block, 2 - only horizontal ad block, 3 - all ad
 
   mount_uploader :avatar, ImageUploader
+  mount_uploader :banner, MasterBannerUploader
   mount_uploader :pricelist, PricelistUploader
 
   validates_presence_of :fullname, :if => lambda { |t| t.type == "User" },

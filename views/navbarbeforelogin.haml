@@ -12,10 +12,18 @@
         %a{:href=>"/"}
           %i.uk-icon-home
           Главная
+      %li
+        %a{:href=>"/forusers"}
+          %i.uk-icon-truck
+          Для автовладельцев
+      %li
+        %a{:href=>"/formasters"}
+          %i.uk-icon-wrench
+          Для автомастеров
     %ul.uk-navbar-nav.uk-navbar-flip
       .uk-navbar-content
         .uk-button-group
-          %form.uk-form{:action => "/#orders", :method => "post"}
+          %form.uk-form{:action => "/#lastorders", :method => "post"}
             %input#areascope.uk-form-width-medium.uk-form-small{:type=>"text", :name=>"areascope", :placeholder => session[:siteregionplaceholder]}
             %input#sitelocation{:type=>"text", :name=>"sitelocation", :hidden=>"true"}
             %input#sitearea{:type=>"text", :name=>"sitearea", :hidden=>"true"}
@@ -35,7 +43,8 @@
     %ul#typesofuser.uk-switcher.uk-margin
       %li#regusertab
         %form#reguser.uk-form{:action => "/reguser", :method => "post"}
-          %legend
+          -#
+            %legend
             Вы регистрируетесь с целью добавления заявок, ведения переписки с мастерами и сервисными центрами
           .uk-form-row
             %input.uk-width-1-1{:type=>"text", :required=>"", :placeholder=>"Адрес электронной почты", :name=>"email", "data-uk-tooltip" => "", :title => "Укажите корректный адрес электронной почты. Он будет использоваться для входа на Портал и получения уведомлений"}
@@ -72,7 +81,8 @@
           %button#usersubmit.uk-button.uk-button-primary.uk-align-center{:type=>"submit"}Регистрация
       %li#regmastertab
         %form#regmaster.uk-form{:action => "/regmaster", :method => "post"}
-          %legend
+          -#
+            %legend
             Вы являетесь индивидуальным предпринимателем, бригадой или небольшой фирмой и оказываете услуги по ремонту автомобилей, работая напрямую с заказчиком.
           .uk-form-row
             %input.uk-width-1-1{:type=>"text", :required=>"", :placeholder=>"Адрес электронной почты", :name=>"email", "data-uk-tooltip" => "", :title => "Укажите корректный адрес электронной почты. Он будет использоваться для входа на Портал и получения уведомлений"}

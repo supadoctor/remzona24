@@ -157,6 +157,21 @@
                   %input#www.uk-width-1-1.editable{:type=>"text", :value=>@current_user.www, :name=>"www", :readonly=>""}
                   %br
                   %label.error.uk-text-small.uk-text-danger{:for=>"www"}
+              .uk-form-row{:style=>"margin-bottom: 15px; margin-top: 20px;"}
+                %h3.uk-form-label{:for=>"banner"}
+                  Баннер
+                  %span.uk-display-inline
+                    %i.uk-icon-question-circle{"data-uk-tooltip" => "", :title => "Вы можете загрузить баннер для вашей персональной страницы. Размер баннера должен быть 728х90 пикселей"}
+                -if @current_user.banner.present?
+                  .uk-form-controls
+                    %img{:src => @current_user.banner.url}
+                    %input.showwhenedit{:type=>"file", :name=>"banner", :hidden=>"true"}
+                    %input.showwhenedit{:type=>"checkbox", :name=>"delete_banner", :hidden=>"true"}
+                    %span.showwhenedit{:hidden => "true"} Удалить
+                -else
+                  .uk-form-controls{:style=>"margin-top: 5px;"}
+                    %div.hidewhenedit{:style=>"padding-top: 5px; padding-bottom: 5px;"} Нет
+                    %input.showwhenedit{:type=>"file", :name=>"banner", :hidden=>"true"}
               %hr
               .uk-form-row{:style=>"margin-top: 20px;"}
                 %h3.uk-form-label{:for=>"description"}

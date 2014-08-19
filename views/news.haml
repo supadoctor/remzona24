@@ -1,0 +1,13 @@
+.uk-container.uk-container-center
+  %br
+  .uk-grid
+    .uk-width-1-1
+      %h1.uk-text-right Новости
+      .uk-panel.uk-panel-box
+        -@news.reverse_each do |id,q|
+          -if id%2 == 0
+            %h3.uk-text-bold #{q}
+          -else
+            %p #{q}
+            %hr
+    -showverticalad

@@ -3,7 +3,7 @@
   -moz-background-size: cover;
   -o-background-size: cover;
   background-size: cover;
-  min-height: 450px;
+  /*min-height: 450px;*/
 }
 
 .bg-img-fixed {
@@ -178,13 +178,40 @@ h6 {
 }
 
 .orderatmainpage:hover {
-    /*background: url('/img/spareparts.png');*/
     background: #FFCC99;
     box-shadow: 10px 10px 10px -10px;
     border: 1px solid #AAAAAA;
-    /*left: -10px;*/
 }
 
+.masteratmainpage {
+    -webkit-transition: 0.5s background ease-in-out, 0.25s top ease-in-out, 0.5s box-shadow ease-in-out;
+    transition: 0.5s background ease-in-out, 0.25s top ease-in-out, 0.5s box-shadow ease-in-out;
+}
+
+.masteratmainpage:hover {
+    background-color: lightblue;
+    border: 1px solid #AAAAAA;
+}
+
+dt {
+  font-family: 'Open Sans Condensed', sans-serif;
+}
+.masters-description-list  > dt {
+    width: 100px;
+}
+
+.masters-description-list > dd {
+    margin-left: 120px;
+}
+
+.uk-text-small {
+    line-height: inherit;
+}
+
+
+.uk-tooltip {
+  max-width: 300px;
+}
 /*
 .uk-table-striped tbody tr:nth-of-type(odd) {
   background: #fdf5e6;

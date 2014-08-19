@@ -7,13 +7,50 @@
         %table.uk-table.uk-table-striped.uk-table-condensed
           %tbody
           %tr
-            %td
+            %td.uk-width-1-10.uk-text-center
               %i.uk-icon-wrench
-            %td
+            %td.uk-width-3-10
               %h3.uk-margin-bottom-remove Исходная заявка
-            %td
+            %td.uk-width-6-10
               %a{:href=>"/order/#{@order.id}"}
                 Заявка № #{@order.id}
+          %tr
+            %td.uk-text-center
+              %i.uk-icon-truck
+            %td
+              %h3.uk-margin-bottom-remove Автомобиль
+            %td
+              - brand(@order.vehicle.make)
+              %div{:style=>"display: inline-block; vertical-align: middle;"}
+                #{vehicleinfo(@order)}
+          %tr
+            %td.uk-text-center
+              %i.uk-icon-wrench
+            %td
+              %h3.uk-margin-bottom-remove Описание
+            %td
+              %strong #{@order.subject}
+          %tr
+            %td.uk-text-center
+              %i.uk-icon-calendar
+            %td
+              %h3.uk-margin-bottom-remove Сроки
+            %td
+              -if @order.td === @order.fd
+                .uk-text-warning не определены
+              -else
+                #{@order.fd.strftime("%d.%m.%Y")} - #{@order.td.strftime("%d.%m.%Y")}
+          %tr
+            %td.uk-text-center
+              %i.uk-icon-money
+            %td
+              %h3.uk-margin-bottom-remove Бюджет
+            %td
+              -if @order.budget < 0
+                .uk-text-warning не определен
+              -else
+                #{rur @order.budget}
+                / %i.uk-icon-rub
         /-if (@current_user.type == "Master") || (@current_user.type == "User" && @current_user == @order.user)
         -if (@current_user.type == "Master")
           %form#newmessage.uk-form.uk-form-horizontal{:action => "/addquestionto?order=" + @order.id.to_s, :method => "post"}
@@ -29,6 +66,7 @@
                 %button.uk-button.uk-button-success{:type=>"submit"}Разместить доп.информацию
               -else
                 %button.uk-button.uk-button-success{:type=>"submit"}Разместить вопрос
+      %div{:class=>"yashare-auto-init", "data-yashareType"=>"link", "data-yashareQuickServices"=>"vkontakte,|,facebook,|,gplus,|,twitter,|,lj"}
       - if @rootquestions && @rootquestions.size > 0
         %h1.uk-text-right Вопросы и ответы
         - @rootquestions.each do |q|
