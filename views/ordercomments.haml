@@ -66,7 +66,7 @@
                 %button.uk-button.uk-button-success{:type=>"submit"}Разместить доп.информацию
               -else
                 %button.uk-button.uk-button-success{:type=>"submit"}Разместить вопрос
-      %div{:class=>"yashare-auto-init", "data-yashareType"=>"link", "data-yashareQuickServices"=>"vkontakte,|,facebook,|,gplus,|,twitter,|,lj"}
+        %div{:class=>"yashare-auto-init", "data-yashareType"=>"link", "data-yashareQuickServices"=>"vkontakte,|,facebook,|,gplus,|,twitter,|,lj"}
       - if @rootquestions && @rootquestions.size > 0
         %h1.uk-text-right Вопросы и ответы
         - @rootquestions.each do |q|

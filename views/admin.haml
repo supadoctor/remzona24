@@ -54,15 +54,6 @@
                                   = "Подтверждение начала работ"
                               -else
                                 #{m.subject}
-                            %a.fancybox{:href=>"/ajax/message/#{m.id}"}
-                              -if !m.subject
-                                -case m.type
-                                -when "Offer"
-                                  = "Новое предложение"
-                                -when "Request"
-                                  = "Предложение принято"
-                              -else
-                                #{m.subject}
                           %td
                             -if m.sender.id != 1
                               %a{:href=>"/user/"+m.sender.id.to_s}

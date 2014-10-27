@@ -32,9 +32,17 @@ class ImageUploader < CarrierWave::Uploader::Base
   def extension_white_list
     %w(jpg jpeg gif png)
   end
+  def filename
+    "#{secure_token}.#{file.extension}" if original_filename.present?
+  end
   process :resize_to_limit => [1280, 1024]
   version :avatar64 do
     process :resize_to_fill => [64,64]
+  end
+  protected
+  def secure_token
+    var = :"@#{mounted_as}_secure_token"
+    model.instance_variable_get(var) or model.instance_variable_set(var, SecureRandom.uuid)
   end
 end
 
@@ -52,6 +60,10 @@ class MasterBannerUploader < CarrierWave::Uploader::Base
   def extension_white_list
     %w(jpg jpeg gif png)
   end
+  def filename
+    "#{secure_token}.#{file.extension}" if original_filename.present?
+  end
+
   process :validate_image_size
 
   def validate_image_size
@@ -59,6 +71,11 @@ class MasterBannerUploader < CarrierWave::Uploader::Base
     if img[:width] != 728 && image[:height] != 90
       errors.add(:banner, "Размер изображения должен быть 720x90 пикселей!")
     end
+  end
+  protected
+  def secure_token
+    var = :"@#{mounted_as}_secure_token"
+    model.instance_variable_get(var) or model.instance_variable_set(var, SecureRandom.uuid)
   end
 end
 
@@ -74,6 +91,14 @@ class PricelistUploader < CarrierWave::Uploader::Base
   end
   def extension_white_list
     %w(doc docx xls xlsx pdf txt)
+  end
+  def filename
+    "#{secure_token}.#{file.extension}" if original_filename.present?
+  end
+  protected
+  def secure_token
+    var = :"@#{mounted_as}_secure_token"
+    model.instance_variable_get(var) or model.instance_variable_set(var, SecureRandom.uuid)
   end
 end
 

@@ -92,7 +92,7 @@ h6 {
   border-radius: 2px;
   -webkit-transition: .2s background ease-in-out, .1s top ease-in-out, .2s box-shadow ease-in-out;
   transition: .2s background ease-in-out, .1s top ease-in-out, .2s box-shadow ease-in-out;
-  border: 1px solid rgba(1,1,1,0.2);
+  border: 3px solid rgba(1,1,1,0.2);
 }
 
 .uk-form select,
@@ -186,6 +186,7 @@ h6 {
 .masteratmainpage {
     -webkit-transition: 0.5s background ease-in-out, 0.25s top ease-in-out, 0.5s box-shadow ease-in-out;
     transition: 0.5s background ease-in-out, 0.25s top ease-in-out, 0.5s box-shadow ease-in-out;
+    perspective: 800px;
 }
 
 .masteratmainpage:hover {
@@ -197,26 +198,61 @@ dt {
   font-family: 'Open Sans Condensed', sans-serif;
 }
 .masters-description-list  > dt {
-    width: 100px;
+  width: 100px;
 }
 
 .masters-description-list > dd {
-    margin-left: 120px;
+  margin-left: 120px;
 }
 
 .uk-text-small {
-    line-height: inherit;
+  line-height: inherit;
 }
-
 
 .uk-tooltip {
   max-width: 300px;
 }
-/*
-.uk-table-striped tbody tr:nth-of-type(odd) {
-  background: #fdf5e6;
+
+/*.card {
+  min-height: 120px;
+  position: relative;
 }
 
-.uk-panel-box {
-  background: #fdf5e6;
+.card .front, .card .back{
+  width: 100%;
+  height: 100%;
+  background: #fafafa;
+  color: #444444;
+  border: 1px solid #dddddd;
+  border-radius: 4px;
+  padding: 15px;
+
+  -webkit-backface-visibility: hidden;
+     -moz-backface-visibility: hidden;
+       -o-backface-visibility: hidden;
+          backface-visibility: hidden;
+  transition: transform 0.3s linear 0s;
+  -webkit-transition: -webkit-transform 0.3s linear 0s;
+
+  transform: perspective(800px);
+  -webkit-transform: perspective(800px);
+}
+
+.card .back{
+  position: absolute;
+  transform: rotateY(180deg);
+  -webkit-transform: rotateY(180deg);
+
+}
+
+/* The .front card needs to rotate when we hover, 180 degrees will do the trick*/
+.card:hover .front{
+  transform: rotateY(180deg);
+  -webkit-transform: rotateY(180deg);
+}
+
+/* The .back card has to rotate to 0 degrees and be visible*/
+.card:hover .back{
+  transform: rotateY(0);
+  -webkit-transform: rotateY(0);
 }*/

@@ -21,14 +21,15 @@
           %i.uk-icon-wrench
           Для автомастеров
     %ul.uk-navbar-nav.uk-navbar-flip
-      .uk-navbar-content
-        .uk-button-group
-          %form.uk-form{:action => "/#lastorders", :method => "post"}
-            %input#areascope.uk-form-width-medium.uk-form-small{:type=>"text", :name=>"areascope", :placeholder => session[:siteregionplaceholder]}
-            %input#sitelocation{:type=>"text", :name=>"sitelocation", :hidden=>"true"}
-            %input#sitearea{:type=>"text", :name=>"sitearea", :hidden=>"true"}
-            %input#siteregion{:type=>"text", :name=>"siteregion", :hidden=>"true"}
-            %button.uk-button.uk-button-mini.uk-button-primary{:type=>"submit", :style=>"margin-left: 5px; vertical-align: middle;"} Изменить
+      %li
+        .uk-navbar-content
+          .uk-button-group
+            %form.uk-form.uk-form-horizontal{:action => "/#lastorders", :method => "post"}
+              %input#areascope.uk-form-width-medium.uk-form-small{:type=>"text", :name=>"areascope", :placeholder => session[:siteregionplaceholder]}
+              %input#sitelocation{:type=>"text", :name=>"sitelocation", :hidden=>"true"}
+              %input#sitearea{:type=>"text", :name=>"sitearea", :hidden=>"true"}
+              %input#siteregion{:type=>"text", :name=>"siteregion", :hidden=>"true"}
+              %button.uk-button.uk-button-mini.uk-button-primary{:type=>"submit", :style=>"margin-left: 5px; vertical-align: middle;"} Изменить
 #register.uk-modal
   .uk-modal-dialog.uk-modal-dialog-slide
     %a.uk-modal-close.uk-close

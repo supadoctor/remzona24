@@ -27,7 +27,7 @@
         %br
         %h2
           %mark Если нужно отремонтировать автомобиль,
-          заказать ремонт двигателя, бампера, ходовой, узнать цену покраски или решить любую другую проблему с машиной, то просто
+          заказать выезд автоэлектрика, ремонт двигателя, бампера, ходовой, узнать цену покраски или решить любую другую проблему с машиной, то просто
           %mark заполните форму
           ниже и выберите наиболее выгодное предложение от автомастеров, автомастерских, СТО и сервисцентров
         -#
@@ -49,7 +49,7 @@
               %i.uk-icon-home
               Населенный пункт
             .uk-form-controls
-              %input#expressuserlocation.uk-width-1-1{:type=>"text", :required=>"", :name=>"fulllocation", "data-uk-tooltip" => "{pos:'bottom-left'}", :title => "Введите первые буквы неселенного пункта где вы находитесь. Выберите из списка нужный вариант. При выборе небольших населенных пунктов обратите внимание на корректность района и области!"}
+              %input#expressuserlocation.uk-width-1-1{:type=>"text", :required=>"", :name=>"fulllocation", "data-uk-tooltip" => "{pos:'top-left'}", :title => "Введите первые буквы неселенного пункта где вы находитесь. Выберите из списка нужный вариант. При выборе небольших населенных пунктов обратите внимание на корректность района и области!"}
               %br
               %label.error.uk-text-small.uk-text-danger{:for=>"expressuserlocation"}
               %input#expressuserlocationtitle{:type=>"text", :name=>"locationtitle", :hidden=>"true"}
@@ -61,7 +61,7 @@
               %i.uk-icon-edit
               Заголовок заявки
             .uk-form-controls
-              %input#expresstitle.uk-width-1-1{:type=>"text", :name=>"title", :required=>"", "data-uk-tooltip" => "{pos:'bottom-left'}", :title => "Укажите заголовок вашей заявки"}
+              %input#expresstitle.uk-width-1-1{:type=>"text", :name=>"title", :required=>"", "data-uk-tooltip" => "{pos:'top-left'}", :title => "Укажите заголовок вашей заявки"}
               %br
               %label.error.uk-text-small.uk-text-danger{:for=>"expresstitle"}
           .uk-form-row{:style=>"margin-top: 20px;"}
@@ -182,7 +182,7 @@
               %i.uk-icon-wrench
               Описание проблемы
             .uk-form-controls
-              %textarea#expresssubject.uk-width-1-1{:name=>"subject", :cols=>"100%", :rows=>"4", "data-uk-tooltip" => "{pos:'bottom-left'}", :title => "Опиште суть вашей заявки. Например, укажите состав и объем требуемых работ, пожелания к срокам, стоимости и т.п. Внесите сюда максимум информации, которая бы помогла потенциальным исполнителям подготовить наиболее оптимальное предложение"}
+              %textarea#expresssubject.uk-width-1-1{:name=>"subject", :cols=>"100%", :rows=>"4", "data-uk-tooltip" => "{pos:'top-left'}", :title => "Опиште суть вашей заявки. Например, укажите состав и объем требуемых работ, пожелания к срокам, стоимости и т.п. Внесите сюда максимум информации, которая бы помогла потенциальным исполнителям подготовить наиболее оптимальное предложение"}
               %br
               %label.error.uk-text-small.uk-text-danger{:for=>"expresssubject"}
           -#
@@ -197,7 +197,7 @@
               %i.uk-icon-user
               Контактное лицо
             .uk-form-controls
-              %input#expressfullname.uk-width-1-1{:type=>"text", :required=>"", :name=>"fullname", "data-uk-tooltip" => "{pos:'bottom-left'}", :title => "Пожалуйста, представьтесь. Это имя будет использоваться при публикации заявок и для идентификации других ваших действий на Портале"}
+              %input#expressfullname.uk-width-1-1{:type=>"text", :required=>"", :name=>"fullname", "data-uk-tooltip" => "{pos:'top-left'}", :title => "Пожалуйста, представьтесь. Это имя будет использоваться при публикации заявок и для идентификации других ваших действий на Портале"}
               %br
               %label.error.uk-text-small.uk-text-danger{:for=>"expressfullname"}
           .uk-form-row{:style=>"margin-top: 20px;"}
@@ -205,7 +205,7 @@
               %i.uk-icon-envelope
               Электронная почта для получения уведомлений
             .uk-form-controls
-              %input#expressemail.uk-width-1-1{:type=>"text", :required=>"", :name=>"email", "data-uk-tooltip" => "{pos:'bottom-left'}", :title => "Укажите корректный адрес электронной почты. Он будет использоваться для входа на Портал и получения уведомлений"}
+              %input#expressemail.uk-width-1-1{:type=>"text", :required=>"", :name=>"email", "data-uk-tooltip" => "{pos:'top-left'}", :title => "Укажите корректный адрес электронной почты. Он будет использоваться для входа на Портал и получения уведомлений"}
               %br
               %label.error.uk-text-small.uk-text-danger{:for=>"expressemail"}
           .uk-form-row{:style=>"margin-top: 20px;"}
@@ -309,7 +309,7 @@
       messages: {
         email: "Введите корректный адрес электронной почты",
         fullname: "Введите полное имя контактного лица",
-        fulllocation: "Выберите населенный пункт из списка",
+        fulllocation: "Введите первые буквы вашего населенного пункта и выберите его списка",
         title: "Введите заголовок заявки",
         subject: "Введите описание заявки",
         vehiclemake: "Выберите марку из списка",

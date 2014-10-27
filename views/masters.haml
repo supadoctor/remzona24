@@ -25,8 +25,9 @@
                   %a{:href=>"/masters?page=1"} 1
                 -else
                   %a{:href=>"/masters/#{@showmastersinlocation}/?page=1"} 1
-              %li
-                %span ...
+              -if @pagination.min > 2
+                %li
+                  %span ...
             -@pagination.each do |p|
               -if p == @current_page
                 %li.uk-active
@@ -39,8 +40,9 @@
                   -else
                     %a{:href=>"/masters/#{@showmastersinlocation}/?page=#{p}"} #{p}
             -if @end_page < @total_pages
-              %li
-                %span ...
+              -if @end_page < @total_pages - 1
+                %li
+                  %span ...
               %li
                 -if @showmastersinlocation.to_s.size == 0
                   %a{:href=>"/masters?page=#{@total_pages}"} #{@total_pages}

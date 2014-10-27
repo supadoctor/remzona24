@@ -39,6 +39,7 @@ class Remzona24App < Sinatra::Application
   configure do
     enable :logging, :method_override
     I18n.enforce_available_locales = false
+    CarrierWave::SanitizedFile.sanitize_regexp = /[^[:word:]\.\-\+]/
     #set :edminds_api => 'dqrths629w35vurjaz5yrn7c'
     #set :vehicles => YAML.load_file("public/makes.yml")
   end
@@ -181,7 +182,11 @@ class Remzona24App < Sinatra::Application
     
     def vehicleinfo(order)
       v = order.vehicle
-      (v.make && v.make.size > 0 ? v.make : "") + (v.mdl && v.mdl.size > 0 ? " " + v.mdl : "") + (v.year && v.year>0 ? ", год выпуска: " + v.year.to_s : "") + (v.VIN && v.VIN.size > 0 ? ", VIN: " + v.VIN : "")
+      if v
+        (v.make && v.make.size > 0 ? v.make : "") + (v.mdl && v.mdl.size > 0 ? " " + v.mdl : "") + (v.year && v.year>0 ? ", год выпуска: " + v.year.to_s : "") + (v.VIN && v.VIN.size > 0 ? ", VIN: " + v.VIN : "")
+      else
+         return "нет информации"
+      end
     end
     
     def unreadmessages
@@ -581,6 +586,20 @@ class Remzona24App < Sinatra::Application
       d = -29*45
     when "УАЗ"
       d = -29*47
+    when "Chery"
+      d = -29*48
+    when "Lifan"
+      d = -29*49
+    when "ГАЗ"
+      d = -29*50
+    when "Tagaz (ТагАЗ)"
+      d = -29*51
+    when "ZAZ (ЗАЗ)"
+      d = -29*52
+    when "Geely"
+      d = -29*53
+    when "Great Wall"
+      d = -29*54
     else
       showbrand = false
     end
@@ -618,47 +637,67 @@ class Remzona24App < Sinatra::Application
   end
 
   def showlastmasters
-    o = User.all(:type => "Master").count - 3
-    lastmasters = User.all(:type => "Master", :offset => o, :limit => 3)
+    o = User.all(:type => "Master", :status => 0).count - 3
+    lastmasters = User.all(:type => "Master", :offset => o, :limit => 3, :status => 0)
+    k = 0
     lastmasters.reverse_each do |m|
-      haml_tag :div, :class => "uk-panel uk-panel-box uk-margin-bottom masteratmainpage" do
-        haml_tag :div, :class => "uk-grid" do
-          haml_tag :div, :class => "uk-width-1-3" do
-            if m.avatar.present?
-              haml_tag :img, :src => m.avatar.avatar64.url
-            else
-              haml_tag :img, :src => "/no_avatar64.gif"
-            end
-          end
-          haml_tag :div, :class => "uk-width-2-3" do
-            haml_tag :h3, :class => "uk-text-left" do
-              haml_concat m.displayedname
-            end
-          end
-          haml_tag :div, :class => "uk-width-1-1 uk-text-left" do
-            haml_tag :dl, :class =>"uk-description-list uk-description-list-horizontal masters-description-list" do
-              haml_tag :dt, "Расположение:"
-              haml_tag :dd, :class => "uk-text-small" do
-                haml_concat fulllocation(m)
-              end
-              if m.description.to_s.size > 0
-                haml_tag :dt, "Описание:"
-                haml_tag :dd, :class =>"uk-text-justify" do
-                  haml_concat shortdescription(m.description)
+      k += 1
+      haml_tag :div, :class => "uk-panel" do #"uk-panel uk-panel-box uk-margin-bottom masteratmainpage"
+        haml_tag :div, :class => "uk-panel-box uk-margin-bottom", :id => "mastercard#{k}" do
+          haml_tag :div, :class => "front" do
+            haml_tag :div, :class => "uk-grid" do
+              haml_tag :div, :class => "uk-width-1-3" do
+                if m.avatar.present?
+                  haml_tag :img, :class => "uk-border-circle", :src => m.avatar.avatar64.url
+                else
+                  haml_tag :img, :class => "uk-border-circle", :src => "/no_avatar64.gif"
                 end
               end
-              haml_tag :dt, "На сайте с:"
-              haml_tag :dd, :class => "uk-text-small" do
-                haml_concat m.created_at.strftime("%d.%m.%Y")
+              haml_tag :div, :class => "uk-width-2-3" do
+                haml_tag :h3, :class => "uk-text-left" do
+                  haml_tag :a, :href => "/user/#{m.id}" do
+                    haml_concat m.displayedname
+                  end
+                end
+              end
+              haml_tag :div, :class => "uk-width-1-1 uk-text-left" do
+                haml_tag :dl, :class =>"uk-description-list uk-description-list-horizontal masters-description-list" do
+                  haml_tag :dt, "Расположение:"
+                  haml_tag :dd, :class => "uk-text-small" do
+                    haml_concat fulllocation(m)
+                  end
+                  # if m.description.to_s.size > 0
+                  #   haml_tag :dt, "Описание:"
+                  #   haml_tag :dd, :class =>"uk-text-justify" do
+                  #     haml_concat shortdescription(m.description)
+                  #   end
+                  # end
+                  haml_tag :dt, "На сайте с:"
+                  haml_tag :dd, :class => "uk-text-small" do
+                    haml_concat m.created_at.strftime("%d.%m.%Y")
+                  end
+                end
+              end
+              haml_tag :div, :class => "uk-align-right uk-text-small uk-margin-bottom-remove" do
+                haml_tag :a, :href => "/user/#{m.id}" do
+                  haml_concat "Подробнее"
+                  haml_tag :i, :class => "uk-icon-angle-double-right"
+                end
               end
             end
           end
-          haml_tag :div, :class => "uk-align-right uk-text-small uk-margin-bottom-remove" do
-            haml_tag :a, :href => "/user/#{m.id}" do
-              haml_concat "Подробнее"
-              haml_tag :i, :class => "uk-icon-angle-double-right"
-            end
-          end
+          # if m.description.to_s.size > 0
+          #   haml_tag :div, :class => "back" do
+          #     haml_tag :div, :class => "uk-width-1-1 uk-text-left" do
+          #       haml_tag :dl, :class =>"uk-description-list uk-description-list-horizontal masters-description-list" do
+          #         haml_tag :dt, "Описание:"
+          #         haml_tag :dd, :class =>"uk-text-justify" do
+          #           haml_concat shortdescription(m.description)
+          #         end
+          #       end
+          #     end
+          #   end
+          # end
         end
       end
     end
@@ -673,6 +712,15 @@ class Remzona24App < Sinatra::Application
         d[0..155]+"..."
       else
         d
+      end
+    end
+
+    def orderhaspicture?(order)
+      p = Orderimage.all(:order_id => order.id)
+      if p.count > 0
+        return true
+      else
+        return false
       end
     end
   end
@@ -716,12 +764,13 @@ class Remzona24App < Sinatra::Application
     @orders_at_mainpage = (Order.all(:status => 0, :order => [ :fd.desc ]) & (Order.all(:conditions => ['fd = td'], :order => [ :fd.desc ]) | Order.all(:td.gte => DateTime.now, :order => [ :fd.desc ]))).paginate(:page => params[:page], :per_page => 10)
     @total_pages = (@orders_at_mainpage_total/10.0).ceil
     @start_page  = (@current_page - 5) > 0 ? (@current_page - 5) : 1
-    @end_page = @start_page + 10
+    @end_page = @start_page + 9
     if @end_page > @total_pages
       @end_page = @total_pages
-      @start_page = (@end_page - 10) > 0 ? (@end_page - 10) : 1
+      @start_page = (@end_page - 9) > 0 ? (@end_page - 9) : 1
     end
     @pagination = @start_page..@end_page
+    #puts "***********", "CP:", @current_pagem, "TP:", @total_pages, "SP:", @start_page, "EP", @end_page, "**********"
 
     #@orders_at_mainpage = (Order.all(:status => 0, :order => [ :fd.desc ]) & (Order.all(:conditions => ['fd = td'], :order => [ :fd.desc ]) | Order.all(:td.gte => DateTime.now, :order => [ :fd.desc ]))).paginate(:page => params[:page], :per_page => 10)
     #@new_orders_at_mainpage = @orders_at_mainpage
@@ -780,11 +829,11 @@ class Remzona24App < Sinatra::Application
     @total_pages = (@masters_at_mainpage_total/10.0).ceil
     @total_pages = @total_pages > 0 ? @total_pages : 1
     @start_page  = (@current_page - 5) > 0 ? (@current_page - 5) : 1
-    @end_page = @start_page + 10
+    @end_page = @start_page + 9
 
     if @end_page > @total_pages
       @end_page = @total_pages
-      @start_page = (@end_page - 10) > 0 ? (@end_page - 10) : 1
+      @start_page = (@end_page - 9) > 0 ? (@end_page - 9) : 1
     end
     @pagination = @start_page..@end_page
 
@@ -855,10 +904,10 @@ end
 
     @total_pages = (@orders_at_mainpage_total/10.0).ceil
     @start_page  = (@current_page - 5) > 0 ? (@current_page - 5) : 1
-    @end_page = @start_page + 10
+    @end_page = @start_page + 9
     if @end_page > @total_pages
       @end_page = @total_pages
-      @start_page = (@end_page - 10) > 0 ? (@end_page - 10) : 1
+      @start_page = (@end_page - 9) > 0 ? (@end_page - 9) : 1
     end
     @pagination = @start_page..@end_page
     if !logged_in?
@@ -887,7 +936,7 @@ end
     @end_page = @start_page + 10
     if @end_page > @total_pages
       @end_page = @total_pages
-      @start_page = (@end_page - 10) > 0 ? (@end_page - 10) : 1
+      @start_page = (@end_page - 9) > 0 ? (@end_page - 9) : 1
     end
     @pagination = @start_page..@end_page
     if !logged_in?
@@ -913,10 +962,10 @@ end
 
     @total_pages = (@orders_at_mainpage_total/10.0).ceil
     @start_page  = (@current_page - 5) > 0 ? (@current_page - 5) : 1
-    @end_page = @start_page + 10
+    @end_page = @start_page + 9
     if @end_page > @total_pages
       @end_page = @total_pages
-      @start_page = (@end_page - 10) > 0 ? (@end_page - 10) : 1
+      @start_page = (@end_page - 9) > 0 ? (@end_page - 9) : 1
     end
     @pagination = @start_page..@end_page
     if !logged_in?
@@ -1054,6 +1103,36 @@ end
     end
   end
 
+  get '/user/:id', :agent => /(YandexBot\/\w+)|(Googlebot\/\w+)/ do
+    if params[:id].to_i > 1
+      begin
+        @user = User.get(params[:id].to_i)
+      rescue
+        session[:messagetodisplay] = @@text["notify"]["nouser"]
+        redirect back
+      ensure
+        if @user.nil?
+          session[:messagetodisplay] = @@text["notify"]["nouser"]
+          redirect back
+        end
+      end
+      @reviews = Review.all(:user => @user, :limit => 10, :order => [:date.desc])
+      case @user.type
+      when "User"
+        haml :userview
+      when "Master"
+        @tags = []
+        @user.tags.all.each do |t|
+          @tags << t.tag
+        end
+        @tags = @tags.join(",")
+        haml :masterview
+      end
+    else
+      redirect back
+    end
+  end
+
   get '/user/:id' do
     if params[:id].to_i > 1
       begin
@@ -1162,7 +1241,7 @@ end
           end
           if params[:banner] && !params[:delete_banner]
             @current_user.update(:banner => params[:banner])
-            puts ">>BANNER", @current_user.banner.present?
+            #puts ">>BANNER", @current_user.banner.present?
           end
           if params[:pricelist] && !params[:delete_pricelist]
             @current_user.update(:pricelist => params[:pricelist])
@@ -2396,6 +2475,18 @@ end
     else
       haml :navbarafterlogin do
         haml :news
+      end
+    end
+  end
+
+  get '/express' do
+    if !logged_in?
+      haml :navbarbeforelogin do
+        haml :express
+      end
+    else
+      haml :navbarafterlogin do
+        redirect '/profile'
       end
     end
   end

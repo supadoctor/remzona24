@@ -113,6 +113,9 @@
             /%p Пересечение:
             /=(@mypossibilities.tags.all(:tag => {:usertaging => @current_user.tags})).size
           %li#profile
+            %button#editprofile.uk-button.uk-button-success
+              %i.uk-icon-edit
+              Изменить
             %form#updateprofile.uk-form.uk-form-horizontal{:action=>"/updateprofile", :method=>"post", :enctype=>"multipart/form-data"}
               .uk-form-row{:style=>"margin-bottom: 15px; margin-top: 20px;"}
                 %h3.uk-form-label{:for=>"avatar"} Фотография
@@ -270,7 +273,8 @@
                   %button#apply.uk-button.uk-button-success{:type=>"submit", :style=>"display: none;"} Сохранить изменения
                 .uk-width-1-2.uk-container-center.uk-text-center
                   %button#cancel.uk-button{:type=>"reset", :style=>"display: none;"} Отменить изменения
-            %button#editprofile.uk-button.uk-button-success
+            -#
+              %button#editprofile.uk-button.uk-button-success
               %i.uk-icon-edit
               Изменить
           %li#settings
