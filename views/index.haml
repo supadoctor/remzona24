@@ -36,11 +36,15 @@
           -@orders_at_mainpage.each do |order|
             .uk-panel.uk-panel-box.orderatmainpage{:itemscope=>"", :itemtype=>"http://schema.org/Thing"}
               %h3.uk-display-inline
+                -if order.views == 0
+                  .uk-badge NEW
+                -if order.views > 9
+                  .uk-badge.uk-badge-danger HOT
+                -if orderhaspicture?(order)
+                  .uk-badge.uk-badge-success PHOTO
                 %a{:href=>"/order/#{order.id}", "data-uk-tooltip"=>"{pos:'bottom-left'}", :title=>"Просмотреть детали заявки или предложить свои услуги по этой заявке"}
                   Заявка № #{order.id}
                   %span{:itemprop=>"name"} "#{order.title}"
-                  -if orderhaspicture?(order)
-                    %i.uk-icon-camera
               -#
                 %h5.uk-display-inline
                 %i.uk-icon-eye{"data-uk-tooltip"=>"", :title=>"Просмотры"}
