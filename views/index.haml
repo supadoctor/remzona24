@@ -33,8 +33,8 @@
               %li
                 %a{:href=>"/location/"+session[:sitelocation]+"#lastorders"} #{session[:sitelocation]}
         -if @orders_at_mainpage && @orders_at_mainpage.size > 0
-          -@orders_at_mainpage.each do |order|
-            .uk-panel.uk-panel-box.orderatmainpage{:itemscope=>"", :itemtype=>"http://schema.org/Thing"}
+          -@orders_at_mainpage.each_with_index do |order, i|
+            .uk-panel.uk-panel-box.orderanim{:itemscope=>"", :itemtype=>"http://schema.org/Thing"}
               %h3.uk-display-inline
                 -if order.views == 0
                   .uk-badge NEW
@@ -96,6 +96,18 @@
                   %i.uk-icon-angle-double-right
                 |
             %br
+            -if i == 1
+              %script{:async=>"", :src=>"//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"}
+              .uk-margin-bottom.uk-text-center
+                %ins.adsbygoogle{:style=>"display:inline-block;width:728px;height:90px", "data-ad-client"=>"ca-pub-9670514616561256", "data-ad-slot"=>"7261984928"}
+              :javascript  
+                (adsbygoogle = window.adsbygoogle || []).push({});
+            -if i == 7
+              %script{:async=>"", :src=>"//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"}
+              .uk-margin-bottom.uk-text-center
+                %ins.adsbygoogle{:style=>"display:inline-block;width:728px;height:90px", "data-ad-client"=>"ca-pub-9670514616561256", "data-ad-slot"=>"8980893726"}
+              :javascript  
+                (adsbygoogle = window.adsbygoogle || []).push({});
           -if !logged_in?
             %h2.uk-text-center
               Хотите получить заказ наряд?
@@ -169,6 +181,12 @@
       .uk-panel
         %br
         %h1.uk-h6 Ремозона24.ру - ремонтная площадка №1 для вашего автомобиля! Ремозона24. ру – сервис «скорой помощи» для любого автомобилиста, а также для сервисцентров, автосервисов, автомастеров, автомастерских. Сайт выполняет двустороннюю помощь – владельцам авто и автосервисам абсолютно бесплатно! Что обычно случается, когда поломка машины застала врасплох? Вы начинаете искать визитки автосервисов, обзванивать друзей для получения от них рекомендаций лучших специалистов или вызываете эвакуатор и едете к ближайшему СТО, не зная, помогут ли вам в вашей проблеме. А что обычно делают мастера в автомастерских? Ждут, когда появится заказ. Ремзона24. ру решила задачи всех сторон! На сайте найдут полезные функции как те, кому требуется ремонт автомобиля, так и те, кто его выполняет. Наша задача помочь владельцам авто и мастерам по ремонту найти друг друга. Для автовладельцев: если вам нужен ремонт транспорта отечественного производства или иномарки, вам необходимо оставить заявку или заказ наряд в своем личном кабинете. Если вы являетесь частным лицом, осуществляющим авторемонтную практику, или имеете автосервис, все что от вас потребуется после регистрации на сайте, – это выбрать регион и в появившемся списке заказ нарядов выбрать тот, по которому вы хотите предложить свои услуги. Ремонт авто с Ремзона24 ру еще никогда не был таким легким!
-
-:javascript
-  $('.order:below-the-fold').attr("data-uk-scrollspy", "{cls:'uk-animation-fade'}");
+  :javascript
+    window.onload = function(){   
+      setTimeout(function() { 
+        var ad = document.querySelector("ins.adsbygoogle");
+        if (ad && ad.innerHTML.replace(/\s/g, "").length == 0) {
+          ad.style.cssText = 'display:block !important'; ad.innerHTML = '<div class="uk-panel uk-panel-box uk-badge-warning"> <h2> Используете ADBLOCK?</h2> <h3> Реклама помогает оплачивать наши счета и поддерживать этот сайт!</h3> <p>Будет здорово, если вы отключите ADBLOCK на нашем сайте и кликните на паре объявлений</p> <h3>Спасибо!</h3></div></br>';
+        }
+      }, 2000); // The ad blocker check is performed 2 seconds after the page load 
+    }; 

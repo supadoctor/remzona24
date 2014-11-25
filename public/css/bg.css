@@ -8,7 +8,7 @@
 
 .bg-img-fixed {
     background-attachment: fixed;
-    min-height: 350px;
+    /*min-height: 350px;*/
 }
 .bg-img, .bg-img-fixed {
     background-position: center center;

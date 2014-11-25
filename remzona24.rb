@@ -2782,9 +2782,9 @@ end
     #Send monthly notifications about comeback
     @allmasters = User.all(:status => 0, :type => "Master")
     @allmasters.each do |m|
-      if get_settings(m, "sendmessagestoemail") && (DateTime.now - m.lastlogon) > 30
+      if get_settings(m, "subscribed") && (DateTime.now - m.lastlogon) > 30
         allorders = Order.all(:status => 0, :placement_id => m.placement_id)
-        if allorders.count > 0
+        if allorders.count > 4
           email_msg = "Здравствуйте, " + m.displayedname + "!\n\nВот уже более месяца вы не заходили на сайт http://www.remzona24.ru. Между тем на Ремзона24.ру много новых заказ-нарядов, которые ждут ваших предложений... Возвращайтесь!\n\nЕсли вы вдруг забыли свой пароль, то воспользуйтесь функцией сброса пароля - http://www.remzona24.ru/resetpassword. А если у вас есть вопрос или предложение по работе сайта - напишите нам здесь http://www.remzona24.ru/support"
           email_msg += @@text["email"]["regards"]
           Pony.mail(:to => m.email, :subject => 'Возвращайтесь на Ремзона24.ру', :body => email_msg)
