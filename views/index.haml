@@ -15,6 +15,7 @@
             -if @activelink == '/region'
               %li.uk-active
                 %span #{session[:siteregion]}
+                //%i.uk-icon-envelope-o.subscribe{"data-uk-tooltip"=>"", :title=>"Подписаться на автоматическое получение информации о размещении заявок в этом регионе", "data-scope"=>"region", :style=>"color: #07d; cursor: pointer;"}
             -else
               %li
                 %a{:href=>"/region/"+session[:siteregion]+'#lastorders'} #{session[:siteregion]}
@@ -22,6 +23,7 @@
             -if @activelink == '/area'
               %li.uk-active
                 %span #{session[:sitearea]}
+                //%i.uk-icon-envelope-o.subscribe{"data-uk-tooltip"=>"", :title=>"Подписаться на автоматическое получение информации о размещении заявок в этом регионе", "data-scope"=>"area", :style=>"color: #07d; cursor: pointer;"}
             -else
               %li
                 %a{:href=>"/area/"+session[:sitearea]+"#lastorders"} #{session[:sitearea]}
@@ -29,9 +31,20 @@
             -if @activelink == '/location'
               %li.uk-active
                 %span #{session[:sitelocation]}
+                -if logged_in? && current_user.type == "Master"
+                  %i.uk-icon-envelope-o.subscribe{"data-uk-tooltip"=>"", :title=>"Подписаться на автоматическое получение информации о размещении заявок в этом регионе", "data-scope"=>"location", :style=>"color: #07d; cursor: pointer;"}
             -else
               %li
                 %a{:href=>"/location/"+session[:sitelocation]+"#lastorders"} #{session[:sitelocation]}
+        -if session[:sitelocation] && session[:sitelocation].size > 0
+          -if @activelink == '/location'
+            .uk-alert{"data-uk-alert"=>""}
+              %a.uk-alert-close.uk-close{:href=>""}
+              Хотите быть в курсе новых заказ-нарядов в этом регионе?
+              Нажмите на значок
+              %i.uk-icon-envelope-o.subscribe
+              и мы будем направлять на вашу электронную почту уведомления о размещении новых заявок. Отписаться от рассылки можно в любое время в "Личном кабинете" в разделе "Настройки".
+          
         -if @orders_at_mainpage && @orders_at_mainpage.size > 0
           -@orders_at_mainpage.each_with_index do |order, i|
             .uk-panel.uk-panel-box.orderanim{:itemscope=>"", :itemtype=>"http://schema.org/Thing"}
@@ -182,11 +195,33 @@
         %br
         %h1.uk-h6 Ремозона24.ру - ремонтная площадка №1 для вашего автомобиля! Ремозона24. ру – сервис «скорой помощи» для любого автомобилиста, а также для сервисцентров, автосервисов, автомастеров, автомастерских. Сайт выполняет двустороннюю помощь – владельцам авто и автосервисам абсолютно бесплатно! Что обычно случается, когда поломка машины застала врасплох? Вы начинаете искать визитки автосервисов, обзванивать друзей для получения от них рекомендаций лучших специалистов или вызываете эвакуатор и едете к ближайшему СТО, не зная, помогут ли вам в вашей проблеме. А что обычно делают мастера в автомастерских? Ждут, когда появится заказ. Ремзона24. ру решила задачи всех сторон! На сайте найдут полезные функции как те, кому требуется ремонт автомобиля, так и те, кто его выполняет. Наша задача помочь владельцам авто и мастерам по ремонту найти друг друга. Для автовладельцев: если вам нужен ремонт транспорта отечественного производства или иномарки, вам необходимо оставить заявку или заказ наряд в своем личном кабинете. Если вы являетесь частным лицом, осуществляющим авторемонтную практику, или имеете автосервис, все что от вас потребуется после регистрации на сайте, – это выбрать регион и в появившемся списке заказ нарядов выбрать тот, по которому вы хотите предложить свои услуги. Ремонт авто с Ремзона24 ру еще никогда не был таким легким!
   :javascript
-    window.onload = function(){   
+    window.onload = function(){
       setTimeout(function() { 
         var ad = document.querySelector("ins.adsbygoogle");
         if (ad && ad.innerHTML.replace(/\s/g, "").length == 0) {
           ad.style.cssText = 'display:block !important'; ad.innerHTML = '<div class="uk-panel uk-panel-box uk-badge-warning"> <h2> Используете ADBLOCK?</h2> <h3> Реклама помогает оплачивать наши счета и поддерживать этот сайт!</h3> <p>Будет здорово, если вы отключите ADBLOCK на нашем сайте и кликните на паре объявлений</p> <h3>Спасибо!</h3></div></br>';
         }
       }, 2000); // The ad blocker check is performed 2 seconds after the page load 
-    }; 
+    };
+
+    $(function(){
+
+      $('.orderanim').waypoint(function(direction) {
+        if(direction == 'down') {
+          var element = $(this);
+          element.addClass("uk-animation-slide-bottom uk-animation-2");
+        }
+      }, { offset: '100%' });
+
+      $('.subscribe').click(function(){
+        var scope = $(this).data("scope");
+        $.ajax({
+          type: "POST",
+          url: "/subscribe",
+          data: "scope="+scope,
+          success: function(response) { displaynotify(response.msg); },
+          dataType: "json"
+        });
+      });
+
+    }); 

@@ -273,13 +273,22 @@
                   %button#apply.uk-button.uk-button-success{:type=>"submit", :style=>"display: none;"} Сохранить изменения
                 .uk-width-1-2.uk-container-center.uk-text-center
                   %button#cancel.uk-button{:type=>"reset", :style=>"display: none;"} Отменить изменения
-            -#
-              %button#editprofile.uk-button.uk-button-success
+            %button#editprofile.uk-button.uk-button-success
               %i.uk-icon-edit
               Изменить
           %li#settings
             %form.uk-form.uk-form-horizontal{:action=>"/updatesettings", :method=>"post"}
               .uk-form-row{:style=>"margin-top: 5px; margin-bottom: 15px;"}
+                %h3.uk-form-label{:style=>"width: 400px;"}
+                  Подписка
+                  %span.uk-display-inline
+                    %i.uk-icon-question-circle{"data-uk-tooltip" => "", :title => "Вы подписаны на получение информации о размещении заказ-нарядов в этих регионах"}
+                .uk-form-controls{:style=>"margin-top: 10px; margin-left: 415px;"}
+                  - if @subscription.size > 0
+                    %input#subscription.uk-width-1-1{:type=>"text", :name=>"subscription", :value=>@subscription}
+                  - else
+                    %p Вы не подписаны ни на один регион
+              .uk-form-row
                 %h3.uk-form-label{:style=>"width: 400px;"}
                   Отображать адрес электронной почты
                   %span.uk-display-inline
@@ -442,6 +451,26 @@
       
     });
 
+    $('#subscription').selectize({
+      valueField: 'subscription',
+      labelField: 'subscription',
+      searchField: 'subscription',
+      plugins: ['remove_button'],
+      delimiter: ';',
+      persist: false,
+      create: false,
+      load: function(query, callback) {
+        if (!query.length) return callback();
+        $.ajax({
+          url : '/ajax/subscriptions.json',
+          dataType : 'json',
+          success: function(res) {
+            callback(res.subscriptions);
+          }
+        });
+      }
+    });
+
     $('#cancel').click(function() {
       $('.editable').attr("readonly","");
       $('.editable').removeClass("uk-form-success");
@@ -455,7 +484,7 @@
     $('#fulllocation').autocomplete({
       source: function( request, response ) {
         $.ajax({
-          url: "http://api.vk.com/method/database.getCities?v=5&country_id=1&count=5",
+          url: "http://api.vk.com/method/database.getCities?v=5&country_id=1",
           dataType: "jsonp",
           data: {
             q: request.term
@@ -473,7 +502,7 @@
           }
         });
       },
-      minLength: 2,
+      minLength: 3,
       select: function (event, ui) {
         $('#locationtitle').val(ui.item.title);
         $('#area').val(ui.item.area);

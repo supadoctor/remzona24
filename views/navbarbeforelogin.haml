@@ -196,7 +196,7 @@
           }
         });
       },
-      minLength: 2,
+      minLength: 3,
       select: function (event, ui) {
         $('#userlocationtitle').val(ui.item.title);
         $('#userarea').val(ui.item.area);
@@ -226,41 +226,12 @@
           }
         });
       },
-      minLength: 2,
+      minLength: 3,
       select: function (event, ui) {
         $('#masterlocationtitle').val(ui.item.title);
         $('#masterarea').val(ui.item.area);
         $('#masterregion').val(ui.item.region);
         masterregionselected = true;
-      }
-    });
-
-    $('#tags').selectize({
-      valueField: 'tag',
-      labelField: 'tag',
-      searchField: 'tag',
-      plugins: ['remove_button'],
-      delimiter: ',',
-      persist: false,
-      create: function(input) {
-        return {
-          tag: input
-        }
-      },
-      render: {
-        option: function(data, escape) {
-          return '<div>"' + escape(data.tag) + '"</div>';
-        }
-      },
-      load: function(query, callback) {
-        if (!query.length) return callback();
-        $.ajax({
-          url : '/ajax/vehicle',
-          dataType : 'json',
-          success: function(res) {
-            callback(res.makes);
-          }
-        });
       }
     });
     

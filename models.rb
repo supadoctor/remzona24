@@ -198,6 +198,8 @@ class User
   has n, :reviews, :child_key => [ :user_id ]
   
   belongs_to :placement, :required => false
+
+  #has n, :subscribed, "Placement", :through => Resource
   
   validates_presence_of :placement_id, :if => lambda { |t| t.type == "Master" || t.type == "User" },
     :message => "Не указан населенный пункт"
@@ -378,6 +380,9 @@ class Placement
 
   has n, :users
   has n, :orders
+
+  has n, :subscriptions
+  has n, :subscribers, 'User', :through => :subscriptions, :via => :user
 end
 
 class Offer
@@ -456,9 +461,16 @@ class Review
   belongs_to :contract
 end
 
+class Subscription
+  include DataMapper::Resource
+ 
+  belongs_to :user,   :key => true
+  belongs_to :placement, :key => true
+end
+
 DataMapper.finalize
-#DataMapper.auto_migrate! #recreate all table
-DataMapper.auto_upgrade! #try to upgrade models
+#DataMapper.auto_migrate! #recreate all table (REMZONA24!!!!!!)
+DataMapper.auto_upgrade! #try to upgrade models (REMZONA24!!!!!!)
 
 if User.count == 0
   admin = User.new(

@@ -240,9 +240,9 @@ class Remzona24App < Sinatra::Application
 
     def showmessage(msg, l)
       if l > 5
-	k = 5
+        k = 5
       else
-	k = l
+        k = l
       end
       haml_tag :div,:class=>"uk-width-5-10 uk-push-#{k}-10" do
         haml_tag :div, :class=>"uk-panel uk-panel-box uk-margin-bottom" do
@@ -267,14 +267,14 @@ class Remzona24App < Sinatra::Application
             haml_tag :div, :class=>"uk-comment-body" do
               haml_concat msg.text
             end
-	    if msg.receiver == current_user
-	      haml_tag :div, :class=>"uk-align-right uk-text-small uk-margin-bottom-remove" do
-	        haml_tag :a, :href=>"/message/"+msg.id.to_s do
+      	    if msg.receiver == current_user
+              haml_tag :div, :class=>"uk-align-right uk-text-small uk-margin-bottom-remove" do
+                haml_tag :a, :href=>"/message/"+msg.id.to_s do
                   haml_concat "Ответить"
-		  haml_tag :i, :class=>"uk-icon-angle-double-right"
+            		  haml_tag :i, :class=>"uk-icon-angle-double-right"
                 end
-	      end
-	    end
+	            end
+	          end
           end
         end
       end
@@ -899,6 +899,7 @@ end
     else
       @current_page = params[:page].to_i
     end
+
     @orders_at_mainpage_total = (Order.all(:placement => {:region => params[:region]}, :status => 0, :order => [ :fd.desc ]) & (Order.all(:conditions => ['fd = td'], :order => [ :fd.desc ]) | Order.all(:td.gte => DateTime.now, :order => [ :fd.desc ]))).count
     @orders_at_mainpage = (Order.all(:placement => {:region => params[:region]}, :status => 0, :order => [ :fd.desc ]) & (Order.all(:conditions => ['fd = td'], :order => [ :fd.desc ]) | Order.all(:td.gte => DateTime.now, :order => [ :fd.desc ]))).paginate(:page => params[:page], :per_page => 10)
 
@@ -928,8 +929,10 @@ end
     else
       @current_page = params[:page].to_i
     end
-    @orders_at_mainpage_total = (Order.all(:placement => {:area => params[:area]}, :status => 0, :order => [ :fd.desc ]) & (Order.all(:conditions => ['fd = td'], :order => [ :fd.desc ]) | Order.all(:td.gte => DateTime.now, :order => [ :fd.desc ]))).count
-    @orders_at_mainpage = (Order.all(:placement => {:area => params[:area]}, :status => 0, :order => [ :fd.desc ]) & (Order.all(:conditions => ['fd = td'], :order => [ :fd.desc ]) | Order.all(:td.gte => DateTime.now, :order => [ :fd.desc ]))).paginate(:page => params[:page], :per_page => 10)
+    #@orders_at_mainpage_total = (Order.all(:placement => {:area => params[:area]}, :status => 0, :order => [ :fd.desc ]) & (Order.all(:conditions => ['fd = td'], :order => [ :fd.desc ]) | Order.all(:td.gte => DateTime.now, :order => [ :fd.desc ]))).count
+    #@orders_at_mainpage = (Order.all(:placement => {:area => params[:area]}, :status => 0, :order => [ :fd.desc ]) & (Order.all(:conditions => ['fd = td'], :order => [ :fd.desc ]) | Order.all(:td.gte => DateTime.now, :order => [ :fd.desc ]))).paginate(:page => params[:page], :per_page => 10)
+    @orders_at_mainpage_total = (Order.all(:placement => {:area => session[:sitearea], :region => session[:siteregion]}, :status => 0, :order => [ :fd.desc ]) & (Order.all(:conditions => ['fd = td'], :order => [ :fd.desc ]) | Order.all(:td.gte => DateTime.now, :order => [ :fd.desc ]))).count
+    @orders_at_mainpage = (Order.all(:placement => {:area => session[:sitearea], :region => session[:siteregion]}, :status => 0, :order => [ :fd.desc ]) & (Order.all(:conditions => ['fd = td'], :order => [ :fd.desc ]) | Order.all(:td.gte => DateTime.now, :order => [ :fd.desc ]))).paginate(:page => params[:page], :per_page => 10)
 
     @total_pages = (@orders_at_mainpage_total/10.0).ceil
     @start_page  = (@current_page - 5) > 0 ? (@current_page - 5) : 1
@@ -951,14 +954,18 @@ end
   end
 
   get '/location/:location' do
+    puts "LOCATION >>>>>>", session[:sitelocation], session[:sitearea], session[:siteregion]
     @activelink = '/location'
     if params[:page].nil?
       @current_page = 1
     else
       @current_page = params[:page].to_i
     end
-    @orders_at_mainpage_total = (Order.all(:placement => {:location => params[:location]}, :status => 0, :order => [ :fd.desc ]) & (Order.all(:conditions => ['fd = td'], :order => [ :fd.desc ]) | Order.all(:td.gte => DateTime.now, :order => [ :fd.desc ]))).count
-    @orders_at_mainpage = (Order.all(:placement => {:location => params[:location]}, :status => 0, :order => [ :fd.desc ]) & (Order.all(:conditions => ['fd = td'], :order => [ :fd.desc ]) | Order.all(:td.gte => DateTime.now, :order => [ :fd.desc ]))).paginate(:page => params[:page], :per_page => 10)
+    #@orders_at_mainpage_total = (Order.all(:placement => {:location => params[:location]}, :status => 0, :order => [ :fd.desc ]) & (Order.all(:conditions => ['fd = td'], :order => [ :fd.desc ]) | Order.all(:td.gte => DateTime.now, :order => [ :fd.desc ]))).count
+    #@orders_at_mainpage = (Order.all(:placement => {:location => params[:location]}, :status => 0, :order => [ :fd.desc ]) & (Order.all(:conditions => ['fd = td'], :order => [ :fd.desc ]) | Order.all(:td.gte => DateTime.now, :order => [ :fd.desc ]))).paginate(:page => params[:page], :per_page => 10)
+
+    @orders_at_mainpage_total = (Order.all(:placement => {:location => session[:sitelocation], :area => session[:sitearea], :region => session[:siteregion]}, :status => 0, :order => [ :fd.desc ]) & (Order.all(:conditions => ['fd = td'], :order => [ :fd.desc ]) | Order.all(:td.gte => DateTime.now, :order => [ :fd.desc ]))).count
+    @orders_at_mainpage = (Order.all(:placement => {:location => session[:sitelocation], :area => session[:sitearea], :region => session[:siteregion]}, :status => 0, :order => [ :fd.desc ]) & (Order.all(:conditions => ['fd = td'], :order => [ :fd.desc ]) | Order.all(:td.gte => DateTime.now, :order => [ :fd.desc ]))).paginate(:page => params[:page], :per_page => 10)
 
     @total_pages = (@orders_at_mainpage_total/10.0).ceil
     @start_page  = (@current_page - 5) > 0 ? (@current_page - 5) : 1
@@ -1093,6 +1100,14 @@ end
             @myclosedoffers = Offer.all(:user => current_user, :order => [ :fd.desc ]) & (Offer.all(:status => 1, :order => [ :fd.desc ]) | Offer.all(:status => 4, :order => [ :fd.desc ]) | Offer.all(:status => 5, :order => [ :fd.desc ]) | Offer.all(:conditions => ['fd <> td'], :td.lt => DateTime.now, :order => [ :fd.desc ]))
             #@mypossibilities = Order.all(:status => 0, :placement => current_user.placement, :order => [ :fd.desc ], :limit => 10)
             @mypossibilities = repository(:default).adapter.select('select * from orders where id in (select order_id from ordertaggings where tag_id in (select id from tags where tag in (select tag from tags where id in (select tag_id from usertaggings where user_id = ?)))) and status = 0 and placement_id = ? order by fd desc limit 10;', current_user.id, current_user.placement_id)
+            sp = Subscription.all(:user => current_user)
+            @subscription = []
+            sp.each do |s|
+              p = Placement.get(s.placement_id)
+              title = p.location + (p.area.length > 1 ? ", " + p.area : "") + (p.region.length > 1 ? ", " + p.region : "")
+              @subscription << title
+            end
+            @subscription = @subscription.join("; ")
             haml :masterprofile
           when "Admin"
             haml :admin
@@ -1286,7 +1301,6 @@ end
           if params[:delete_pricelist]
             @current_user.update(:pricelist => nil)
           end
-
         rescue
           session[:messagetodisplay] = @current_user.errors.values.join("; ")
           redirect back
@@ -1409,6 +1423,17 @@ end
       end
       if !params.has_key?(s)
         @current_user.profile.update(s.to_sym => false)
+      end
+    end
+    sp = Subscription.all(:user => current_user)
+    @newsubscription = params[:subscription].strip.gsub(/\r\n/," ").split("; ")
+    #puts "NEW SUBSCRIPTION", @newsubscription
+    sp.each do |s|
+      p = Placement.get(s.placement_id)
+      title = p.location + (p.area.length > 1 ? ", " + p.area : "") + (p.region.length > 1 ? ", " + p.region : "")
+      #puts "TITLE", title
+      if !@newsubscription.include?(title)
+        s.destroy
       end
     end
     session[:messagetodisplay] = @@text["notify"]["updatesettings"]
@@ -1568,6 +1593,18 @@ end
         end
         #puts oi.class
       end
+    end
+    @current_user.placement.subscribers.each do |s|
+      #puts "ПОДПИСАННЫЙ НА РЕГИОН МАСТЕР", s.displayedname
+      msg = "Здравствуйте!\nВ регионе, на который Вы оформили подписку на сайте Ремзона24.ру, была размещен новый заказ наряд:"
+      msg += "\nАвтомобиль: " + vehicleinfo(order)
+      msg += "\nОписание: " + order.subject
+      msg += "\nПодробнее: http://" + request.host + ":" + request.port.to_s + "/order/" + order.id.to_s
+      msg += "\n"
+      msg += "\nПодайте свое предложение первым из автомастеров!"
+      msg += @@text["email"]["regards"]
+      Pony.mail(:to => s.email, :subject => 'Для Вас размещен новый заказ-наряд на Ремзона24.ру', :body => msg)
+      #puts "ОТПРАВЛЕНО УВЕДОМЛЕНИЕ О РАЗМЕЩЕНИИ ЗАКАЗА", order.id.to_s, "НА", s.email
     end
     session[:messagetodisplay] = @@text["notify"]["neworder"]
     redirect '/'
@@ -2508,6 +2545,18 @@ end
     json = { :tags => @tagslist }.to_json
     json
   end
+
+  get '/ajax/subscriptions.json' do
+    content_type :json
+    @sp = Subscription.all(:user => current_user)
+    @subsciptionlist = @sp.map do |s|
+      p = Placement.get(s.placement_id)
+      { :id => p.id, :subscription => p.location + (p.area.length > 1 ? ", " + p.area : "") + (p.region.length > 1 ? ", " + p.region : "") }
+    end
+
+    json = { :subscriptions => @subsciptionlist }.to_json
+    json
+  end
   
   #get '/ajax/vehicle' do
     #url = URI::encode("https://api.edmunds.com/api/vehicle/v2/makes?fmt=json&api_key="+settings.edminds_api)
@@ -2793,11 +2842,25 @@ end
         end
       end
     end
+  end
 
+  post '/subscribe' do
+    content_type :json
+    place = Placement.first_or_new(:location => session[:sitelocation], :area => session[:sitearea], :region => session[:siteregion])
+    #puts "SUBSCRIPTION IN", place.location, place.area, place.region
+    place.subscribers << current_user
+    begin
+      place.save
+    rescue
+      @f={:msg=>"Возникла ошибка при оформлении подписки. Повторите попытку"}
+    else
+      @f={:msg=>"Подписка успешно оформлена"}
+    end
+    @f.to_json
   end
 
   get '/system/checkemail' do
-    Pony.mail(:to => 'sergey.rodionov@gmail.com', :subject => 'Тестовое письмо от Ремзона.24', :body => "Ремзона24.ру работает по адресу: "+request.host + ":" + request.port.to_s)
+    Pony.mail(:to => 'sergey.rodionov@gmail.com', :subject => 'Тестовое письмо от Ремзона24.ру', :body => "Ремзона24.ру работает по адресу: "+request.host + ":" + request.port.to_s)
   end
 
 end

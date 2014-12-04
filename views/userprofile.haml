@@ -273,7 +273,7 @@
     $('#fulllocation').autocomplete({
       source: function( request, response ) {
         $.ajax({
-          url: "http://api.vk.com/method/database.getCities?v=5&country_id=1&count=5",
+          url: "http://api.vk.com/method/database.getCities?v=5&country_id=1",
           dataType: "jsonp",
           data: {
             q: request.term
@@ -291,7 +291,7 @@
           }
         });
       },
-      minLength: 2,
+      minLength: 3,
       select: function (event, ui) {
         $('#locationtitle').val(ui.item.title);
         $('#area').val(ui.item.area);
